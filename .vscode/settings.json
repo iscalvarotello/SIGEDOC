@@ -1,0 +1,71 @@
+{
+  "angular-schematics.schematicsDefaultOptions": {
+    "angular-*": {
+      "externalTemplate": true,
+      "skipStyle": true,
+      "inlineStyle": true
+    },
+    "angular-component": {
+      "skipChangeDetectionOnPush": true,
+      "suffix": "component",
+      "fileNameSuffix": ".component",
+      "skipStyle": true
+    },
+    "angular-page": {
+      "skipChangeDetectionOnPush": true,
+      "fileNameSuffix": ".page",
+      "suffix": "page",
+      "skipStyle": true
+    },
+    "angular-directive": {
+      "suffix": "directive",
+      "fileNameSuffix": ".directive",
+      "skipStyle": true
+    },
+    "angular-service": {
+      "suffix": "service",
+      "fileNameSuffix": ".service"
+    },
+    "angular-pipe": {
+      "fileNameSuffix": ".pipe",
+      "suffix": "pipe"
+    },
+    "angular-interceptor": {
+      "fileNameSuffix": ".interceptor",
+      "suffix": "interceptor"
+    },
+    "angular-guard": {
+      "fileNameSuffix": ".guard",
+      "suffix": "guard"
+    },
+    "angular-resolver": {
+      "fileNameSuffix": ".resolver",
+      "suffix": "resolver"
+    },
+    "angular-async-reactive-service": {
+      "fileNameSuffix": ".service",
+      "suffix": "service"
+    },
+    "angular-sync-reactive-service": {
+      "fileNameSuffix": ".service",
+      "suffix": "service"
+    },
+    "angular-material-dialog": {
+      "fileNameSuffix": ".dialog",
+      "suffix": "dialog"
+    },
+    "angular-material-table": {
+      "suffix": "component",
+      "fileNameSuffix": ".component",
+      "externalTemplate": true,
+      "skipStyle": true,
+      "style": "css",
+      "changeDetection": "OnPush",
+      "viewEncapsulation": "None",
+      "skipTests": true,
+      "module": "app",
+      "flat": true,
+      "displayedColumns": []
+    }
+  }
+}

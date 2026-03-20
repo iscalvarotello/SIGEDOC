@@ -1,0 +1,21 @@
+export interface DocumentItemList {
+   id_documento    : number ,
+   tipo_documento  : number ,
+   id_solicitante  : number , 
+   solicitante     : string  ,
+   id_remitente    : number ,
+   remitente       : string ,
+   id_destinatario : number ,
+   destinatario    : string ,
+   folio           : number ,
+   fecha           : Date   , // Es la fecha de creación del documento
+   tema            : string ,
+   asunto          : string ,
+   link_edit       : string ,
+   link_acuse      : string ,
+   recibe          : string ,
+   estatus         : string ,
+   id_estatus      : string ,
+   medio_envio     : string ,
+   id_area_base    : number ,
+}
