@@ -33,7 +33,7 @@ export const routes: Routes = [
           'SIGEDOC | Sistema Integral de Control Documental',
       },
       {
-        path:'documento/:tipo_documento' ,
+        path:'documento/:tipoId' ,
         component:DocumentComponent,
         title: 'Memorandums, Oficios, Tarjetas Informativas y Circulares'
       },
