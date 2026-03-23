@@ -22,6 +22,26 @@
       Gestionados
     </button>
 
+    <button 
+      (click)="setTipoDocumento('para_firma')"
+      [class]="tipoDocumento() === 'para_firma' ? 'bg-[#BC955C] text-white shadow-md' : claseInactiva"
+      class="px-6 py-2 rounded-lg text-sm font-bold transition-all duration-300 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+      Para Firma
+    </button>
+
+    <button 
+      (click)="setTipoDocumento('recibido')"
+      [class]="tipoDocumento() === 'recibido' ? 'bg-[#BC955C] text-white shadow-md' : claseInactiva"
+      class="px-6 py-2 rounded-lg text-sm font-bold transition-all duration-300 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+      Recibidos
+    </button>
+
   </div>
 </div>
 
@@ -33,7 +53,7 @@
     </h3>
     
     <button class="bg-[#691C32] hover:bg-[#4d1425] text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
-      <span>+ Nuevo {{ documentInfo().label }}</span>
+      <span>+ {{ documentInfo().label_boton_new }} {{  documentInfo().label }}</span>
     </button>
   </div>
 

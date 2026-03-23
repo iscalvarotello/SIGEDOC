@@ -47,9 +47,10 @@ export type Estatus             = 'En edición'  | 'En firma'   | 'En espera'   
 export type MedioEnvio          = 'sin enviar'  | 'directo'    | 'sistema'               | 'correo'    | 'postal'    | 'whatsapp' ;
 
 export interface ClaseDocumento {
-  id     : ClaseDocumentoId    ;
-  label  : LabelClaseDocumento ;
-  plural : string              ;
-  slug   : string              ; // Para rutas o lógica interna
-  icon   : string              ; // Clases de Heroicons o Lucide
+  id              : ClaseDocumentoId    ;
+  label           : LabelClaseDocumento ;
+  plural          : string              ;
+  label_boton_new : string              ;  
+  slug            : string              ; // Para rutas o lógica interna
+  icon            : string              ; // Clases de Heroicons o Lucide
 }

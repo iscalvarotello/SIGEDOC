@@ -25,10 +25,10 @@ export class DocumentComponent {
   tipoDocumento        = signal<TipoDocumento>( 'directo' )  ;
 
   private readonly DOCUMENTO_MAP: Record<ClaseDocumentoId,ClaseDocumento> = {
-    1: { id: 1, label: 'Memorándum'          , plural: "Memorándums"           , slug: 'memo'     , icon: 'description' } ,
-    2: { id: 2, label: 'Oficio'              , plural: "Oficios"               , slug: 'oficio'   , icon: 'mail'        } ,
-    3: { id: 3, label: 'Tarjeta Informativa' , plural: "Tarjetas Informativas ", slug: 'T.I'      , icon: 'assignment'  } ,
-    4: { id: 4, label: 'Circular'            , plural: "Circulares"            , slug: 'circular' , icon: 'campaign'    } ,
+    1: { id: 1, label: 'Memorándum'          , plural: "Memorándums"           , label_boton_new: 'Nuevo' , slug: 'memo'     , icon: 'description' } ,
+    2: { id: 2, label: 'Oficio'              , plural: "Oficios"               , label_boton_new: 'Nuevo' , slug: 'oficio'   , icon: 'mail'        } ,
+    3: { id: 3, label: 'Tarjeta Informativa' , plural: "Tarjetas Informativas ", label_boton_new: 'Nueva' , slug: 'T.I'      , icon: 'assignment'  } ,
+    4: { id: 4, label: 'Circular'            , plural: "Circulares"            , label_boton_new: 'Nueva' , slug: 'circular' , icon: 'campaign'    } ,
   };
 
   // Signal computada: Se actualiza sola si el tipoId cambia
