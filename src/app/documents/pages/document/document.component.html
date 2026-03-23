@@ -1,0 +1,52 @@
+<app-page-breadcrumb [pageTitle]="tituloClaseDocumento()" />
+<div class="mb-6 flex justify-center md:justify-start">
+  <div class="inline-flex p-1 bg-gray-200 rounded-xl shadow-inner">
+    
+    <button 
+      (click)="setTipoDocumento('directo')"
+      [class]="tipoDocumento() === 'directo' ? claseActiva : claseInactiva"
+      class="px-6 py-2 rounded-lg text-sm font-bold transition-all duration-300 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      Directos
+    </button>
+
+    <button 
+      (click)="setTipoDocumento('gestionado')"
+      [class]="tipoDocumento() === 'gestionado' ? 'bg-[#BC955C] text-white shadow-md' : claseInactiva"
+      class="px-6 py-2 rounded-lg text-sm font-bold transition-all duration-300 flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+      Gestionados
+    </button>
+
+  </div>
+</div>
+
+<div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/3 lg:p-6">
+  <div class="flex items-center justify-between mb-5">
+    <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+      Listado de {{ documentInfo().plural }} 
+      <span class="text-[#BC955C]">({{ tipoDocumento() | titlecase }})</span>
+    </h3>
+    
+    <button class="bg-[#691C32] hover:bg-[#4d1425] text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
+      <span>+ Nuevo {{ documentInfo().label }}</span>
+    </button>
+  </div>
+
+  <div class="space-y-6">
+    <div class="text-center py-10 text-gray-400 border-2 border-dashed border-gray-200 rounded-xl">
+      <div class="flex flex-col lg:flex-row gap-6 mx-2">
+        <div class="w-full lg:w-4/7 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+          <document-table [tipoDocumento]="tipoDocumento()" [ClaseDocumento]="claseDocumentoId()"></document-table>
+        </div>
+        <aside class="w-full lg:w-3/7 space-y-4">
+          <document-detail></document-detail>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>

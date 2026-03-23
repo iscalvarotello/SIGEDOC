@@ -1,0 +1,1 @@
+// types/documento.interface.ts
