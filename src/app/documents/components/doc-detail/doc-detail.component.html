@@ -1,0 +1,213 @@
+@if (!doc) {
+  <div class="bg-white border border-gray-200 rounded-2xl flex-1 flex flex-col items-center justify-center p-12 text-center min-h-[400px] shadow-sm dark:border-gray-800 dark:bg-white/3">
+    <svg class="h-16 w-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20" />
+    </svg>
+    <h3 class="text-lg font-extrabold text-gray-700">Visualizar Detalle</h3>
+    <p class="text-sm text-gray-400 max-w-sm mt-2">Selecciona cualquier documento de la lista de la izquierda para gestionarlo, ver su trazabilidad o previsualizar el PDF.</p>
+  </div>
+} @else if (pdfViewerUrl() || isLoadingPdf()) {
+  <!-- Visor de PDF Genérico y Reutilizable -->
+  <app-pdf-viewer
+    [title]="doc.num_doc || 'DRAFT / SIN FOLIO'"
+    [subtitle]="doc.estatus_emisor === 'despachado' || doc.estatus_emisor === 'entregado' ? 'PDF Oficial' : 'PDF Borrador'"
+    [pdfUrl]="pdfViewerUrl()"
+    [isLoading]="isLoadingPdf()"
+    [options]="viewerOptions()"
+    [selectedOption]="selectedViewerOption()"
+    (selectedOptionChange)="onOptionSelected($event)"
+    (newTabClick)="openPdfInNewTab()"
+    (closeClick)="closePdfViewer()">
+  </app-pdf-viewer>
+} @else {
+  <!-- Ficha de Detalle de Documento -->
+  <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col flex-1 dark:border-gray-800 dark:bg-white/3">
+    
+    <!-- Encabezado de la Ficha -->
+    <div class="bg-[#691C32] text-white p-5 flex flex-col gap-4">
+      <!-- Titulo y Botones de Documento -->
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-[10px] font-black uppercase text-[#BC955C] tracking-widest"> {{ doc.clase_documento }} {{ doc.tipo_documento }} </div>
+          <h3 class="text-lg font-black tracking-tight mt-0.5"> {{ doc.num_doc || 'DRAFT / SIN FOLIO' }} </h3>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          @if (doc.url_drive_edition && doc.estatus_emisor !== 'despachado' && doc.estatus_emisor !== 'entregado' && doc.estatus_emisor !== 'cancelado') {
+            <app-google-drive-viewer-link [url]="doc.url_drive_edition"></app-google-drive-viewer-link>
+          }
+          @if (doc.estatus_emisor === 'despachado' || doc.estatus_emisor === 'entregado' || doc.estatus_emisor === 'cancelado') {
+            <app-open-pdf-button (clicked)="openPdf('final')"></app-open-pdf-button>
+          } @else {
+            <app-preview-pdf-button (clicked)="openPdf('draft')"></app-preview-pdf-button>
+          }
+          @if (doc.attachments && doc.attachments.length > 0)                             { <app-merge-pdf-button (clicked)="openMergedPdf(doc.id)"></app-merge-pdf-button>       }
+        </div>
+      </div>
+
+      <!-- Barra de Acciones del Flujo -->
+      @if (!activeActionForm()) {
+        <doc-actions-toolbar
+          [doc]="doc"
+          [isActionLoading]="actionForms.isActionLoading()"
+          (showForm)="showActionForm($event)"
+          (submitAction)="actionForms.submitAction($event)"
+          (reply)="replyDocument()"
+          (followUp)="followUpDocument()"
+          (makeFollowUp)="makeFollowUpDocument()">
+        </doc-actions-toolbar>
+      }
+    </div>
+
+    <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+      
+      <!-- Metadatos del documento -->
+      <meta-data-doc [doc]="doc"></meta-data-doc>
+
+      <!-- 2 COLUMNAS: Izquierda (Asunto + CCP), Derecha (Anexos) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
+        
+        <!-- COLUMNA IZQUIERDA: Asunto y CCP -->
+        <div class="space-y-6">
+          <!-- Asunto y Tema ampliado -->
+          <div class="space-y-2 bg-gray-50/50 p-4 rounded-xl border border-gray-150 relative group">
+            
+            <!-- Botón del lapicito azul para editar -->
+            @if (canEditDetails() && !isEditingDetails()) {
+              <button 
+                (click)="startEditingDetails()" 
+                title="Editar Tema y Asunto"
+                class="absolute top-2 right-2 p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer border border-transparent hover:border-blue-100 bg-white shadow-theme-xs">
+                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z" />
+                </svg>
+              </button>
+            }
+
+            @if (!isEditingDetails()) {
+              @if (doc.tema) { 
+                <div class="flex">
+                  <span class="bg-[#BC955C]/15 text-[#BC955C] text-xs font-black uppercase px-3 py-1 rounded-lg"> Tema: {{ doc.tema }} </span>
+                </div>
+              }
+              <div class="space-y-1">
+                <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Asunto</span>
+                <p class="text-base font-extrabold text-gray-800 leading-snug"> {{ doc.asunto }} </p>
+              </div>
+            } @else {
+              <!-- Formulario de Edición Directa -->
+              <div class="space-y-3 pt-1">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Tema del Documento</label>
+                  <input 
+                    type="text" 
+                    list="detailTemasList"
+                    [(ngModel)]="editTema"
+                    placeholder="Escribe o selecciona un tema"
+                    class="w-full px-3 py-2 bg-white hover:bg-gray-50 focus:bg-white border border-gray-200 focus:border-[#BC955C] focus:ring-1 focus:ring-[#BC955C] rounded-lg text-xs font-semibold text-gray-700 outline-none transition-all" />
+                  <datalist id="detailTemasList">
+                    @for (t of temasList(); track t) {
+                      <option [value]="t"></option>
+                    }
+                  </datalist>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Asunto del Documento</label>
+                  <textarea 
+                    rows="3"
+                    [(ngModel)]="editAsunto"
+                    placeholder="Escribe el asunto"
+                    class="w-full px-3 py-2 bg-white hover:bg-gray-50 focus:bg-white border border-gray-200 focus:border-[#BC955C] focus:ring-1 focus:ring-[#BC955C] rounded-lg text-xs font-semibold text-gray-700 outline-none transition-all resize-y"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-1">
+                  <button 
+                    (click)="cancelEditingDetails()" 
+                    [disabled]="isSavingDetails()"
+                    class="px-2.5 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-700 hover:bg-gray-150 rounded-lg transition-colors cursor-pointer">
+                    Cancelar
+                  </button>
+                  <button 
+                    (click)="saveDetails()" 
+                    [disabled]="isSavingDetails() || !editAsunto.trim()"
+                    class="px-3.5 py-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm disabled:opacity-50 cursor-pointer">
+                    {{ isSavingDetails() ? 'Guardando...' : 'Guardar' }}
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- SECCIÓN DE C.C.P. (Con Copia Para) REGISTRADOS -->
+          <doc-ccp-list [doc]="doc"></doc-ccp-list>
+        </div>
+
+        <!-- COLUMNA DERECHA: Anexos -->
+        <div class="h-full">
+          <!-- SECCIÓN DE ANEXOS / EVIDENCIAS REGISTRADOS -->
+          <doc-attachments-list
+            [doc]="doc"
+            [(attachments)]="selectedDocAttachments"
+            [isLoading]="isLoadingSelectedDocAttachments()"
+            (actionCompleted)="actionCompleted.emit()">
+          </doc-attachments-list>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comentarios de Observaciones / Correcciones -->
+    @if (doc.comentarios) {
+      <hr class="border-gray-150 my-4" />
+      <div class="relative bg-amber-50/50 border border-amber-100 dark:bg-amber-500/5 dark:border-amber-500/20 rounded-xl p-4 pr-10">
+        <span class="text-[9px] font-black text-amber-800/80 dark:text-amber-500 uppercase tracking-wider block">Observaciones / Motivos de Corrección</span>
+        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 italic whitespace-pre-line leading-relaxed">"{{ doc.comentarios }}"</p>
+
+        <!-- Botones de Acción sobre Comentarios (OK y X) -->
+        <div class="absolute top-3 right-3 flex items-center gap-1.5">
+          <!-- Botón OK (Entendido / Marcar como atendidas las observaciones) -->
+          <app-button-ok [loading]="isCommentsLoading()" (clicked)="deleteComments('ok')"></app-button-ok>
+
+          <!-- Botón X (Eliminar observaciones) -->
+          <app-button-x [loading]="isCommentsLoading()" (clicked)="deleteComments('x')"></app-button-x>
+        </div>
+      </div>
+    }
+
+    <!-- Instrucciones de Asignación / Derivación (Turnado) -->
+    @if (doc.instruccion) {
+      <hr class="border-gray-150 my-4" />
+      <div class="relative bg-indigo-50/50 border border-indigo-100 dark:bg-indigo-500/5 dark:border-indigo-500/20 rounded-xl p-4">
+        <span class="text-[9px] font-black text-indigo-850 dark:text-indigo-400 uppercase tracking-wider block">Instrucciones de Asignación / Tarea</span>
+        @if (doc.turnado_a_nombre) {
+          <span class="text-[10px] font-bold text-indigo-700/80 dark:text-indigo-300 block mb-1">
+            Asignado a: {{ doc.turnado_a_nombre }}
+          </span>
+        }
+        <p class="text-sm font-semibold text-gray-750 dark:text-gray-300 italic whitespace-pre-line leading-relaxed">
+          "{{ doc.instruccion }}"
+        </p>
+      </div>
+    }
+
+
+    <!-- Trazabilidad / Enlaces del Historial ("Elefantitos") -->
+    <doc-history-links [doc]="doc"></doc-history-links>
+
+    <!-- SECCIÓN DE ACCIONES OFICIALES -->
+    <div class="space-y-4">
+
+      <!-- FORMULARIOS EXPANDIBLES PARA CAPTURA DE DTO -->
+      <doc-action-forms #actionForms
+        [doc]="doc"
+        [(activeActionForm)]="activeActionForm"
+        [selectedTipo]="selectedTipo"
+        [claseDocumentoId]="claseDocumentoId"
+        [(selectedDocAttachments)]="selectedDocAttachments"
+        (actionCompleted)="actionCompleted.emit()">
+      </doc-action-forms>
+
+    </div>
+
+  </div>
+}

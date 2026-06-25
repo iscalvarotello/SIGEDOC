@@ -4,6 +4,7 @@ export class DocumentInboxDTO {
   id!: string;
   num_doc!: string;
   asunto!: string;
+  tema?: string | null;
   estatus_emisor!: string;
   estatus_receptor!: string | null;
   bandeja!: string;
