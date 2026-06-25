@@ -1107,7 +1107,6 @@ export class FormNewPageComponent implements OnInit {
         }
       }
 
-      alert('Documento creado con éxito en SIGEDOC. Redirigiendo a bandeja.');
       this._router.navigate(['/documento', this.claseDocumentoId()], { queryParams: { bandeja: '✏️ En edición' } });
     } catch (error: any) {
       console.error('Error al guardar documento:', error);
