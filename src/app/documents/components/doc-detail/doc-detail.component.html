@@ -99,12 +99,24 @@
               <div class="space-y-3 pt-1">
                 <div class="flex flex-col gap-1.5">
                   <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Tema del Documento</label>
-                  <input 
-                    type="text" 
-                    list="detailTemasList"
-                    [(ngModel)]="editTema"
-                    placeholder="Escribe o selecciona un tema"
-                    class="w-full px-3 py-2 bg-white hover:bg-gray-50 focus:bg-white border border-gray-200 focus:border-[#BC955C] focus:ring-1 focus:ring-[#BC955C] rounded-lg text-xs font-semibold text-gray-700 outline-none transition-all" />
+                  <div class="relative w-full">
+                    <input 
+                      #detailTemaInput
+                      type="text" 
+                      list="detailTemasList"
+                      [(ngModel)]="editTema"
+                      (click)="detailTemaInput.showPicker()"
+                      (focus)="detailTemaInput.showPicker()"
+                      placeholder="Escribe o selecciona un tema"
+                      class="w-full pl-3 pr-8 py-2 bg-white hover:bg-gray-50 focus:bg-white border border-gray-200 focus:border-[#BC955C] focus:ring-1 focus:ring-[#BC955C] rounded-lg text-xs font-semibold text-gray-700 outline-none transition-all cursor-pointer" />
+                    <div 
+                      (click)="$event.stopPropagation(); detailTemaInput.focus(); detailTemaInput.showPicker()"
+                      class="absolute inset-y-0 right-0 flex items-center pr-2.5 cursor-pointer pointer-events-auto text-gray-400 hover:text-gray-600">
+                      <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                      </svg>
+                    </div>
+                  </div>
                   <datalist id="detailTemasList">
                     @for (t of temasList(); track t) {
                       <option [value]="t"></option>
