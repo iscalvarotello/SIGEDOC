@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import { EcommerceComponent } from './pages/dashboard/ecommerce/ecommerce.component';
-import { ProfileComponent } from './pages/profile/profile.component';
+import { DashboardComponent } from './dashboard/page/dashboard.component';
+import { UserSettingsComponent } from './userSettings/page/user-settings.component';
 import { FormElementsComponent } from './pages/forms/form-elements/form-elements.component';
 import { BasicTablesComponent } from './pages/tables/basic-tables/basic-tables.component';
 import { BlankComponent } from './pages/blank/blank.component';
@@ -18,24 +18,34 @@ import { VideosComponent } from './pages/ui-elements/videos/videos.component';
 import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
 import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
 import { CalenderComponent } from './pages/calender/calender.component';
-import { DocumentComponent } from './documents/pages/document/document.component';
+import { DocumentPageComponent } from './documents/pages/document/document-page.component';
+import { FormNewPageComponent } from './documents/pages/form-new-page/form-new-page.component';
+import { authGuard } from './core/guards/auth.guard';
+import { ForceResetPasswordComponent } from './pages/auth-pages/force-reset-password/force-reset-password.component';
+import { MaintenanceComponent } from './pages/auth-pages/maintenance/maintenance.component';
+import { DocumentViewerPageComponent } from './documents/pages/document-viewer/document-viewer-page.component';
 
 export const routes: Routes = [
   {
     path:'',
     component:AppLayoutComponent,
+    canActivate: [authGuard],
     children:[
       {
-        path: '',
-        component: EcommerceComponent,
-        pathMatch: 'full',
-        title:
-          'SIGEDOC | Sistema Integral de Control Documental',
+        path      : '',
+        component : DashboardComponent,
+        pathMatch : 'full',
+        title     : 'SIGEDOC | Sistema Integral de Control Documental',
       },
       {
-        path:'documento/:tipoId' ,
-        component:DocumentComponent,
-        title: 'Memorandums, Oficios, Tarjetas Informativas y Circulares'
+        path      : 'documento/:claseDocumentoId' ,
+        component : DocumentPageComponent,
+        title     : 'Memorandums, Oficios, Tarjetas Informativas y Circulares',
+      },
+      {
+        path      : 'form-new-document/:claseDocumentoId' ,
+        component : FormNewPageComponent,
+        title     : 'Nuevo documento - Memorandums, Oficios, Tarjetas Informativas y Circulares'
       },
       {
         path:'calendar',
@@ -44,8 +54,8 @@ export const routes: Routes = [
       },
       {
         path:'profile',
-        component:ProfileComponent,
-        title:'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        component:UserSettingsComponent,
+        title:'SIGEDOC | Configuración del Usuario'
       },
       {
         path:'form-elements',
@@ -61,6 +71,15 @@ export const routes: Routes = [
         path:'blank',
         component:BlankComponent,
         title:'Angular Blank Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'database',
+        loadChildren: () => import('@core_db/core-db.routes').then(m => m.CORE_DB_ROUTES)
+      },
+      {
+        path: 'operatividad/comisiones',
+        loadComponent: () => import('./pages/operatividad/comisiones/comisiones-page.component').then(m => m.ComisionesPageComponent),
+        title: 'SIGEDOC | Comisiones (Operatividad)'
       },
       // support tickets
       {
@@ -120,6 +139,22 @@ export const routes: Routes = [
     path:'signup',
     component:SignUpComponent,
     title:'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
+  },
+  {
+    path:'reset-password-required',
+    component:ForceResetPasswordComponent,
+    title: 'SIGEDOC | Restablecimiento de Contraseña Obligatorio'
+  },
+  {
+    path:'maintenance',
+    component:MaintenanceComponent,
+    title: 'SIGEDOC | Sistema en Mantenimiento'
+  },
+  {
+    path: 'view-document/:id',
+    component: DocumentViewerPageComponent,
+    canActivate: [authGuard],
+    title: 'SIGEDOC | Visor de Documento'
   },
   // error pages
   {
