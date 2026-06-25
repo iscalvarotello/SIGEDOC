@@ -418,6 +418,7 @@ export class FormNewPageComponent implements OnInit {
 
     effect(() => {
       const areaId = this.idAreaEmisora();
+      console.log('🔍 [DEBUG] Effect idAreaEmisora changed to:', areaId);
       if (areaId) {
         this.loadTemas(areaId);
       } else {
@@ -427,11 +428,13 @@ export class FormNewPageComponent implements OnInit {
   }
 
   async loadTemas(areaId: string) {
+    console.log('🔍 [DEBUG] loadTemas started for areaId:', areaId);
     try {
       const list = await this._areaService.getTemas(areaId);
+      console.log('🔍 [DEBUG] loadTemas fetched list:', list);
       this.temasList.set(list || []);
     } catch (e) {
-      console.warn('GET /organization/areas/:id/temas not implemented or failed:', e);
+      console.warn('🔍 [DEBUG] GET /organization/areas/:id/temas not implemented or failed:', e);
       this.temasList.set([]);
     }
   }
@@ -604,13 +607,18 @@ export class FormNewPageComponent implements OnInit {
    * Carga los datos del titular del área base activa
    */
   async loadDirectoRemitente() {
-    const areaBaseId = this._session.activeAdscription()?.id_area_base || this._session.activeAdscription()?.id_area;
+    const activeAds = this._session.activeAdscription();
+    console.log('🔍 [DEBUG] activeAdscription from session:', activeAds);
+    const areaBaseId = activeAds?.id_area_base || activeAds?.id_area;
+    console.log('🔍 [DEBUG] resolved areaBaseId:', areaBaseId);
     if (!areaBaseId) return;
 
     try {
       const res = await this._adscriptionService.getByArea(areaBaseId);
       const adscriptions = res.data || [];
+      console.log('🔍 [DEBUG] adscriptions resolved:', adscriptions);
       const head = adscriptions.find((a: any) => a.is_head || a.is_in_charge) || adscriptions[0];
+      console.log('🔍 [DEBUG] selected head:', head);
       if (head) {
         this.idAreaEmisora.set(areaBaseId);
         this.idRemitente.set(head.employee_id);
