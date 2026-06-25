@@ -22,7 +22,8 @@ export class AreaService extends BaseApiService<AreaDTO> {
 
   async getTemas(areaId: string): Promise<string[]> {
     const res = await this.executeSpecialRoute<any>('getTemas', { id: areaId });
-    return res && Array.isArray(res.temas) ? res.temas : [];
+    const data = res && res.data ? res.data : res;
+    return data && Array.isArray(data.temas) ? data.temas : [];
   }
 
   async addTema(areaId: string, tema: string): Promise<string[]> {
