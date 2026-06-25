@@ -20,11 +20,20 @@ export class AreaService extends BaseApiService<AreaDTO> {
     return this.executeSpecialRoute('customFields', {}, { area_id: areaId, field_name: fieldName });
   }
 
-  getTemas(areaId: string): Promise<string[]> {
-    return this.executeSpecialRoute('getTemas', { id: areaId });
+  async getTemas(areaId: string): Promise<string[]> {
+    const res = await this.executeSpecialRoute<any>('getTemas', { id: areaId });
+    return res && Array.isArray(res.temas) ? res.temas : [];
   }
 
-  addTema(areaId: string, tema: string): Promise<any> {
-    return this.executeSpecialRoute('addTema', { id: areaId }, { tema });
+  async addTema(areaId: string, tema: string): Promise<string[]> {
+    const current = await this.getTemas(areaId);
+    if (current.includes(tema)) return current;
+    
+    const updated = [...current, tema];
+    const body = { temas_document: { temas: updated } };
+    
+    const res = await this.executeSpecialRoute<any>('addTema', { id: areaId }, body);
+    const updatedTemasObj = res && res.temas_document ? res.temas_document : {};
+    return updatedTemasObj && Array.isArray(updatedTemasObj.temas) ? updatedTemasObj.temas : updated;
   }
 }

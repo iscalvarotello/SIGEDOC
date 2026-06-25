@@ -119,8 +119,8 @@ export class DocDetailComponent implements OnDestroy {
       const newTema = this.editTema.trim();
       if (newTema && docVal.id_area_emisora && !this.temasList().includes(newTema)) {
         try {
-          await this._areaService.addTema(docVal.id_area_emisora, newTema);
-          this.temasList.update(prev => [...prev, newTema]);
+          const updatedList = await this._areaService.addTema(docVal.id_area_emisora, newTema);
+          this.temasList.set(updatedList);
         } catch (e) {
           console.warn('Failed to save new theme to area list:', e);
         }

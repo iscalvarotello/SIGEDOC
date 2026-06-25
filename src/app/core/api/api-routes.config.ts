@@ -54,7 +54,7 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
                                               updateStatus: { path: '/organization/areas/:id/status', method: 'PATCH' },
                                               customFields: { path: '/organization/areas/custom_document_fields', method: 'PATCH' },
                                               getTemas: { path: '/organization/areas/:id/temas', method: 'GET' },
-                                              addTema: { path: '/organization/areas/:id/temas', method: 'POST' }
+                                              addTema: { path: '/organization/areas/:id/temas', method: 'PATCH' }
                                      }
   },
   [ENDPOINT_KEYS.DOCUMENTS]        : {
