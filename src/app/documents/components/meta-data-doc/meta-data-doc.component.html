@@ -1,0 +1,52 @@
+@if (doc) {
+  <!-- Metadatos de Oficina -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+    <div>
+      <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Remitente</span>
+      <span class="text-sm font-extrabold text-gray-800 block mt-0.5">
+        {{ doc.remitente_nombre || 'Por asignar' }}
+      </span>
+      <span class="text-xs font-medium text-gray-500 block">
+        {{ doc.area_remitente }}
+      </span>
+    </div>
+    <div>
+      <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Destinatario</span>
+      <span class="text-sm font-extrabold text-gray-800 block mt-0.5">
+        {{ doc.destinatario_nombre || 'Destinatario Externo' }}
+      </span>
+      <span class="text-xs font-medium text-gray-500 block">
+        @if (doc.area_receptora) {
+          {{ doc.area_receptora }}
+        } @else {
+          Institución Externa
+        }
+      </span>
+    </div>
+    @if (doc.revisor_nombre) {
+      <div>
+        <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Revisor</span>
+        <span class="text-sm font-extrabold text-gray-800 block mt-0.5">
+          {{ doc.revisor_nombre }}
+        </span>
+        <span class="text-xs font-medium text-gray-500 block">
+          {{ doc.revisor_puesto || 'Revisor de Documento' }}
+        </span>
+      </div>
+    }
+    <div class="md:col-span-2 lg:col-span-3 border-t border-gray-200/60 pt-3 mt-1 grid grid-cols-3 gap-4">
+      <div>
+        <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Elaborado por</span>
+        <span class="text-xs font-bold text-gray-700 block">{{ doc.solicitante_nombre }}</span>
+      </div>
+      <div>
+        <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Fecha de Registro</span>
+        <span class="text-xs font-bold text-gray-700 block">{{ doc.fecha_doc | date:'dd MMMM, yyyy' }}</span>
+      </div>
+      <div>
+        <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">UUID del Documento</span>
+        <span class="text-xs font-mono font-bold text-gray-700 block select-all" title="Doble clic para seleccionar">{{ doc.id }}</span>
+      </div>
+    </div>
+  </div>
+}

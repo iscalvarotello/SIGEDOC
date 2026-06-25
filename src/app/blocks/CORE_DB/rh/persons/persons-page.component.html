@@ -1,0 +1,41 @@
+<app-master-wrapper
+  title="Directorio de Personas"
+  subtitle="Catálogo de personal, proveedores y personas físicas registradas en el sistema."
+  name_new="Persona"
+  
+  [serverError]="serverError()"
+  (onSearch)="filtrar($event)"
+  (onRefresh)="refresh()"
+  (onSync)="sync()"
+  (onNew)="nuevo()">
+
+  <div master class="h-full">
+    <app-data-table
+      [data]="filteredItems()"
+      [columns]="pageConfig.tableColumns"
+      [selectedItem]="selectedItem()"
+      [isLoading]="isLoading()"
+      (onRowSelect)="select($event)"
+      (onEdit)="edit($event)"
+      (onDelete)="delete($event)">
+    </app-data-table>
+  </div>
+
+  <div detail class="h-full flex flex-col">
+    @if (selectedItem()) {
+      <app-detail-viewer
+        [data]="selectedItem()"
+        [headerConfig]="pageConfig.detailHeader"
+        [fields]="pageConfig.detailFields">
+      </app-detail-viewer>
+    } @else {
+      <div class="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
+        <div class="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center">
+          <span class="text-3xl">👈</span>
+        </div>
+        <p class="text-sm">Selecciona una persona de la lista para ver sus detalles</p>
+      </div>
+    }
+  </div>
+
+</app-master-wrapper>

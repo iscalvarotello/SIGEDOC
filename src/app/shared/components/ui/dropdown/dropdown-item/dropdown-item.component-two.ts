@@ -9,6 +9,7 @@ import { RouterModule } from '@angular/router';
   template: `
     <a
       [routerLink]="to"
+      [queryParams]="queryParams"
       [ngClass]="combinedClasses"
       (click)="handleClick($event)"
     >
@@ -18,6 +19,7 @@ import { RouterModule } from '@angular/router';
 })
 export class DropdownItemTwoComponent {
   @Input() to!: string; // Required route path
+  @Input() queryParams: any = null; // Optional query parameters
   @Input() baseClassName = 'block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900';
   @Input() className = '';
   @Output() itemClick = new EventEmitter<void>();

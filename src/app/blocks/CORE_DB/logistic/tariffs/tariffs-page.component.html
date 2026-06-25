@@ -1,0 +1,64 @@
+<app-master-wrapper
+  title="Tarifas de Viáticos"
+  subtitle="Administración de la matriz de tarifas aplicables por categoría de empleado y alcance geográfico."
+  name_new="Tarifa"
+  (onNew)="nuevo()"
+  (onRefresh)="refresh()"
+  (onSync)="sync()">
+
+  <div customFilters class="flex items-center space-x-2 mr-4">
+    <label for="yearFilter" class="text-sm font-medium text-slate-300">Año:</label>
+    <input 
+      id="yearFilter"
+      type="number" 
+      [ngModel]="activeYear()" 
+      (ngModelChange)="onYearChange($event)"
+      class="bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-1.5 text-sm text-slate-200 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 w-24 outline-none transition-all"
+    />
+  </div>
+
+  <!-- Barra lateral Izquierda: Listado -->
+  <div master class="h-full">
+    @if (pageConfig.tableType === 'matrix-table' && pageConfig.matrixGroups) {
+      <app-matrix-table
+        [data]="filteredItems()"
+        [groups]="pageConfig.matrixGroups"
+        [selectedItem]="selectedItem()"
+        [isLoading]="isLoading()"
+        (onRowSelect)="select($event)"
+        (onEdit)="edit($event)"
+        (onDelete)="delete($event)">
+      </app-matrix-table>
+    } @else {
+      <app-data-table
+        [data]="filteredItems()"
+        [columns]="pageConfig.tableColumns"
+        [selectedItem]="selectedItem()"
+        [isLoading]="isLoading()"
+        (onRowSelect)="select($event)"
+        (onEdit)="edit($event)"
+        (onDelete)="delete($event)">
+      </app-data-table>
+    }
+  </div>
+
+  <!-- Panel Derecho: Detalle -->
+  <div detail class="h-full flex flex-col">
+    @if (selectedItem()) {
+      <app-detail-viewer
+        [data]="selectedItem()"
+        [headerConfig]="pageConfig.detailHeader"
+        [fields]="pageConfig.detailFields">
+      </app-detail-viewer>
+    } @else {
+      <div class="flex flex-col items-center justify-center h-full text-slate-500 space-y-4">
+        <div class="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center">
+          <span class="text-3xl">👈</span>
+        </div>
+        <p class="text-sm">Selecciona una tarifa de la matriz para ver sus detalles</p>
+      </div>
+    }
+  </div>
+
+</app-master-wrapper>
+

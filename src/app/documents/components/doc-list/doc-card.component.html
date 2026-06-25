@@ -1,0 +1,94 @@
+<div 
+    (click)="selectDocument.emit(doc().id)"
+    [class.border-l-8]="selectedDocId() === doc().id"
+    [class.border-[#691C32]]="selectedDocId() === doc().id"
+    [class.bg-[#691c32]/[0.02]]="selectedDocId() === doc().id"
+    [class.shadow-md]="selectedDocId() === doc().id"
+    class="group border border-gray-150 rounded-xl p-4 hover:bg-gray-50/50 cursor-pointer transition-all duration-300 relative flex flex-col gap-3">
+        
+    <!-- Encabezado Tarjeta: Folio y Fecha -->
+    <div class="flex items-center justify-between text-xs">
+    <span class="font-mono font-black text-[#691C32] bg-[#691C32]/[0.08] px-2.5 py-1 rounded-md">
+        {{ doc().num_doc || 'BORRADOR' }}
+    </span>
+    <span class="text-gray-400 font-bold">
+        {{ doc().fecha_doc | date:'dd/MM/yyyy' }}
+    </span>
+    </div>
+
+    <!-- Involucrados: Remitente y Destinatario -->
+    <div class="text-xs space-y-1 text-gray-600">
+    <div class="flex items-start gap-1">
+        <span class="font-bold text-gray-400 shrink-0 uppercase">De:</span>
+        <span class="font-semibold text-gray-700 truncate">
+        {{ doc().remitente_nombre || 'Sin firma' }} <span class="text-gray-400">({{ doc().area_remitente || 'DAYSE' }})</span>
+        </span>
+    </div>
+    <div class="flex items-start gap-1">
+        <span class="font-bold text-gray-400 shrink-0 uppercase">Para:</span>
+        <span class="font-semibold text-gray-700 truncate">
+        {{ doc().destinatario_nombre || 'Destinatario Externo' }} <span class="text-gray-400">({{ doc().area_receptora || 'N/A' }})</span>
+        </span>
+    </div>
+    </div>
+
+    <!-- Datos Asunto / Tema -->
+    <div class="space-y-1">
+        @if (doc().tema) {
+            <span class="inline-block bg-[#BC955C]/10 text-[#BC955C] text-[10px] font-extrabold uppercase px-2 py-0.5 rounded">
+            Tema: {{ doc().tema }}
+            </span>
+        }
+        <h4 class="text-sm font-bold text-gray-800 line-clamp-2 leading-snug">
+            {{ doc().asunto }}
+        </h4>
+    </div>
+
+    <!-- Quién generó y recibió -->
+    <div class="border-t border-gray-100 pt-2 flex items-start justify-between text-[10px] text-gray-400 font-semibold">
+        <div class="flex flex-col gap-0.5">
+            <span>Elaboró: {{ doc().solicitante_nombre || 'Usuario' }}</span>
+            @if (doc().revisor_nombre) {
+                <span class="text-[#BC955C]">Revisor: {{ doc().revisor_nombre }}</span>
+            }
+        </div>
+        @if (doc().recibe_nombre) {
+            <span class="text-right">Recibió: {{ doc().recibe_nombre }}</span>
+        }
+    </div>
+
+    <!-- Estado de Remitente y Destinatario -->
+    <div class="flex flex-wrap gap-2 pt-1">
+    <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-gray-100 text-gray-600 border border-gray-200">
+        Emisor: {{ doc().estatus_emisor }}
+    </span>
+    @if (doc().estatus_receptor) {
+        <span class="px-2.5 py-0.5 rounded text-[10px] font-extrabold uppercase bg-blue-50 text-blue-700 border border-blue-150">
+        Receptor: {{ doc().estatus_receptor }}
+        </span>
+    }
+    </div>
+
+    <!-- Enlace Dinámico -->
+    <div class="flex justify-end items-center gap-3 pt-1">
+        @if (doc().estatus_emisor === 'despachado' || doc().estatus_emisor === 'entregado' || doc().estatus_emisor === 'cancelado') {
+            <app-open-pdf-button 
+            displayMode="link" 
+            (clicked)="openPdf.emit({type: 'final', doc: doc()}); $event.stopPropagation()">
+            </app-open-pdf-button>
+        } @else {
+            @if (doc().url_drive_edition) {
+            <app-google-drive-viewer-link 
+                displayMode="link" 
+                [url]="doc().url_drive_edition" 
+                (click)="$event.stopPropagation()">
+            </app-google-drive-viewer-link>
+            }
+            <app-preview-pdf-button 
+            displayMode="link" 
+            (clicked)="openPdf.emit({type: 'draft', doc: doc()}); $event.stopPropagation()">
+            </app-preview-pdf-button>
+        }
+    </div>
+
+</div>

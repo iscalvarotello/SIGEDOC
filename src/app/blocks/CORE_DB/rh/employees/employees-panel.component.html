@@ -1,0 +1,185 @@
+<div class="flex flex-col gap-6 h-full min-h-125">
+  
+  @if (!selectedArea()) {
+    <app-dismiss-areacard 
+      description="Por favor, elija una de las áreas en el organigrama lateral izquierdo para visualizar y gestionar el personal activo de esa adscripción."
+      iconType="users">
+    </app-dismiss-areacard>
+  } @else {
+    
+    <!-- Panel Detallado del Área Seleccionada -->
+    <div class="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col gap-6 animate-fadeIn">
+      
+      <!-- Cabecera de Área Genérica -->
+      <app-area-header [area]="selectedArea()"></app-area-header>
+
+      <!-- Barra de Acciones de Personal -->
+      <app-action-bar
+        title="Acciones de Control de Personal"
+        [actions]="actionsConfig()"
+        (onAction)="handleActionBarClick($event)">
+      </app-action-bar>
+
+      <!-- Grid Maestro-Detalle -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Columna Maestro (Listado de Empleados) -->
+        <div class="lg:col-span-7 flex flex-col gap-3">
+          <h3 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            Personal Adscrito en el Área ({{ employeesList().length }})
+          </h3>
+
+          <app-card-list
+            [isLoading]="isLoading()"
+            [isEmpty]="employeesList().length === 0"
+            loadingMessage="Cargando plantilla de personal..."
+            emptyMessage="No se encontraron empleados activos adscritos directamente a esta área.">
+            
+            <button emptyAction 
+                    (click)="openActionDrawer('nuevo')" 
+                    class="text-[#691C32] hover:text-[#521324] font-semibold underline mt-1 cursor-pointer">
+              Registrar nuevo empleado en este área
+            </button>
+
+            <div class="flex flex-col gap-3 max-h-150 overflow-y-auto pr-1">
+              @for (emp of employeesList(); track emp.id) {
+                <app-employee-card
+                  [adscription]="emp"
+                  layout="operative"
+                  [showSwitches]="true"
+                  [ngClass]="{ 'ring-2 ring-[#691C32] bg-[#691C32]/5 dark:bg-[#691C32]/10 border-[#691C32]/40': selectedEmployee()?.id === emp.id }"
+                  class="cursor-pointer block transition-all"
+                  (click)="onEmployeeCardClick(emp)"
+                  (onEdit)="openEditEmployeeDrawer(emp)"
+                  (onDismiss)="deleteEmployee(emp)">
+                </app-employee-card>
+              }
+            </div>
+          </app-card-list>
+        </div>
+
+        <!-- Columna Detalle (Ficha Informativa - Componente Genérico) -->
+        <div class="lg:col-span-5 bg-gray-50/50 dark:bg-gray-900/40 p-5 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col gap-4 sticky top-6">
+          <h3 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            Ficha de Detalle de Empleado
+          </h3>
+          <app-employee-detail [employee]="selectedEmployee()"></app-employee-detail>
+        </div>
+
+      </div>
+
+    </div>
+  }
+</div>
+
+<!-- Drawer del Formulario Desacoplado -->
+<app-employee-form
+  [isOpen]="isDrawerOpen()"
+  [selectedArea]="selectedArea()"
+  [activeAction]="activeAction()"
+  [selectedEmployee]="selectedEmployee()"
+  (onClose)="closeDrawer()"
+  (onSaved)="onFormSaved()">
+</app-employee-form>
+
+<!-- Modal de Reactivación de Empleados (Lista Negra) -->
+<app-modal
+  [isOpen]="isReactivateModalOpen()"
+  (close)="closeReactivateModal()"
+  className="max-w-175 w-full m-4"
+>
+  <div class="relative w-full p-6 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-10 max-h-[90vh] flex flex-col gap-6">
+    <div class="px-2 pr-12">
+      <h4 class="text-xl font-bold text-gray-800 dark:text-white/90">
+        Reactivar Empleado (Lista Negra)
+      </h4>
+      <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+        Consulte y seleccione un colaborador inactivo para habilitarlo de nuevo en el catálogo general y proceder a asignarle una adscripción.
+      </p>
+    </div>
+
+    <!-- Barra de Búsqueda Local -->
+    <div class="px-2 relative">
+      <span class="absolute inset-y-0 left-5 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </span>
+      <input
+        type="text"
+        [value]="deadlistSearchText()"
+        (input)="deadlistSearchText.set($any($event.target).value)"
+        placeholder="Buscar por nombre, RFC o CURP..."
+        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-800 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-[#691C32]/30 focus:border-[#691C32] text-gray-850 dark:text-white"
+      />
+    </div>
+
+    <!-- Contenedor Principal (Loader / Lista) -->
+    <div class="flex-1 overflow-y-auto pr-1 max-h-[50vh] px-2 min-h-37.5">
+      @if (isLoadingDeadlist()) {
+        <div class="flex flex-col items-center justify-center py-12 gap-3">
+          <!-- Spinner Animado Premium -->
+          <div class="w-10 h-10 border-4 border-[#691C32]/30 border-t-[#691C32] rounded-full animate-spin"></div>
+          <span class="text-xs font-semibold text-gray-450 dark:text-gray-500">Cargando lista negra de personal...</span>
+        </div>
+      } @else if (filteredDeadEmployees().length === 0) {
+        <div class="flex flex-col items-center justify-center py-12 text-center gap-3">
+          <div class="p-4 bg-gray-50 dark:bg-gray-850 rounded-full text-gray-400 dark:text-gray-600">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-gray-500 dark:text-gray-400">
+            {{ deadlistSearchText() ? 'No se encontraron resultados para la búsqueda.' : 'No hay empleados dados de baja actualmente.' }}
+          </p>
+        </div>
+      } @else {
+        <!-- Grid/Lista de Empleados Inactivos -->
+        <div class="flex flex-col gap-3">
+          @for (emp of filteredDeadEmployees(); track emp.employee_id) {
+            <div class="flex items-center justify-between p-4 bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 rounded-2xl transition-all shadow-theme-xs">
+              <div class="flex items-center gap-3.5">
+                <!-- Avatar de Usuario -->
+                <div class="w-11 h-11 rounded-full bg-gray-100 dark:bg-gray-800 text-[#691C32] dark:text-[#a03854] flex items-center justify-center overflow-hidden border border-gray-200 dark:border-gray-700">
+                  <div class="w-7 h-7" [innerHTML]="getIconSvg('AvatarPremium') | safeHtml"></div>
+                </div>
+
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm font-bold text-gray-800 dark:text-white">
+                    {{ emp.fullName }}
+                  </span>
+                  <div class="flex flex-wrap items-center gap-x-2 text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                    <span>RFC: <strong class="text-gray-500 dark:text-gray-400 uppercase">{{ emp.rfc || 'N/A' }}</strong></span>
+                    <span class="hidden sm:inline">•</span>
+                    <span>CURP: <strong class="text-gray-500 dark:text-gray-400 uppercase">{{ emp.curp || 'N/A' }}</strong></span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                (click)="reactivateEmployee(emp)"
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-[#691C32]/10 hover:bg-[#691C32] text-[#691C32] hover:text-white dark:bg-[#691C32]/20 dark:hover:bg-[#691C32] font-semibold text-xs rounded-xl cursor-pointer transition-all duration-150 shadow-sm border border-[#691C32]/20"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Reactivar</span>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Botón Cerrar en el Pie -->
+    <div class="flex justify-end pt-4 border-t border-gray-150 dark:border-gray-850 px-2">
+      <button
+        (click)="closeReactivateModal()"
+        class="px-4 py-2 border border-gray-250 dark:border-gray-800 bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-850 text-gray-600 dark:text-gray-350 font-semibold text-xs rounded-xl cursor-pointer transition-all shadow-theme-xs"
+      >
+        Cerrar
+      </button>
+    </div>
+  </div>
+</app-modal>

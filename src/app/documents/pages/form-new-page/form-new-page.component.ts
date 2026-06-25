@@ -398,7 +398,7 @@ export class FormNewPageComponent implements OnInit {
   customCcpPhrase = signal<string>('');
 
   // Anexos
-  anexos = signal<{ id_attachment: string; attachment_name: string; attachment_title: string; source_type?: 'supplier' | 'pure'; source_name?: string; }[]>([]);
+  anexos = signal<{ id_attachment: string; attachment_name: string; attachment_title: string; extension?: string; source_type?: 'supplier' | 'pure'; source_name?: string; }[]>([]);
 
   // Filtrado de plantillas correspondientes a la clase seleccionada (incluyendo las personalizadas)
   templatesForClass = computed(() => {
@@ -982,7 +982,8 @@ export class FormNewPageComponent implements OnInit {
       attachments: this.anexos().map(a => ({
         id_attachment: a.id_attachment,
         attachment_name: a.attachment_name,
-        attachment_title: a.attachment_title
+        attachment_title: a.attachment_title,
+        extension: a.extension
       }))
     };
 

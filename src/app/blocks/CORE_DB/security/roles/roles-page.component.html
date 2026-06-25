@@ -1,0 +1,39 @@
+<app-master-wrapper
+  title="Roles del Sistema"
+  subtitle="Consulte y gestione los roles de acceso que definen las facultades y visibilidad de los usuarios en el sistema."
+  name_new="Rol"
+  [serverError]="serverError()"
+  (onSearch)="filtrar($event)"
+  (onRefresh)="refresh()"
+  (onSync)="sync()"
+  (onNew)="nuevo()">
+
+  <div master class="h-full">
+    <app-data-table
+      [data]="filteredItems()"
+      [columns]="pageConfig.tableColumns"
+      [selectedItem]="selectedItem()"
+      [isLoading]="isLoading()"
+      (onRowSelect)="select($event)"
+      (onEdit)="edit($event)"
+      (onDelete)="delete($event)">
+    </app-data-table>
+  </div>
+
+  <div detail class="h-full flex flex-col">
+    @if (selectedItem()) {
+      <app-detail-viewer
+        [data]="selectedItem()"
+        [headerConfig]="pageConfig.detailHeader"
+        [fields]="pageConfig.detailFields">
+      </app-detail-viewer>
+    } @else {
+      <app-dismiss-areacard
+        title="Ningún rol seleccionado"
+        description="Por favor, elija un rol de la lista izquierda para visualizar su información y detalles de acceso."
+        iconType="users">
+      </app-dismiss-areacard>
+    }
+  </div>
+
+</app-master-wrapper>

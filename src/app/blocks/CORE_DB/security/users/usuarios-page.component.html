@@ -1,0 +1,48 @@
+<app-master-wrapper
+  title="Control de Usuarios del Sistema"
+  subtitle="Consulta y gestiona las credenciales de acceso, roles administrativos y asignaciones de colaboradores."
+  name_new="Usuario"
+  [serverError]="serverError()"
+  (onSearch)="filtrar($event)"
+  (onRefresh)="refresh()"
+  (onSync)="sync()"
+  (onNew)="nuevo()">
+
+  <div master class="h-full">
+    <app-data-table
+      [data]="filteredItems()"
+      [columns]="pageConfig.tableColumns"
+      [selectedItem]="selectedItem()"
+      [isLoading]="isLoading()"
+      (onRowSelect)="select($event)"
+      (onEdit)="edit($event)"
+      (onDelete)="delete($event)">
+    </app-data-table>
+  </div>
+
+  <div detail class="h-full flex flex-col">
+    @if (selectedItem()) {
+      <!-- Acciones de Súper Administrador -->
+      @if (isAdmin()) {
+         <app-action-bar
+            title="Acciones de Control de Personal"
+            [actions]="actionsConfig()"
+            (onAction)="handleAction($event)">
+          </app-action-bar>
+      }
+
+      <app-detail-viewer
+        [data]="selectedItem()"
+        [headerConfig]="pageConfig.detailHeader"
+        [fields]="pageConfig.detailFields">
+      </app-detail-viewer>
+    } @else {
+      <app-dismiss-areacard
+        title="Ningún usuario seleccionado"
+        description="Por favor, elija un usuario de la lista izquierda para visualizar su información y detalles de acceso."
+        iconType="users">
+      </app-dismiss-areacard>
+    }
+  </div>
+
+</app-master-wrapper>

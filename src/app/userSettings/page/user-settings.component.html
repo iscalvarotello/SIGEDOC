@@ -1,0 +1,329 @@
+<app-page-breadcrumb pageTitle="Configuración Personal" />
+
+<div class="grid grid-cols-12 gap-6 mt-6">
+  <!-- Barra Lateral de Navegación (Tabs) -->
+  <div class="col-span-12 lg:col-span-3">
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 shadow-theme-xs space-y-1">
+      <button 
+        (click)="setTab('employee')"
+        [ngClass]="{
+          'bg-[#691C32]/5 text-[#691C32] dark:bg-[#691C32]/10 dark:text-white border-[#691C32]': currentTab() === 'employee',
+          'text-gray-700 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/3 border-transparent': currentTab() !== 'employee'
+        }"
+        class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold rounded-xl border-l-4 text-left transition-all duration-150 cursor-pointer"
+      >
+        <span class="text-lg">👤</span>
+        Datos del empleado
+      </button>
+
+      <button 
+        (click)="setTab('area')"
+        [ngClass]="{
+          'bg-[#691C32]/5 text-[#691C32] dark:bg-[#691C32]/10 dark:text-white border-[#691C32]': currentTab() === 'area',
+          'text-gray-700 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/3 border-transparent': currentTab() !== 'area'
+        }"
+        class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold rounded-xl border-l-4 text-left transition-all duration-150 cursor-pointer"
+      >
+        <span class="text-lg">🏢</span>
+        Configuraciones del área
+      </button>
+
+      <button 
+        (click)="setTab('dashboard')"
+        [ngClass]="{
+          'bg-[#691C32]/5 text-[#691C32] dark:bg-[#691C32]/10 dark:text-white border-[#691C32]': currentTab() === 'dashboard',
+          'text-gray-700 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/3 border-transparent': currentTab() !== 'dashboard'
+        }"
+        class="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold rounded-xl border-l-4 text-left transition-all duration-150 cursor-pointer"
+      >
+        <span class="text-lg">📊</span>
+        Configuración del Dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal de Contenido -->
+  <div class="col-span-12 lg:col-span-9">
+    <!-- PESTAÑA: Datos del empleado -->
+    @if (currentTab() === 'employee') {
+      <div class="space-y-6 animate-fadeIn">
+        <app-user-meta-card />
+        <app-user-personal-info-card />
+        <app-user-info-card />
+      </div>
+    }
+
+    <!-- PESTAÑA: Configuraciones del área -->
+    @if (currentTab() === 'area') {
+      <div class="space-y-6 animate-fadeIn">
+        @if (!activeAreaId()) {
+          <div class="p-6 text-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-theme-xs">
+            <span class="text-3xl block mb-2">⚠️</span>
+            <h4 class="text-md font-bold text-gray-800 dark:text-white/90">Sin Área de Adscripción Activa</h4>
+            <p class="text-sm text-gray-500 mt-1 max-w-md mx-auto">
+              Tu usuario no cuenta con una adscripción administrativa activa asignada para realizar configuraciones.
+            </p>
+          </div>
+        } @else {
+          <!-- Panel de Carga del Área -->
+          @if (isLoadingArea()) {
+            <div class="p-12 text-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-theme-xs">
+              <span class="animate-spin rounded-full h-8 w-8 border-2 border-t-transparent border-[#691C32] inline-block mb-3"></span>
+              <p class="text-sm text-gray-500">Cargando configuraciones del área...</p>
+            </div>
+          } @else {
+            <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-theme-xs space-y-6">
+              <div class="border-b border-gray-150 dark:border-gray-800 pb-4">
+                <h4 class="text-lg font-bold text-gray-800 dark:text-white/90">
+                  Configuraciones del Área: {{ activeAreaName() }}
+                </h4>
+                <p class="text-xs text-gray-500 mt-1">
+                  Establezca el cuarto firmante de Visto Bueno y los horarios oficiales de recepción de correspondencia de su bandeja.
+                </p>
+              </div>
+
+              <!-- Bloque 1: Autorizaciones (Visto Bueno Incidencias) -->
+              <div class="space-y-4">
+                <h5 class="text-xs uppercase font-extrabold text-gray-400 dark:text-gray-500 tracking-wider">
+                  1. Autorizaciones & visto bueno (VoBo)
+                </h5>
+                <div class="bg-gray-50/50 dark:bg-white/[0.01] border border-gray-150 dark:border-gray-800 rounded-xl p-4 space-y-4">
+                  <div class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl">
+                    Seleccione qué empleado firmará como <b>Visto Bueno de Incidencias (Cuarto Firmante)</b> en las solicitudes de justificación o incidencias de los miembros de su área. Si no requiere cuarto firmante, deje este campo vacío.
+                  </div>
+                  
+                  <div class="flex flex-col gap-2 relative">
+                    <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Seleccionar Empleado Autorizador</label>
+                    <app-employee-select
+                      [selectedId]="voboEmployeeId"
+                      [employeesList]="employeesCatalog()"
+                      [showReload]="true"
+                      [isLoading]="isLoadingEmployees()"
+                      placeholder="Buscar empleado por nombre o RFC..."
+                      (onSelect)="onVoboEmployeeSelect($event)"
+                      (onClear)="onVoboEmployeeClear()"
+                      (onReload)="loadEmployeesCatalog(true)">
+                    </app-employee-select>
+                  </div>
+
+                  @if (selectedVoboEmployee) {
+                    <div class="bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-850 rounded-xl p-4 flex items-center gap-3 animate-fadeIn">
+                      <div class="w-10 h-10 rounded-full bg-[#BC955C]/15 text-[#BC955C] flex items-center justify-center text-lg shrink-0">👤</div>
+                      <div class="min-w-0 flex-1">
+                        <h6 class="text-xs font-bold text-gray-900 dark:text-white truncate">
+                          {{ selectedVoboEmployee.fullName || (selectedVoboEmployee.name + ' ' + selectedVoboEmployee.first_surname) }}
+                        </h6>
+                        <span class="block text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                          Puesto: {{ selectedVoboEmployee.job_name || selectedVoboEmployee.resolvedJobPosition || 'Sin Puesto' }}
+                        </span>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Bloque 2: Horarios de Recepción -->
+              <div class="space-y-4 pt-2">
+                <h5 class="text-xs uppercase font-extrabold text-gray-400 dark:text-gray-500 tracking-wider">
+                  2. Horarios de recepción de correspondencia
+                </h5>
+                <div class="bg-gray-50/50 dark:bg-white/[0.01] border border-gray-150 dark:border-gray-800 rounded-xl p-4">
+                  <div class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mb-4">
+                    Configure los días de la semana y horarios válidos en los que su área está habilitada para recibir documentación digital externa o interna.
+                  </div>
+
+                  <div class="space-y-3.5">
+                    @for (day of daysOfWeek; track day.key) {
+                      @if (scheduleData[day.key]) {
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-850 rounded-xl">
+                          <!-- Nombre del Día y Checkbox -->
+                          <div class="flex items-center gap-3">
+                            <label class="relative inline-flex items-center cursor-pointer select-none">
+                              <input 
+                                type="checkbox" 
+                                [(ngModel)]="scheduleData[day.key].recepcion" 
+                                (change)="onScheduleToggle(day.key)"
+                                class="sr-only peer"
+                              />
+                              <div class="w-9 h-5 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-[#BC955C]"></div>
+                            </label>
+                            <span class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ day.label }}</span>
+                          </div>
+
+                          <!-- Horas de Inicio y Fin -->
+                          <div class="flex items-center gap-3" [class.opacity-50]="!scheduleData[day.key].recepcion">
+                            <div class="flex items-center gap-1.5">
+                              <span class="text-[10px] text-gray-400 font-bold uppercase">De:</span>
+                              <app-time-picker
+                                [id]="day.key + '_start'"
+                                [defaultTime]="scheduleData[day.key].hora_inicio"
+                                [disabled]="!scheduleData[day.key].recepcion"
+                                (timeChange)="scheduleData[day.key].hora_inicio = $event"
+                              />
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                              <span class="text-[10px] text-gray-400 font-bold uppercase">A:</span>
+                              <app-time-picker
+                                [id]="day.key + '_end'"
+                                [defaultTime]="scheduleData[day.key].hora_fin"
+                                [disabled]="!scheduleData[day.key].recepcion"
+                                (timeChange)="scheduleData[day.key].hora_fin = $event"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botón de Guardado -->
+              <div class="flex justify-end pt-4 border-t border-gray-150 dark:border-gray-800">
+                <button
+                  (click)="saveAreaConfig()"
+                  [disabled]="isSavingArea()"
+                  class="px-6 py-2.5 bg-gradient-to-r from-[#BC955C] to-[#8c6c39] hover:from-[#8c6c39] hover:to-[#73572d] text-white rounded-xl text-xs font-bold shadow-md transition-all duration-300 active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  @if (isSavingArea()) {
+                    <span class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-t-transparent border-white"></span>
+                    Guardando...
+                  } @else {
+                    Guardar Configuración del Área
+                  }
+                </button>
+              </div>
+
+            </div>
+          }
+        }
+      </div>
+    }
+
+    <!-- PESTAÑA: Configuración del Dashboard -->
+    @if (currentTab() === 'dashboard') {
+      <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-theme-xs space-y-6 animate-fadeIn">
+        <div class="border-b border-gray-150 dark:border-gray-800 pb-4">
+          <h4 class="text-lg font-bold text-gray-800 dark:text-white/90">
+            Personalizar Vista de Dashboard
+          </h4>
+          <p class="text-xs text-gray-500 mt-1">
+            Active o desactive las tarjetas estadísticas según su rol y necesidades de productividad. Los cambios se guardan al instante.
+          </p>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Switch 1: Correspondencia Recibida -->
+          <div class="flex items-start justify-between gap-4 p-4 border border-gray-150 dark:border-gray-850 rounded-xl hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">📨</span>
+                <span class="text-sm font-bold text-gray-800 dark:text-white">Bandeja de Correspondencia Recibida</span>
+              </div>
+              <p class="text-xs text-gray-450 dark:text-gray-500 leading-relaxed max-w-xl">
+                Muestra el resumen estadístico de todos los documentos y correspondencia oficial que ingresan a la bandeja de tu área para atención, despacho o firma.
+              </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer select-none shrink-0 mt-1">
+              <input 
+                type="checkbox" 
+                [checked]="dashboardConfig().showReceivedDocs" 
+                (change)="toggleDashboardCard('showReceivedDocs')"
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#BC955C]"></div>
+            </label>
+          </div>
+
+          <!-- Switch 2: Correspondencia Enviada -->
+          <div class="flex items-start justify-between gap-4 p-4 border border-gray-150 dark:border-gray-850 rounded-xl hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">📤</span>
+                <span class="text-sm font-bold text-gray-800 dark:text-white">Bandeja de Correspondencia Enviada</span>
+              </div>
+              <p class="text-xs text-gray-450 dark:text-gray-500 leading-relaxed max-w-xl">
+                Muestra el balance estadístico de todos los oficios y documentos oficiales despachados o enviados a otros destinatarios por parte de tu área.
+              </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer select-none shrink-0 mt-1">
+              <input 
+                type="checkbox" 
+                [checked]="dashboardConfig().showSentDocs" 
+                (change)="toggleDashboardCard('showSentDocs')"
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#BC955C]"></div>
+            </label>
+          </div>
+
+          <!-- Switch 3: Estadísticas de Incidencias -->
+          <div class="flex items-start justify-between gap-4 p-4 border border-gray-150 dark:border-gray-850 rounded-xl hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🛡️</span>
+                <span class="text-sm font-bold text-gray-800 dark:text-white">Estadísticas de Incidencias y Permisos</span>
+              </div>
+              <p class="text-xs text-gray-450 dark:text-gray-500 leading-relaxed max-w-xl">
+                Muestra los días restantes de tus vacaciones, balance de permisos económicos y el estatus en tiempo real de tus solicitudes de justificaciones de incidencias.
+              </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer select-none shrink-0 mt-1">
+              <input 
+                type="checkbox" 
+                [checked]="dashboardConfig().showIncidents" 
+                (change)="toggleDashboardCard('showIncidents')"
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#BC955C]"></div>
+            </label>
+          </div>
+
+          <!-- Switch 4: Control de Gasolina -->
+          <div class="flex items-start justify-between gap-4 p-4 border border-gray-150 dark:border-gray-850 rounded-xl hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">⛽</span>
+                <span class="text-sm font-bold text-gray-800 dark:text-white">Consumo de Gasolina / Combustible</span>
+              </div>
+              <p class="text-xs text-gray-450 dark:text-gray-500 leading-relaxed max-w-xl">
+                Muestra tu saldo asignado en vales o presupuesto de combustible mensual, registro de últimas cargas y consumos de vehículos de tu área.
+              </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer select-none shrink-0 mt-1">
+              <input 
+                type="checkbox" 
+                [checked]="dashboardConfig().showGasoline" 
+                (change)="toggleDashboardCard('showGasoline')"
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#BC955C]"></div>
+            </label>
+          </div>
+
+          <!-- Switch 5: Control de Viáticos -->
+          <div class="flex items-start justify-between gap-4 p-4 border border-gray-150 dark:border-gray-850 rounded-xl hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">💼</span>
+                <span class="text-sm font-bold text-gray-800 dark:text-white">Control de Viáticos y Comisiones</span>
+              </div>
+              <p class="text-xs text-gray-450 dark:text-gray-500 leading-relaxed max-w-xl">
+                Muestra el estado de tus comisiones asignadas, montos de viáticos por comprobar y solicitudes pendientes de aprobación para viajes de trabajo.
+              </p>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer select-none shrink-0 mt-1">
+              <input 
+                type="checkbox" 
+                [checked]="dashboardConfig().showViaticos" 
+                (change)="toggleDashboardCard('showViaticos')"
+                class="sr-only peer"
+              />
+              <div class="w-11 h-6 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[#BC955C]"></div>
+            </label>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

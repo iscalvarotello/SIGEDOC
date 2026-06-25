@@ -1,0 +1,893 @@
+<div class="mx-auto max-w-7xl p-1 md:p-6 flex flex-col gap-6 animate-fadeIn">
+  
+  <!-- Encabezado de la página -->
+  <div class="flex flex-col gap-1.5 pb-4 border-b border-gray-150 dark:border-gray-800">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
+      Configuraciones Globales
+    </h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400">
+      Gestione parámetros generales de impresión, minutarios, notificaciones SMTP y políticas de seguridad del sistema.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- PESTAÑAS LATERALES (Sidebar Navigation) -->
+    <div class="lg:col-span-3 bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 flex flex-col gap-2">
+      <button 
+        (click)="setTab('documentos')"
+        [ngClass]="activeTab() === 'documentos' ? 'bg-[#691C32]/10 dark:bg-[#691C32]/25 text-[#691C32] dark:text-[#a03854] font-bold' : 'text-gray-600 dark:text-gray-450 hover:bg-gray-50 dark:hover:bg-gray-850 font-medium'"
+        class="w-full flex items-center gap-3 px-4 py-3 text-xs rounded-xl transition-all cursor-pointer text-left uppercase tracking-wider"
+      >
+        <span class="w-5 h-5 flex items-center justify-center" [innerHTML]="getIconSvg('Documentos') | safeHtml"></span>
+        <span>Documentos y Firmas</span>
+      </button>
+
+      <button 
+        (click)="setTab('minutarios')"
+        [ngClass]="activeTab() === 'minutarios' ? 'bg-[#691C32]/10 dark:bg-[#691C32]/25 text-[#691C32] dark:text-[#a03854] font-bold' : 'text-gray-600 dark:text-gray-450 hover:bg-gray-50 dark:hover:bg-gray-850 font-medium'"
+        class="w-full flex items-center gap-3 px-4 py-3 text-xs rounded-xl transition-all cursor-pointer text-left uppercase tracking-wider"
+      >
+        <span class="w-5 h-5 flex items-center justify-center" [innerHTML]="getIconSvg('Ticket') | safeHtml"></span>
+        <span>Minutarios y Folios</span>
+      </button>
+
+      <button 
+        (click)="setTab('smtp')"
+        [ngClass]="activeTab() === 'smtp' ? 'bg-[#691C32]/10 dark:bg-[#691C32]/25 text-[#691C32] dark:text-[#a03854] font-bold' : 'text-gray-600 dark:text-gray-450 hover:bg-gray-50 dark:hover:bg-gray-850 font-medium'"
+        class="w-full flex items-center gap-3 px-4 py-3 text-xs rounded-xl transition-all cursor-pointer text-left uppercase tracking-wider"
+      >
+        <span class="w-5 h-5 flex items-center justify-center" [innerHTML]="getIconSvg('RH') | safeHtml"></span>
+        <span>Servidor SMTP</span>
+      </button>
+
+      <button 
+        (click)="setTab('mantenimiento')"
+        [ngClass]="activeTab() === 'mantenimiento' ? 'bg-[#691C32]/10 dark:bg-[#691C32]/25 text-[#691C32] dark:text-[#a03854] font-bold' : 'text-gray-600 dark:text-gray-450 hover:bg-gray-50 dark:hover:bg-gray-850 font-medium'"
+        class="w-full flex items-center gap-3 px-4 py-3 text-xs rounded-xl transition-all cursor-pointer text-left uppercase tracking-wider"
+      >
+        <span class="w-5 h-5 flex items-center justify-center" [innerHTML]="getIconSvg('Refresh') | safeHtml"></span>
+        <span>Mantenimiento</span>
+      </button>
+
+      <button 
+        (click)="setTab('seguridad')"
+        [ngClass]="activeTab() === 'seguridad' ? 'bg-[#691C32]/10 dark:bg-[#691C32]/25 text-[#691C32] dark:text-[#a03854] font-bold' : 'text-gray-600 dark:text-gray-450 hover:bg-gray-50 dark:hover:bg-gray-850 font-medium'"
+        class="w-full flex items-center gap-3 px-4 py-3 text-xs rounded-xl transition-all cursor-pointer text-left uppercase tracking-wider"
+      >
+        <span class="w-5 h-5 flex items-center justify-center" [innerHTML]="getIconSvg('Escudo') | safeHtml"></span>
+        <span>Seguridad y Sesiones</span>
+      </button>
+    </div>
+
+    <!-- PANELES DE CONTENIDO (Config Cards) -->
+    <div class="lg:col-span-9 bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 lg:p-8 min-h-[500px]">
+      
+      <!-- PESTAÑA 1: DOCUMENTOS Y FIRMAS -->
+      @if (activeTab() === 'documentos') {
+        <div class="flex flex-col gap-6 animate-fadeIn">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Documentación Oficial y Márgenes</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Establezca los archivos membretados y offsets para la generación de PDFs oficiales.</p>
+          </div>
+
+          <form [formGroup]="documentosForm" (ngSubmit)="saveDocumentSettings()" class="flex flex-col gap-5">
+            
+            <!-- Parámetros de la Firma Electrónica -->
+            <div class="flex flex-col gap-3.5">
+              <div>
+                <h4 class="text-sm font-bold text-gray-800 dark:text-white">Parámetros de la firma electrónica</h4>
+                <p class="text-xs text-gray-400 mt-0.5">Estos parámetros establecen en dónde aparece la firma electrónica, ya que puede interferir con el membrete.</p>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="flex flex-col gap-1.5 sm:col-span-1">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Margen lateral izquierdo (mm)</label>
+                  <input type="number" formControlName="margin_x" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-sm rounded-lg" step="1">
+                </div>
+
+                <div class="flex flex-col gap-1.5 sm:col-span-1">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Distancia desde la cabecera (mm)</label>
+                  <input type="number" formControlName="offset_y" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-sm rounded-lg" step="1">
+                </div>
+
+                <div class="flex flex-col gap-1.5 sm:col-span-1">
+                  <label class="text-xs font-bold text-gray-500 uppercase">URL Base de Validación QR</label>
+                  <input type="text" formControlName="qr_validation_url" placeholder="https://valida.sigedoc.mx" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-sm rounded-lg">
+                </div>
+              </div>
+            </div>
+
+            <!-- Textos Legales de Firmado -->
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-gray-500 uppercase">Leyenda de Firma Electrónica (Footnote)</label>
+              <textarea formControlName="legend_footnote" rows="3" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-sm rounded-lg resize-none"></textarea>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-gray-500 uppercase">Leyenda de Hoja de Acuse Oficial</label>
+              <textarea formControlName="legend_acuse" rows="2" class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-955 border border-gray-200 dark:border-gray-700 text-sm rounded-lg resize-none"></textarea>
+            </div>
+
+            <!-- Uploader y Visor de Membrete Oficial -->
+            <div class="flex flex-col gap-3.5 border-t border-gray-100 dark:border-gray-800 pt-5 mt-2">
+              <div>
+                <h4 class="text-sm font-bold text-gray-800 dark:text-white">Membrete Oficial de Documentación</h4>
+                <p class="text-xs text-gray-400 mt-0.5">Suba la imagen membretada oficial (.jpg) y previsualice cómo se renderiza de fondo.</p>
+              </div>
+
+              <div class="flex flex-col gap-4">
+                <!-- Zona Drop o Input -->
+                <label class="h-24 border-2 border-dashed border-gray-250 dark:border-gray-800 hover:border-[#691C32] rounded-2xl flex flex-col justify-center items-center gap-1.5 cursor-pointer transition-colors bg-gray-50/50 dark:bg-gray-950">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-gray-400">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                  </svg>
+                  <span class="text-xs font-semibold text-gray-550">Subir Nueva Imagen de Membrete (.jpg)</span>
+                  <input type="file" accept="image/jpeg" (change)="onMembreteSelected($event)" class="hidden">
+                </label>
+
+                <!-- Vista Previa Membrete (Visor Ampliado) -->
+                <div class="flex flex-col gap-1.5">
+                  <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Membrete Oficial Cargado Actual (Visor)</span>
+                  <div class="w-full min-h-[450px] md:min-h-[600px] rounded-2xl border border-gray-150 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 overflow-hidden flex items-center justify-center relative p-4">
+                    @if (membretePreview()) {
+                      <img [src]="membretePreview()" class="w-full h-auto max-h-[800px] object-contain rounded-xl shadow-sm" alt="Membrete Oficial">
+                    } @else {
+                      <div class="flex flex-col items-center justify-center text-center p-6">
+                        <span class="text-xs font-bold text-gray-450 dark:text-gray-500">membrete_actual.jpg</span>
+                        <span class="text-[9px] text-gray-400 mt-1">Usa membrete predeterminado del sistema</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botón Guardar -->
+            <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-800">
+              <button 
+                type="submit" 
+                [disabled]="documentosForm.invalid || isSaving()"
+                class="px-5 py-2.5 bg-[#691C32] hover:bg-[#521324] text-white font-semibold text-xs rounded-xl cursor-pointer transition-colors shadow-sm flex items-center gap-2"
+              >
+                @if (isSaving()) {
+                  <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                }
+                <span>Guardar Cambios</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      }
+
+      <!-- PESTAÑA 2: MINUTARIOS Y FOLIOS -->
+      @if (activeTab() === 'minutarios') {
+        <div class="flex flex-col gap-6 animate-fadeIn">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-lg font-bold text-gray-800 dark:text-white">Minutarios y Contadores Anuales</h3>
+              <p class="text-xs text-gray-400 mt-0.5">Vigile el consecutivo de folios por cada ejercicio fiscal.</p>
+            </div>
+            
+            <button 
+              (click)="openNewFiscalYear()"
+              class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl cursor-pointer transition-colors flex items-center gap-1.5 shadow-sm"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Año Nuevo Fiscal</span>
+            </button>
+          </div>
+
+          <!-- Historial de Minutarios Globales (Read-Only Table) -->
+          <div class="flex flex-col gap-3">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Historial de Folios Globales (Viáticos)</span>
+            <div class="overflow-x-auto border border-gray-150 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-900">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-gray-50 dark:bg-gray-950 uppercase font-bold text-gray-550 border-b border-gray-150 dark:border-gray-800">
+                  <tr>
+                    <th class="px-5 py-3">Año Fiscal</th>
+                    <th class="px-5 py-3">Contador de Viáticos</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-850">
+                  @if (isLoadingMinutarios()) {
+                    <tr>
+                      <td colspan="2" class="px-5 py-8 text-center text-gray-400">
+                        <span class="inline-block w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></span>
+                        <p class="text-xs mt-2">Cargando minutarios globales...</p>
+                      </td>
+                    </tr>
+                  } @else {
+                    @for (m of globalMinutarios(); track m.id) {
+                      <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-950/30 text-gray-700 dark:text-gray-300">
+                        <td class="px-5 py-3.5 font-bold text-gray-900 dark:text-white">{{ m.year }}</td>
+                        <td class="px-5 py-3.5 font-semibold text-amber-600 dark:text-amber-500">{{ m.viaticos }} folios</td>
+                      </tr>
+                    }
+                    @if (globalMinutarios().length === 0) {
+                      <tr>
+                        <td colspan="2" class="px-5 py-6 text-center text-gray-400">No se encontraron minutarios registrados.</td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Separador -->
+          <div class="h-px bg-gray-150 dark:bg-gray-800 my-2"></div>
+
+          <!-- Consecutivos por Área -->
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-gray-50/50 dark:bg-gray-950/20 p-4 border border-gray-150 dark:border-gray-800 rounded-2xl">
+              <div class="flex flex-col">
+                <span class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Folios por Área Administrativa</span>
+                <span class="text-xs text-gray-400 mt-0.5">Consulte los folios asignados a cada departamento del año seleccionado.</span>
+              </div>
+              
+              <div class="flex items-center gap-4 self-stretch sm:self-auto justify-between sm:justify-end">
+                <!-- Selector de Año -->
+                <div class="flex items-center gap-2">
+                  <label class="text-xs font-bold text-gray-500 uppercase whitespace-nowrap">Año:</label>
+                  <select 
+                    [value]="selectedYear()" 
+                    (change)="onYearSelectedChange($any($event.target).value)"
+                    class="px-3 py-1.5 bg-white dark:bg-gray-950 border border-gray-250 dark:border-gray-800 text-xs rounded-xl font-semibold text-gray-700 dark:text-gray-300 cursor-pointer focus:outline-none focus:border-[#691C32]"
+                  >
+                    @for (yr of availableYears(); track yr) {
+                      <option [value]="yr">{{ yr }}</option>
+                    }
+                  </select>
+                </div>
+
+                <!-- Switch para gestión vs oficial -->
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-gray-500 uppercase whitespace-nowrap">En Gestión:</span>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      [checked]="showGestDocs()"
+                      (change)="showGestDocs.set(!showGestDocs())" 
+                      class="sr-only peer"
+                    />
+                    <div class="w-9 h-5 bg-gray-255 dark:bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#691C32]"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabla de Minutarios de Áreas -->
+            <div class="overflow-x-auto border border-gray-150 dark:border-gray-800 rounded-2xl bg-white dark:bg-gray-900">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-gray-50 dark:bg-gray-955 uppercase font-bold text-gray-550 border-b border-gray-150 dark:border-gray-800">
+                  <tr>
+                    <th class="px-5 py-3">Área (Siglas)</th>
+                    @if (!showGestDocs()) {
+                      <th class="px-5 py-3">Memorándums</th>
+                      <th class="px-5 py-3">Oficios</th>
+                      <th class="px-5 py-3">TI (Tec. Inf.)</th>
+                      <th class="px-5 py-3">Circulares</th>
+                    } @else {
+                      <th class="px-5 py-3 text-[#691C32] dark:text-[#a03854]">Memos Gest.</th>
+                      <th class="px-5 py-3 text-[#691C32] dark:text-[#a03854]">Oficios Gest.</th>
+                      <th class="px-5 py-3 text-[#691C32] dark:text-[#a03854]">TI Gest.</th>
+                      <th class="px-5 py-3 text-[#691C32] dark:text-[#a03854]">Circulares Gest.</th>
+                    }
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-850">
+                  @if (isLoadingAreas()) {
+                    <tr>
+                      <td colspan="5" class="px-5 py-12 text-center text-gray-400">
+                        <span class="inline-block w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></span>
+                        <p class="text-xs mt-2">Cargando minutarios de áreas del año {{ selectedYear() }}...</p>
+                      </td>
+                    </tr>
+                  } @else {
+                    @for (m of areasMinutarios(); track m.id) {
+                      <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-955/30 text-gray-700 dark:text-gray-300">
+                        <td class="px-5 py-3">
+                          <div class="flex flex-col">
+                            <span class="font-bold text-gray-900 dark:text-white text-sm">{{ m.area?.acronym || 'S/A' }}</span>
+                            <span class="text-[10px] text-gray-400 truncate max-w-xs sm:max-w-md md:max-w-lg" [title]="m.area?.name">{{ m.area?.name }}</span>
+                          </div>
+                        </td>
+                        @if (!showGestDocs()) {
+                          <td class="px-5 py-3 font-medium">{{ m.memo }}</td>
+                          <td class="px-5 py-3 font-medium">{{ m.oficio }}</td>
+                          <td class="px-5 py-3 font-medium">{{ m.ti }}</td>
+                          <td class="px-5 py-3 font-medium">{{ m.circular }}</td>
+                        } @else {
+                          <td class="px-5 py-3 font-medium text-gray-650 dark:text-gray-400">{{ m.memo_gest }}</td>
+                          <td class="px-5 py-3 font-medium text-gray-650 dark:text-gray-400">{{ m.oficio_gest }}</td>
+                          <td class="px-5 py-3 font-medium text-gray-650 dark:text-gray-400">{{ m.ti_gest }}</td>
+                          <td class="px-5 py-3 font-medium text-gray-650 dark:text-gray-400">{{ m.circular_gest }}</td>
+                        }
+                      </tr>
+                    }
+                    @if (areasMinutarios().length === 0) {
+                      <tr>
+                        <td colspan="5" class="px-5 py-6 text-center text-gray-400">No se encontraron minutarios por área para este año.</td>
+                      </tr>
+                    }
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Ajuste manual advertencia y botón -->
+          <div class="p-4 bg-amber-500/5 border border-amber-500/10 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2">
+            <div class="flex gap-2 items-start text-xs text-amber-650 dark:text-amber-400">
+              <svg class="h-4 w-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div class="flex flex-col gap-0.5">
+                <span class="font-bold">Ajuste de Emergencia de Minutarios</span>
+                <span>Requiere contraseña de administrador y solo debe realizarse ante desfases manuales de folios físicos.</span>
+              </div>
+            </div>
+            
+            <button 
+              (click)="openAjusteModal()"
+              class="px-4 py-2 border border-amber-500/30 text-amber-700 dark:text-amber-450 hover:bg-amber-500/10 font-bold text-xs rounded-xl cursor-pointer transition-colors shadow-theme-xs flex-shrink-0"
+            >
+              Ajustar Contador
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- PESTAÑA 3: SMTP CORREO -->
+      @if (activeTab() === 'smtp') {
+        <div class="flex flex-col gap-6 animate-fadeIn">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Servidor de Notificaciones SMTP</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Establezca los parámetros de red para el envío masivo de correos informativos.</p>
+          </div>
+
+          <form [formGroup]="smtpForm" (ngSubmit)="saveSmtpSettings()" class="flex flex-col gap-5">
+            
+            <!-- Grid Servidor -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="flex flex-col gap-1.5 sm:col-span-2">
+                <label class="text-xs font-bold text-gray-500 uppercase">Host SMTP</label>
+                <input type="text" formControlName="host" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-sm rounded-lg">
+              </div>
+
+              <div class="flex flex-col gap-1.5 sm:col-span-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Puerto</label>
+                <input type="number" formControlName="port" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-sm rounded-lg">
+              </div>
+
+              <div class="flex flex-col gap-1.5 sm:col-span-2">
+                <label class="text-xs font-bold text-gray-500 uppercase">Usuario SMTP</label>
+                <input type="text" formControlName="username" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-sm rounded-lg">
+              </div>
+
+              <div class="flex flex-col gap-1.5 sm:col-span-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Contraseña SMTP</label>
+                <div class="relative">
+                  <input 
+                    [type]="showSmtpPassword() ? 'text' : 'password'" 
+                    formControlName="password" 
+                    class="w-full pl-3 pr-10 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-sm rounded-lg"
+                  >
+                  <button 
+                    type="button"
+                    (click)="toggleSmtpPassword()" 
+                    class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  >
+                    @if (showSmtpPassword()) {
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    } @else {
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    }
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Switch Global de Correos -->
+            <div class="flex items-center justify-between border-t border-gray-100 dark:border-gray-850 pt-5 mt-2">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-sm font-bold text-gray-800 dark:text-gray-200">📬 Switch de Notificaciones Global</span>
+                <span class="text-xs text-gray-400">Si se apaga, se detendrán todos los correos del sistema (mantenimiento).</span>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" formControlName="active_notifications" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-250 dark:bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#691C32]"></div>
+              </label>
+            </div>
+
+            <!-- Botón Guardar -->
+            <div class="flex justify-end pt-5 border-t border-gray-100 dark:border-gray-800 mt-2">
+              <button 
+                type="submit" 
+                [disabled]="smtpForm.invalid || isSaving()"
+                class="px-5 py-2.5 bg-[#691C32] hover:bg-[#521324] text-white font-semibold text-xs rounded-xl cursor-pointer transition-colors shadow-sm flex items-center gap-2"
+              >
+                @if (isSaving()) {
+                  <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                }
+                <span>Guardar Parámetros</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+      }
+
+      <!-- PESTAÑA 4: MANTENIMIENTO Y OPERACIONES -->
+      @if (activeTab() === 'mantenimiento') {
+        <div class="flex flex-col gap-6 animate-fadeIn">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Mantenimiento de Datos y Catálogos</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Ejecute procesos de inicialización de semillas de base de datos o limpieza física.</p>
+          </div>
+
+          <!-- Seeds Panel -->
+          <div class="flex flex-col gap-3 bg-gray-50/50 dark:bg-gray-950/20 p-4 border border-gray-150 dark:border-gray-800 rounded-2xl">
+            <span class="text-xs font-bold text-[#691C32] uppercase tracking-wider">Carga de Semillas del Sistema (Catalog Seeds)</span>
+            <p class="text-xs text-gray-400">Restablece o inicializa catálogos con información predeterminada del estado de Chiapas.</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
+              <!-- Seed 1: Sistema -->
+              <button 
+                (click)="runCatalogSeed('system')"
+                [disabled]="isLoadingSeeds()['system']"
+                class="px-3 py-2.5 bg-[#691C32]/10 hover:bg-[#691C32] text-[#691C32] hover:text-white dark:bg-[#691C32]/25 border border-[#691C32]/20 text-xs font-bold rounded-xl cursor-pointer shadow-theme-xs transition-all flex items-center justify-center gap-2"
+              >
+                @if (isLoadingSeeds()['system']) {
+                  <span class="w-3.5 h-3.5 border-2 border-[#691C32] border-t-transparent rounded-full animate-spin"></span>
+                }
+                <span>Semilla Sistema</span>
+              </button>
+
+              <!-- Seed 2: Geografía -->
+              <button 
+                (click)="runCatalogSeed('location')"
+                [disabled]="isLoadingSeeds()['location']"
+                class="px-3 py-2.5 bg-white dark:bg-gray-950 border border-gray-250 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 text-gray-800 dark:text-gray-200 text-xs font-bold rounded-xl cursor-pointer shadow-theme-xs transition-colors flex items-center justify-center gap-2"
+              >
+                @if (isLoadingSeeds()['location']) {
+                  <span class="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></span>
+                }
+                <span>Semilla Geografía</span>
+              </button>
+
+              <!-- Seed 3: Organización -->
+              <button 
+                (click)="runCatalogSeed('organization')"
+                [disabled]="isLoadingSeeds()['organization']"
+                class="px-3 py-2.5 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 text-gray-800 dark:text-gray-200 text-xs font-bold rounded-xl cursor-pointer shadow-theme-xs transition-colors flex items-center justify-center gap-2"
+              >
+                @if (isLoadingSeeds()['organization']) {
+                  <span class="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></span>
+                }
+                <span>Semilla Organización</span>
+              </button>
+
+              <!-- Seed 4: Logística -->
+              <button 
+                (click)="runCatalogSeed('logistic')"
+                [disabled]="isLoadingSeeds()['logistic']"
+                class="px-3 py-2.5 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 text-gray-800 dark:text-gray-200 text-xs font-bold rounded-xl cursor-pointer shadow-theme-xs transition-colors flex items-center justify-center gap-2"
+              >
+                @if (isLoadingSeeds()['logistic']) {
+                  <span class="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></span>
+                }
+                <span>Semilla Logística</span>
+              </button>
+
+              <!-- Seed 5: Capital Humano (RH) -->
+              <button 
+                (click)="runCatalogSeed('rh')"
+                [disabled]="isLoadingSeeds()['rh']"
+                class="px-3 py-2.5 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 text-gray-800 dark:text-gray-200 text-xs font-bold rounded-xl cursor-pointer shadow-theme-xs transition-colors flex items-center justify-center gap-2"
+              >
+                @if (isLoadingSeeds()['rh']) {
+                  <span class="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></span>
+                }
+                <span>Semilla Cap. Humano</span>
+              </button>
+
+              <!-- Seed 6: Documentación -->
+              <button 
+                (click)="runCatalogSeed('documents')"
+                [disabled]="isLoadingSeeds()['documents']"
+                class="px-3 py-2.5 bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 text-gray-800 dark:text-gray-200 text-xs font-bold rounded-xl cursor-pointer shadow-theme-xs transition-colors flex items-center justify-center gap-2"
+              >
+                @if (isLoadingSeeds()['documents']) {
+                  <span class="w-3.5 h-3.5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></span>
+                }
+                <span>Semilla Documentación</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Limpieza y Límites -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            
+            <!-- Limpieza de PDFs huérfanos -->
+            <div class="flex flex-col gap-3 p-4 border border-gray-150 dark:border-gray-800 rounded-2xl">
+              <span class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Purgado de Archivos Temporales</span>
+              <p class="text-xs text-gray-400">Elimina del disco los PDFs huérfanos generados durante firmas fallidas o borradores no guardados.</p>
+              
+              <button 
+                (click)="purgeOrphanTemporals()"
+                [disabled]="isPurging()"
+                class="w-full mt-2 px-4 py-2.5 bg-[#691C32]/10 hover:bg-[#691C32] text-[#691C32] hover:text-white dark:bg-[#691C32]/25 font-bold text-xs rounded-xl cursor-pointer transition-all flex items-center justify-center gap-2 shadow-theme-xs"
+              >
+                @if (isPurging()) {
+                  <span class="w-4 h-4 border-2 border-[#691C32] border-t-transparent rounded-full animate-spin"></span>
+                }
+                <span>Limpiar Disco Temporales</span>
+              </button>
+            </div>
+
+            <!-- Límites de peso de archivos -->
+            <div class="flex flex-col gap-3.5 p-4 border border-gray-150 dark:border-gray-800 rounded-2xl">
+              <span class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Límites de Peso de Archivo</span>
+              <p class="text-xs text-gray-400">Defina el tamaño máximo permitido para fotos de perfil y adjuntos documentales.</p>
+              
+              <div class="flex flex-col gap-1.5">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="font-semibold text-gray-500">Límite Máximo</span>
+                  <span class="font-bold text-[#691C32]">{{ fileLimitMB() }} MB</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="2" 
+                  max="50" 
+                  [value]="fileLimitMB()" 
+                  (input)="fileLimitMB.set($any($event.target).valueAsNumber)"
+                  (change)="updateFileLimit($any($event.target).valueAsNumber)"
+                  class="w-full accent-[#691C32] bg-gray-200 dark:bg-gray-800 h-1.5 rounded-lg"
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      }
+
+      <!-- PESTAÑA 5: SEGURIDAD Y SESIONES -->
+      @if (activeTab() === 'seguridad') {
+        <div class="flex flex-col gap-6 animate-fadeIn">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Seguridad de Cuentas y Control de Sesión</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Establezca políticas estrictas para evitar accesos no autorizados al sistema.</p>
+          </div>
+
+          <div class="flex flex-col gap-5">
+            
+            <!-- Tiempo inactividad y Contraseña por Defecto -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold text-gray-500 uppercase">Tiempo Máximo de Inactividad (Token Expire)</label>
+                <div class="relative">
+                  <select 
+                    [ngModel]="sessionTimeout()" 
+                    (ngModelChange)="sessionTimeout.set($event)"
+                    class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-sm rounded-lg appearance-none font-semibold text-gray-700 dark:text-gray-300"
+                  >
+                    <option [value]="15">15 minutos (Seguridad Alta)</option>
+                    <option [value]="30">30 minutos (Recomendado)</option>
+                    <option [value]="60">60 minutos (1 Hora)</option>
+                    <option [value]="120">120 minutos (2 Horas)</option>
+                    <option [value]="240">240 minutos (4 Horas)</option>
+                    <option [value]="480">480 minutos (8 Horas)</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400">
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-bold text-gray-500 uppercase">Contraseña Predeterminada (Nuevos Usuarios)</label>
+                <input 
+                  type="text" 
+                  [ngModel]="defaultPassword()" 
+                  (ngModelChange)="defaultPassword.set($event)"
+                  placeholder="Ej: 123456"
+                  class="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-sm rounded-lg font-semibold text-gray-700 dark:text-gray-300"
+                />
+              </div>
+            </div>
+
+            <!-- Botón Guardar Políticas -->
+            <div class="flex justify-end pt-3 border-b border-gray-100 dark:border-gray-800 pb-5">
+              <button 
+                (click)="saveSecuritySettings()"
+                [disabled]="isSaving() || !defaultPassword()"
+                class="px-5 py-2.5 bg-[#691C32] hover:bg-[#521324] text-white font-semibold text-xs rounded-xl cursor-pointer transition-colors shadow-sm flex items-center justify-center gap-2 h-10"
+              >
+                @if (isSaving()) {
+                  <span class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                }
+                <span>Actualizar Políticas</span>
+              </button>
+            </div>
+
+            <!-- Switch Modo Mantenimiento -->
+            <div class="flex items-center justify-between border-t border-gray-100 dark:border-gray-850 pt-5 mt-2">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-sm font-bold text-gray-800 dark:text-gray-200">🚨 Switch de modo Modo Mantenimiento</span>
+                @if (maintenanceModeActive()) {
+                  <span class="text-xs text-red-650 dark:text-red-500 font-bold animate-pulse">EL SISTEMA ESTA INACTIVO. Vuelve a activarlo para todos los usuarios</span>
+                } @else {
+                  <span class="text-xs text-gray-400">Bloquea el acceso al sistema para todos los usuarios (excepto super-administradores).</span>
+                }
+              </div>
+              
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  [checked]="maintenanceModeActive()" 
+                  (change)="openMaintenanceModal()" 
+                  class="sr-only peer"
+                />
+                <div class="w-11 h-6 bg-gray-250 dark:bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+              </label>
+            </div>
+
+            <!-- Cambio masivo de claves de emergencia -->
+            <div class="flex flex-col gap-3.5 p-4 border border-red-200/40 dark:border-red-500/25 bg-red-500/5 rounded-2xl mt-4">
+              <div class="flex gap-2 items-start text-xs text-red-700 dark:text-red-400">
+                <svg class="h-4 w-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div class="flex flex-col gap-0.5">
+                  <span class="font-bold">Restablecimiento Masivo Obligatorio</span>
+                  <span>Esto cerrará las sesiones de todos los colaboradores y les forzará a cambiar su contraseña en su próximo inicio de sesión. Use solo en caso de sospecha de hackeo.</span>
+                </div>
+              </div>
+              
+              <div class="flex justify-end mt-1">
+                <button 
+                  (click)="openForcePasswordModal()"
+                  class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl cursor-pointer transition-colors shadow-sm"
+                >
+                  Forzar Cambio de Contraseña Global
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      }
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- MODAL 1: AJUSTE DE CONTADOR DE FOLIO (Pestaña Minutarios) -->
+<app-modal
+  [isOpen]="isAjusteModalOpen()"
+  (close)="closeAjusteModal()"
+  className="max-w-[480px] w-full m-4"
+>
+  <div class="relative w-full p-6 bg-white rounded-3xl dark:bg-gray-900 lg:p-8 flex flex-col gap-4">
+    <div>
+      <h4 class="text-lg font-bold text-gray-800 dark:text-white">
+        Ajuste Manual de Consecutivo
+      </h4>
+      <p class="text-xs text-gray-400 mt-1">
+        Configure el nuevo valor para el minutario anual. Esta acción requiere credenciales de seguridad.
+      </p>
+    </div>
+
+    <form [formGroup]="ajusteForm" (ngSubmit)="executeContadorAdjustment()" class="flex flex-col gap-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-gray-500 uppercase">Año Fiscal</label>
+          <select formControlName="anio" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-xs rounded-lg font-semibold text-gray-700 dark:text-gray-300">
+            @for (yr of availableYears(); track yr) {
+              <option [value]="yr">{{ yr }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-gray-500 uppercase">Tipo Documento</label>
+          <select formControlName="tipo" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-xs rounded-lg font-semibold text-gray-700 dark:text-gray-300">
+            @if (!showGestDocs()) {
+              <option value="oficio">Oficios</option>
+              <option value="memo">Memorándums</option>
+              <option value="circular">Circulares</option>
+              <option value="ti">Tarjetas Informativas</option>
+            } @else {
+              <option value="oficio_gest">Oficios (En Gestión)</option>
+              <option value="memo_gest">Memorándums (En Gestión)</option>
+              <option value="circular_gest">Circulares (En Gestión)</option>
+              <option value="ti_gest">Tarjetas Informativas (En Gestión)</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-gray-500 uppercase">Alcance del Ajuste</label>
+          <select formControlName="scope" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-xs rounded-lg font-semibold text-gray-700 dark:text-gray-300">
+            <option value="specific">Área Seleccionada</option>
+            <option value="all">Todas las Áreas</option>
+          </select>
+        </div>
+
+        @if (ajusteForm.get('scope')?.value === 'specific') {
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-bold text-gray-500 uppercase">Área Organizacional</label>
+            <select formControlName="areaId" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-xs rounded-lg font-semibold text-gray-700 dark:text-gray-300">
+              <option value="">-- Seleccionar Área --</option>
+              @for (m of areasMinutarios(); track m.id) {
+                @if (m.area) {
+                  <option [value]="m.area.id">
+                    {{ m.area.name }} {{ m.area.acronym ? '(' + m.area.acronym + ')' : '' }}
+                  </option>
+                }
+              }
+            </select>
+          </div>
+        }
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold text-gray-500 uppercase">Nuevo Número Consecutivo (Folio)</label>
+        <input type="number" formControlName="nuevo_valor" placeholder="Ej: 450" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-xs rounded-lg font-semibold text-gray-700 dark:text-gray-300">
+      </div>
+
+      <div class="flex flex-col gap-1.5 border-t border-gray-100 dark:border-gray-800 pt-3">
+        <label class="text-[10px] font-bold text-red-500 uppercase">Contraseña Súper Administrador</label>
+        <input type="password" formControlName="admin_password" placeholder="Ingrese su clave para confirmar" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-red-200 dark:border-red-800/40 text-xs rounded-lg">
+      </div>
+
+      <!-- Botones de Acción -->
+      <div class="flex items-center gap-3 justify-end pt-4 border-t border-gray-100 dark:border-gray-800">
+        <button 
+          type="button" 
+          (click)="closeAjusteModal()" 
+          class="px-4 py-2 border border-gray-200 dark:border-gray-800 hover:bg-gray-55 text-gray-600 dark:text-gray-300 text-xs font-semibold rounded-xl cursor-pointer"
+        >
+          Cancelar
+        </button>
+        <button 
+          type="submit" 
+          [disabled]="ajusteForm.invalid || isAdjusting()"
+          class="px-4 py-2 bg-[#691C32] hover:bg-[#521324] text-white text-xs font-semibold rounded-xl cursor-pointer flex items-center gap-1.5"
+        >
+          @if (isAdjusting()) {
+            <span class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+          }
+          <span>Aplicar Cambio</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</app-modal>
+
+<!-- MODAL 2: ADVERTENCIA FORZAR CONTRASEÑAS GLOBAL (Pestaña Seguridad) -->
+<app-modal
+  [isOpen]="isForcePasswordModalOpen()"
+  (close)="closeForcePasswordModal()"
+  className="max-w-[480px] w-full m-4"
+>
+  <div class="relative w-full p-6 bg-white rounded-3xl dark:bg-gray-900 lg:p-8 flex flex-col gap-4 border border-red-500/10">
+    <div class="flex items-center gap-3 text-red-650 dark:text-red-500">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"></path>
+      </svg>
+      <h4 class="text-lg font-bold">
+        ¿Confirmar Restablecimiento Masivo?
+      </h4>
+    </div>
+    
+    <p class="text-xs text-gray-500 dark:text-gray-400">
+      Esta es una operación crítica de seguridad. Todos los usuarios del sistema (excepto el administrador actual) serán desconectados inmediatamente y tendrán que escribir una nueva contraseña en su siguiente inicio de sesión.
+    </p>
+
+    <div class="flex flex-col gap-2">
+      <label class="text-[10px] font-bold text-gray-500 uppercase">Escriba la palabra <strong class="text-red-500">"FORZAR"</strong> para confirmar:</label>
+      <input 
+        type="text" 
+        [value]="confirmForceWord()"
+        (input)="confirmForceWord.set($any($event.target).value)"
+        placeholder="Escriba FORZAR en mayúsculas" 
+        class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-red-200 dark:border-red-800/40 text-xs rounded-lg font-semibold uppercase tracking-wider text-gray-800 dark:text-white"
+      >
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="flex items-center gap-3 justify-end pt-4 border-t border-gray-100 dark:border-gray-800">
+      <button 
+        type="button" 
+        (click)="closeForcePasswordModal()" 
+        class="px-4 py-2 border border-gray-200 dark:border-gray-800 hover:bg-gray-55 text-gray-600 dark:text-gray-300 text-xs font-semibold rounded-xl cursor-pointer"
+      >
+        Abortar Acción
+      </button>
+      <button 
+        (click)="executeForceResetPasswords()"
+        [disabled]="confirmForceWord().toLowerCase() !== 'forzar' || isForcingPassword()"
+        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5"
+      >
+        @if (isForcingPassword()) {
+          <span class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        }
+        <span>Ejecutar Forzado</span>
+      </button>
+    </div>
+  </div>
+</app-modal>
+
+<!-- MODAL 3: MODAL DE CONFIRMACIÓN DE MODO MANTENIMIENTO -->
+<app-modal
+  [isOpen]="isMaintenanceModalOpen()"
+  (close)="closeMaintenanceModal()"
+  className="max-w-[480px] w-full m-4"
+>
+  <div class="relative w-full p-6 bg-white rounded-3xl dark:bg-gray-900 lg:p-8 flex flex-col gap-4 border border-red-500/10">
+    <div class="flex items-center gap-3 text-red-650 dark:text-red-500">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"></path>
+      </svg>
+      <h4 class="text-lg font-bold">
+        @if (maintenanceModeActive()) {
+          ¿Deseas activar el sistema?
+        } @else {
+          ¿Deseas detener el sistema?
+        }
+      </h4>
+    </div>
+    
+    <p class="text-xs text-gray-500 dark:text-gray-400">
+      @if (maintenanceModeActive()) {
+        El modo mantenimiento será desactivado y el acceso al sistema volverá a estar disponible para todos los colaboradores.
+      } @else {
+        Esto activará el modo mantenimiento. El acceso al sistema quedará restringido de inmediato para todos los colaboradores (excepto súper-administradores).
+      }
+    </p>
+
+    <div class="flex flex-col gap-2">
+      <label class="text-[10px] font-bold text-gray-550 uppercase">Escriba la palabra <strong class="text-red-500">"{{ requiredMaintenanceWord() }}"</strong> para confirmar:</label>
+      <input 
+        type="text" 
+        [value]="confirmMaintenanceWord()"
+        (input)="confirmMaintenanceWord.set($any($event.target).value)"
+        placeholder="Escriba {{ requiredMaintenanceWord() }} en mayúsculas" 
+        class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-red-200 dark:border-red-800/40 text-xs rounded-lg font-semibold uppercase tracking-wider text-gray-800 dark:text-white"
+      >
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="flex items-center gap-3 justify-end pt-4 border-t border-gray-100 dark:border-gray-800">
+      <button 
+        type="button" 
+        (click)="closeMaintenanceModal()" 
+        class="px-4 py-2 border border-gray-200 dark:border-gray-800 hover:bg-gray-55 text-gray-600 dark:text-gray-300 text-xs font-semibold rounded-xl cursor-pointer"
+      >
+        Cancelar
+      </button>
+      <button 
+        (click)="executeMaintenanceToggle()"
+        [disabled]="confirmMaintenanceWord() !== requiredMaintenanceWord() || isSavingMaintenance()"
+        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl cursor-pointer flex items-center gap-1.5"
+      >
+        @if (isSavingMaintenance()) {
+          <span class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        }
+        <span>Confirmar</span>
+      </button>
+    </div>
+  </div>
+</app-modal>

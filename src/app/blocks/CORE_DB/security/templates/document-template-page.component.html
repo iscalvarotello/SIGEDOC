@@ -1,0 +1,41 @@
+<app-master-wrapper 
+  title="Control de Plantillas de Documento" 
+  subtitle="Consulta, registra y configura las plantillas base en Google Drive y su asignación a tipos de documentos."
+  icon="📂" 
+  [layoutSpan]="{ master: 7, detail: 5 }"
+  [serverError]="serverError()"
+  searchPlaceholder="Buscar por nombre, ID Drive, tipo de documento..."
+  (onSearch)="filtrar($event)"
+  (onRefresh)="refresh()"
+  (onSync)="sync()"
+  (onNew)="nuevo()">
+  
+  <div master class="h-full">
+    <app-data-table 
+      [data]="filteredItems()" 
+      [columns]="pageConfig.tableColumns"
+      [selectedItem]="selectedItem()"
+      [isLoading]="isLoading()"
+      (onRowSelect)="select($event)"
+      (onEdit)="edit($event)"
+      (onDelete)="delete($event)">
+    </app-data-table>
+  </div>
+
+  <div detail class="h-full flex flex-col">
+    @if (selectedItem()) {
+      <app-detail-viewer 
+        [data]="selectedItem()"
+        [headerConfig]="pageConfig.detailHeader"
+        [fields]="pageConfig.detailFields">
+      </app-detail-viewer>
+    } @else {
+      <app-dismiss-areacard
+        title="Ninguna plantilla seleccionada"
+        description="Por favor, elija una plantilla de la lista izquierda para visualizar su detalle y enlace a Google Drive."
+        iconType="users">
+      </app-dismiss-areacard>
+    }
+  </div>
+
+</app-master-wrapper>

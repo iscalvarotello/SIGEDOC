@@ -16,13 +16,24 @@
     "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
-    "module": "ES2022"
+    "module": "ES2022" ,
+    "baseUrl": "./", 
+    "paths": {
+      "@app/*" : ["src/app/*"],
+      "@env/*" : ["src/environments/*"] ,
+      "@shared/*" : ["src/app/shared/*"],
+      "@components/*" : ["src/app/shared/components/*"],
+      "@documents/*" : ["src/app/documents/*"] ,
+      "@sharedComponents/*" : ["src/app/shared/components/*"],
+      "@operations/*" : ["src/app/blocks/OPERATIONS/*"],
+      "@core_db/*" : ["src/app/blocks/CORE_DB/*"],
+      "@configSys/*" : ["src/app/blocks/CONFIG_SYSTEM/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true,
-    "enableControlFlow": true
+    "strictTemplates": true
   }
 }

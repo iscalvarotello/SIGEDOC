@@ -1,0 +1,98 @@
+<!-- Panel Derecho: Acciones y Personal Adscrito -->
+<div class="flex flex-col gap-6 h-full min-h-[500px]">
+  
+  @if (!selectedArea()) {
+    <app-dismiss-areacard 
+      description="Por favor, elija una de las áreas en el organigrama lateral izquierdo para visualizar sus adscripciones, titulares activos y realizar movimientos de personal."
+      iconType="folder">
+    </app-dismiss-areacard>
+  } @else {
+    
+    <!-- Panel Detallado del Área Seleccionada -->
+    <div class="bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col gap-6">
+      
+      <!-- Información de Cabecera del Área Genérica -->
+      <app-area-header [area]="selectedArea()"></app-area-header>
+
+      <!-- BARRA DE ACCIONES PREMIUM -->
+      <app-action-bar
+        title="Acciones de Gestión de Personal"
+        [actions]="actionsConfig()"
+        (onAction)="handleActionBarClick($event)">
+      </app-action-bar>
+
+      <!-- Bloque 1: Liderazgo y Cargos Directivos -->
+      <div class="flex flex-col gap-3">
+        <h3 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+          Dirección y Liderazgo
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Tarjeta del Titular -->
+          <app-employee-card
+            [adscription]="titularAdscription()"
+            layout="leadership"
+            roleLabel="🏛️ Titular / Jefe"
+            roleLabelClass="bg-[#691C32]/10 text-[#691C32]"
+            emptyMessage="Sin Titular Activo Asignado"
+            (onEdit)="openEditAdscriptionDrawer($event)"
+            (onDismiss)="deleteAdscription($event)">
+          </app-employee-card>
+
+          <!-- Tarjeta del Encargado Temporal -->
+          <app-employee-card
+            [adscription]="encargadoAdscription()"
+            layout="leadership"
+            roleLabel="👑 Encargado (Senescal)"
+            roleLabelClass="bg-[#BC955C]/10 text-[#BC955C]"
+            emptyMessage="Sin Encargado Temporal"
+            (onEdit)="openEditAdscriptionDrawer($event)"
+            (onDismiss)="deleteAdscription($event)">
+          </app-employee-card>
+        </div>
+      </div>
+
+      <!-- Bloque 2: Personal Operativo y de Apoyo -->
+      <div class="flex flex-col gap-3 mt-2">
+        <h3 class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+          Personal Adscrito ({{ operativeAdscriptions().length }})
+        </h3>
+
+        <app-card-list
+          [isLoading]="isAdscriptionsLoading()"
+          [isEmpty]="operativeAdscriptions().length === 0"
+          loadingMessage="Cargando adscripciones..."
+          emptyMessage="No hay personal operativo o de recepción asignado directamente a esta área.">
+          
+          <button emptyAction 
+                  (click)="openActionDrawer('adscribir')" 
+                  class="text-[#691C32] hover:text-[#521324] font-semibold underline mt-1 cursor-pointer">
+            Adscribir a alguien
+          </button>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @for (adsc of operativeAdscriptions(); track adsc.id) {
+              <app-employee-card
+                [adscription]="adsc"
+                layout="operative"
+                [showSwitches]="true"
+                (onEdit)="openEditAdscriptionDrawer($event)"
+                (onDismiss)="deleteAdscription($event)">
+              </app-employee-card>
+            }
+          </div>
+        </app-card-list>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- SUB-COMPONENTE: Formulario Desacoplado de Captura Lateral -->
+<app-adscription-form
+  [isOpen]="isDrawerOpen()"
+  [selectedArea]="selectedArea()"
+  [activeAction]="activeAction()"
+  [editingAdscription]="editingAdscription()"
+  [titularAdscription]="titularAdscription()"
+  (onClose)="closeDrawer()"
+  (onSaved)="onFormSaved()">
+</app-adscription-form>

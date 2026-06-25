@@ -167,6 +167,11 @@ export class DocDetailComponent implements OnDestroy {
   activeActionForm = signal<string | null>(null);
 
   // Opciones calculadas del selector de archivos en el visor de PDF
+  isPdf(filenameOrExt: string): boolean {
+    const name = (filenameOrExt || '').toLowerCase();
+    return name.endsWith('.pdf') || name === 'pdf' || name === '.pdf';
+  }
+
   viewerOptions = computed<ViewerOption[]>(() => {
     const doc = this.doc;
     if (!doc) return [];
@@ -180,7 +185,11 @@ export class DocDetailComponent implements OnDestroy {
     };
 
     const attachments = this.selectedDocAttachments() || [];
-    const attOptions: ViewerOption[] = attachments.map((att: any) => ({
+    const pdfAttachments = attachments.filter((att: any) => 
+      this.isPdf(att.extension || att.attachment_title || att.attachment_name)
+    );
+
+    const attOptions: ViewerOption[] = pdfAttachments.map((att: any) => ({
       id: att.id_attachment,
       label: att.attachment_name || 'Anexo sin nombre',
       sublabel: att.attachment_title || 'Archivo adjunto',
@@ -189,7 +198,7 @@ export class DocDetailComponent implements OnDestroy {
 
     const allOptions = [docOption];
 
-    if (attachments.length > 0) {
+    if (pdfAttachments.length > 0) {
       allOptions.push({
         id: doc.id,
         label: 'Documento Fusionado',

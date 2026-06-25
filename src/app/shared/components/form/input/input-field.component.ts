@@ -17,6 +17,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
         [step]="step"
         [disabled]="disabled"
         [ngClass]="inputClasses"
+        [autocomplete]="autocomplete"
         (input)="onInput($event)"
       />
 
@@ -40,6 +41,7 @@ export class InputFieldComponent {
   @Input() name?: string = '';
   @Input() placeholder?: string = '';
   @Input() value: string | number = '';
+  @Input() autocomplete: string = '';
   @Input() min?: string;
   @Input() max?: string;
   @Input() step?: number;

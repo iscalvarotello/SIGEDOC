@@ -1,0 +1,35 @@
+<app-master-wrapper
+  title="Casetas de Cobro"
+  subtitle="Gestión de casetas de cobro y tarifas para el cálculo de fletes."
+  
+  [serverError]="serverError()"
+  (onSearch)="filtrar($event)"
+  (onRefresh)="refresh()"
+  (onNew)="nuevo()">
+
+  <!-- Barra lateral Izquierda: Listado -->
+  <div master class="h-full">
+    <app-data-table
+      [data]="filteredItems()"
+      [columns]="pageConfig.tableColumns"
+      [selectedItem]="selectedItem()"
+      [isLoading]="isLoading()"
+      (onRowSelect)="select($event)"
+      (onEdit)="edit($event)"
+      (onDelete)="delete($event)">
+    </app-data-table>
+  </div>
+
+  <!-- Panel Derecho: Detalle -->
+  <div detail class="h-full flex flex-col">
+    @if (selectedItem()) {
+      <app-detail-viewer
+        [data]="selectedItem()"
+        [headerConfig]="pageConfig.detailHeader"
+        [fields]="pageConfig.detailFields">
+      </app-detail-viewer>
+    }
+  </div>
+
+</app-master-wrapper>
+

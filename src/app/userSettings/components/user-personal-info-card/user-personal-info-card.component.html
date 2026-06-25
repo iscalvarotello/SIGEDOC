@@ -1,0 +1,213 @@
+<div class="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 bg-white dark:bg-gray-900 shadow-theme-xs">
+  <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between pb-4 border-b border-gray-150 dark:border-gray-800">
+    <div>
+      <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+        Información Personal y de Contacto
+      </h4>
+      <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+        Datos de identidad, contacto y localización fiscal de su expediente.
+      </p>
+    </div>
+    <button
+      (click)="openModal()"
+      class="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-2.5 text-xs font-semibold text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/3 dark:hover:text-gray-200 lg:inline-flex lg:w-auto cursor-pointer transition duration-150"
+    >
+      <svg
+        class="fill-current"
+        width="16"
+        height="16"
+        viewBox="0 0 18 18"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z"
+        />
+      </svg>
+      Editar Datos
+    </button>
+  </div>
+
+  <div class="mt-6">
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <!-- Prefijo -->
+      <div>
+        <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Prefijo / Título</span>
+        <span class="block mt-1 text-sm font-semibold text-gray-800 dark:text-white">
+          {{ personalData().prefix || 'N/A' }}
+        </span>
+      </div>
+
+      <!-- Nombre -->
+      <div>
+        <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Nombre(s)</span>
+        <span class="block mt-1 text-sm font-semibold text-gray-800 dark:text-white">
+          {{ personalData().name || 'N/A' }}
+        </span>
+      </div>
+
+      <!-- Apellidos -->
+      <div>
+        <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Apellidos</span>
+        <span class="block mt-1 text-sm font-semibold text-gray-800 dark:text-white">
+          {{ personalData().first_surname || '' }} {{ personalData().second_surname || '' }}
+        </span>
+      </div>
+
+      <!-- Apodo/Alias -->
+      <div>
+        <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Nombre de Pila / Apodo</span>
+        <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ personalData().nickname || 'N/A' }}
+        </span>
+      </div>
+
+      <!-- RFC -->
+      <div>
+        <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">RFC</span>
+        <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">
+          {{ personalData().rfc || 'N/A' }}
+        </span>
+      </div>
+
+      <!-- CURP -->
+      <div>
+        <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">CURP</span>
+        <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">
+          {{ personalData().curp || 'N/A' }}
+        </span>
+      </div>
+
+      <!-- Teléfono -->
+      <div>
+        <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Teléfono de Contacto</span>
+        <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ personalData().phone || 'N/A' }}
+        </span>
+      </div>
+
+      <!-- Correo de Contacto -->
+      <div>
+        <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Correo de Contacto</span>
+        <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ personalData().email || 'N/A' }}
+        </span>
+      </div>
+
+      <!-- Género -->
+      <div>
+        <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Género</span>
+        <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+          {{ personalData().sex === 'M' || personalData().sex === 'H' ? 'Masculino' : (personalData().sex === 'F' || personalData().sex === 'Mujer' ? 'Femenino' : 'No especificado') }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Formulario de Edición -->
+  <app-modal
+    [isOpen]="isOpen"
+    (close)="closeModal()"
+    className="max-w-[700px] m-4"
+  >
+    <div class="relative w-full p-6 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-10 max-h-[90vh]">
+      <div class="px-2 pr-12">
+        <h4 class="text-xl font-semibold text-gray-800 dark:text-white/90">
+          Editar Datos Personales
+        </h4>
+        <p class="mb-6 text-xs text-gray-500 dark:text-gray-400 mt-1">
+          Actualice su información personal y de contacto. Estos cambios se reflejarán de inmediato en el sistema.
+        </p>
+      </div>
+
+      <form (ngSubmit)="handleSave()" class="space-y-5 px-2">
+        <!-- Grid de Campos -->
+        <div class="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
+          <!-- Prefijo -->
+          <div>
+            <app-label>Prefijo (Título)</app-label>
+            <app-input-field type="text" [(value)]="formModel.prefix" placeholder="Ej. Ing., Lic., Dr." />
+          </div>
+
+          <!-- Nombre -->
+          <div>
+            <app-label>Nombre(s)</app-label>
+            <app-input-field type="text" [(value)]="formModel.name" placeholder="Ingrese sus nombres" />
+          </div>
+
+          <!-- Primer Apellido -->
+          <div>
+            <app-label>Primer Apellido</app-label>
+            <app-input-field type="text" [(value)]="formModel.first_surname" placeholder="Primer Apellido" />
+          </div>
+
+          <!-- Segundo Apellido -->
+          <div>
+            <app-label>Segundo Apellido</app-label>
+            <app-input-field type="text" [(value)]="formModel.second_surname" placeholder="Segundo Apellido" />
+          </div>
+
+          <!-- Apodo / Alias -->
+          <div>
+            <app-label>Nombre Corto / Apodo</app-label>
+            <app-input-field type="text" [(value)]="formModel.nickname" placeholder="Ej. Alvaro Tello" />
+          </div>
+
+          <!-- Teléfono -->
+          <div>
+            <app-label>Teléfono de Contacto</app-label>
+            <app-input-field type="text" [(value)]="formModel.phone" placeholder="Ej. 961 123 4567" />
+          </div>
+
+          <!-- Correo de Contacto -->
+          <div>
+            <app-label>Correo de Contacto</app-label>
+            <app-input-field type="email" [(value)]="formModel.email" placeholder="correo@ejemplo.com" />
+          </div>
+
+          <!-- Género -->
+          <div>
+            <app-label>Género</app-label>
+            <div class="relative">
+              <select
+                [(ngModel)]="formModel.sex"
+                name="sex"
+                class="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm bg-transparent border-gray-300 dark:border-gray-700 focus:outline-none dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-800"
+              >
+                <option value="" disabled>Seleccione Género...</option>
+                <option value="M">Masculino</option>
+                <option value="F">Femenino</option>
+              </select>
+              <!-- Icono flecha de select nativo -->
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                <svg class="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- CURP -->
+          <div>
+            <app-label>CURP</app-label>
+            <app-input-field type="text" [(value)]="formModel.curp" placeholder="CURP de 18 caracteres" class="uppercase" />
+          </div>
+
+          <!-- RFC -->
+          <div>
+            <app-label>RFC</app-label>
+            <app-input-field type="text" [(value)]="formModel.rfc" placeholder="RFC con homoclave" class="uppercase" />
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex items-center gap-3 pt-4 border-t border-gray-150 dark:border-gray-800 lg:justify-end">
+          <app-button size="sm" variant="outline" type="button" (btnClick)="closeModal()">Cancelar</app-button>
+          <app-button size="sm" (btnClick)="handleSave()" [disabled]="isSaving">
+            {{ isSaving ? 'Guardando...' : 'Guardar Cambios' }}
+          </app-button>
+        </div>
+      </form>
+    </div>
+  </app-modal>
+</div>

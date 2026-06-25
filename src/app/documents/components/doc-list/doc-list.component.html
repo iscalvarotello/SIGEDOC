@@ -1,0 +1,33 @@
+<div class="bg-gray-100 rounded-t-2xl p-4 border border-b-0 border-gray-200 dark:bg-white/5 dark:border-gray-800">
+  <h3 class="text-sm font-extrabold text-gray-700 dark:text-white flex items-center justify-between">
+    <span>DOCUMENTOS DISPONIBLES</span>
+    <span class="bg-[#BC955C] text-white px-2.5 py-0.5 rounded-full text-xs">{{ documents.length }}</span>
+  </h3>
+</div>
+
+<div 
+  class="bg-white border border-gray-200 rounded-b-2xl p-4 flex-1 max-h-[680px] overflow-y-auto space-y-4 shadow-sm dark:border-gray-800 dark:bg-white/3">
+  
+  @if (isLoading) {
+    <div class="flex flex-col items-center justify-center py-20">
+      <div class="animate-spin rounded-full h-10 w-10 border-4 border-t-transparent border-[#691C32]"></div>
+      <span class="mt-4 text-sm font-semibold text-gray-500">Cargando bandeja...</span>
+    </div>
+  } @else if (documents.length === 0) {
+    <div class="text-center py-24 border-2 border-dashed border-gray-100 rounded-2xl">
+      <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      </svg>
+      <p class="mt-4 text-sm text-gray-500 font-medium">No se encontraron documentos en esta bandeja.</p>
+    </div>
+  } @else {
+    @for (doc of documents; track doc.id) {
+      <app-doc-card
+        [doc]="doc"
+        [selectedDocId]="selectedDocId"
+        (selectDocument)="selectDocument.emit($event)"
+        (openPdf)="openPdf.emit($event)">
+      </app-doc-card>
+    }
+  }
+</div>

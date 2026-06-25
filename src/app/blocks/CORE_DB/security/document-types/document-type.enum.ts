@@ -1,0 +1,41 @@
+export enum DocumentTypeCode {
+  COMISION = 'comision',
+  BITACORA = 'bitacora',
+  EVIDENCIA_FOTOGRAFICA = 'evidencia_fotografica',
+  SOLICITUD_AVION = 'solicitud_avion',
+  AIRPLANE = 'airplane',
+  POTHOGRAP = 'pothograp',
+  VALE_GASOLINA = 'vale_gasolina',
+  RECORRIDO_INTERNO = 'recorrido_interno',
+  RELACION_TRAMITE_LIQUIDACION = 'relacion_tramite_liquidacion',
+  INFORME_COMISION = 'informe_comision',
+  MEMO = 'memo',
+  OFICIO = 'oficio',
+  CIRCULAR = 'circular',
+  TI = 'ti',
+  CUSTOM_CIRCULAR = 'custom_circular',
+  CUSTOM_MEMO = 'custom_memo',
+  CUSTOM_OFICIO = 'custom_oficio',
+  CUSTOM_TI = 'custom_ti'
+}
+
+export const DOCUMENT_TYPE_OPTIONS = [
+  { value: DocumentTypeCode.MEMO, label: 'Memorándum en blanco (memo)' },
+  { value: DocumentTypeCode.OFICIO, label: 'Oficio en blanco (oficio)' },
+  { value: DocumentTypeCode.CIRCULAR, label: 'Circular en blanco (circular)' },
+  { value: DocumentTypeCode.TI, label: 'Tarjeta informativa en blanco (ti)' },
+  { value: DocumentTypeCode.COMISION, label: 'Formato oficial de comisión (comision)' },
+  { value: DocumentTypeCode.BITACORA, label: 'Formato oficial de bitácora (bitacora)' },
+  { value: DocumentTypeCode.EVIDENCIA_FOTOGRAFICA, label: 'Formato de evidencia fotográfica (evidencia_fotografica)' },
+  { value: DocumentTypeCode.SOLICITUD_AVION, label: 'Formato de solicitud de avión (solicitud_avion)' },
+  { value: DocumentTypeCode.AIRPLANE, label: 'Formato de boletos de avión (airplane)' },
+  { value: DocumentTypeCode.POTHOGRAP, label: 'Evidencia fotográfica reducida (pothograp)' },
+  { value: DocumentTypeCode.VALE_GASOLINA, label: 'Formato de vales de gasolina (vale_gasolina)' },
+  { value: DocumentTypeCode.RECORRIDO_INTERNO, label: 'Formato de recorrido interno (recorrido_interno)' },
+  { value: DocumentTypeCode.RELACION_TRAMITE_LIQUIDACION, label: 'Formato de trámite de liquidación (relacion_tramite_liquidacion)' },
+  { value: DocumentTypeCode.INFORME_COMISION, label: 'Formato de informe de comisión (informe_comision)' },
+  { value: DocumentTypeCode.CUSTOM_CIRCULAR, label: 'Formato personalizado de circular (custom_circular)' },
+  { value: DocumentTypeCode.CUSTOM_MEMO, label: 'Formato personalizado de memorándum (custom_memo)' },
+  { value: DocumentTypeCode.CUSTOM_OFICIO, label: 'Formato personalizado de oficio (custom_oficio)' },
+  { value: DocumentTypeCode.CUSTOM_TI, label: 'Formato personalizado de tarjeta informativa (custom_ti)' }
+];

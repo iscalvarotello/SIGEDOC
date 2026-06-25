@@ -1,0 +1,25 @@
+<app-split-layout
+  title="Plantilla y Adscripciones de Personal"
+  subtitle="Gestione y asigne el personal de la dependencia, cambie adscripciones, asigne directivos y encargados de área."
+  icon="🛡️">
+  
+  <!-- Panel Izquierdo: Organigrama de Dependencias -->
+  <div leftPane class="h-full flex flex-col gap-4">
+    <app-tree-view
+      [nodes]="areaTree()"
+      [selectedId]="selectedArea()?.id || ''"
+      [isLoading]="isTreeLoading()"
+      title="Organigrama de Dependencias"
+      subtitle="Seleccione un área administrativa para visualizar y operar."
+      searchPlaceholder="Buscar área por nombre o siglas..."
+      [searchFields]="['name', 'acronym', 'area_type']"
+      (onSelect)="onAreaSelect($event)">
+    </app-tree-view>
+  </div>
+
+  <!-- Panel Derecho: Acciones, Detalles y Drawer Form -->
+  <div rightPane class="h-full">
+    <app-adscription-panel [selectedArea]="selectedArea()"></app-adscription-panel>
+  </div>
+
+</app-split-layout>

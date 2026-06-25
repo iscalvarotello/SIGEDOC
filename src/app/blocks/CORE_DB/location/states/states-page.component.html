@@ -1,0 +1,39 @@
+<app-master-wrapper 
+  title="Base de Datos de Estados y Regiones" 
+  icon="🗺️" 
+  [layoutSpan]="{ master: 7, detail: 5 }"
+  
+  [serverError]="serverError()"
+  searchPlaceholder="Buscar por estado, código o país..."
+  (onSearch)="filtrar($event)"
+  (onRefresh)="refresh()"
+  (onSync)="sync()"
+  (onNew)="nuevo()">
+  
+  <!-- ESPACIO RESERVADO PARA CUSTOM FILTERS (FilterCountry) -->
+  <div customFilters class="flex-1 w-full min-w-[200px]">
+    <app-filter-country (onCountrySelect)="onCountryChanged($event)"></app-filter-country>
+  </div>
+  
+  <div master class="h-full">
+    <app-data-table 
+      [data]="filteredItems()" 
+      [columns]="pageConfig.tableColumns"
+      [selectedItem]="selectedItem()"
+      [isLoading]="isLoading()"
+      (onRowSelect)="select($event)"
+      (onEdit)="edit($event)"
+      (onDelete)="delete($event)">
+    </app-data-table>
+  </div>
+
+  <div detail class="h-full flex flex-col">
+    <app-detail-viewer 
+      [data]="selectedItem()"
+      [headerConfig]="pageConfig.detailHeader"
+      [fields]="pageConfig.detailFields">
+    </app-detail-viewer>
+  </div>
+
+</app-master-wrapper>
+

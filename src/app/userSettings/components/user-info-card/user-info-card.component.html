@@ -1,0 +1,170 @@
+<div class="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6 bg-white dark:bg-gray-900 shadow-theme-xs">
+  <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between pb-4 border-b border-gray-150 dark:border-gray-800">
+    <div>
+      <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90">
+        Información de Adscripción Laboral
+      </h4>
+      <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+        Detalle de puestos funcionales, áreas administrativas y atribuciones vigentes asignadas.
+      </p>
+    </div>
+    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-[#691C32]/5 text-[#691C32] dark:bg-[#691C32]/10 dark:text-white border border-[#691C32]/20">
+      <span class="h-1.5 w-1.5 rounded-full bg-[#691C32] dark:bg-white animate-pulse"></span>
+      Bandeja Activa
+    </span>
+  </div>
+
+  @if (activeAds()) {
+    <div class="mt-6">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <!-- Puesto Funcional -->
+        <div>
+          <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Puesto Jerárquico</span>
+          <span class="block mt-1 text-sm font-bold text-gray-900 dark:text-white">
+            {{ getResolvedJobPosition(activeAds()) }}
+          </span>
+        </div>
+
+        <!-- Área de Adscripción -->
+        <div>
+          <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Área de Adscripción</span>
+          <span class="block mt-1 text-sm font-semibold text-gray-800 dark:text-gray-200">
+            {{ activeAds().nombre_area }} ({{ activeAds().acronym_area || 'S/A' }})
+          </span>
+        </div>
+
+        <!-- Clave de Puesto -->
+        <div>
+          <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Clave de Puesto</span>
+          <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ activeAds().job_position?.job_key || 'N/A' }}
+          </span>
+        </div>
+
+        <!-- Categoría y Nivel -->
+        <div>
+          <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Nivel / Categoría</span>
+          <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">
+            {{ activeAds().job_position?.level || '-' }} / {{ activeAds().job_position?.category || 'Sin Categoría' }}
+          </span>
+        </div>
+
+        <!-- Tipo de Área -->
+        <div>
+          <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Tipo de Área</span>
+          <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ activeAds().area_type_name || 'N/A' }}
+          </span>
+        </div>
+
+        <!-- Área Base -->
+        <div>
+          <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Área Base / Agrupante</span>
+          <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ activeAds().nombre_area_base || 'N/A' }} ({{ activeAds().acronym_area_base || 'S/A' }})
+          </span>
+        </div>
+
+        <!-- Sucursal / Sede Física -->
+        <div>
+          <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Sucursal / Sede Física</span>
+          <span class="block mt-1 text-sm font-semibold text-gray-800 dark:text-white">
+            {{ activeAds().branch?.name || 'N/A' }}
+          </span>
+        </div>
+
+        <!-- Dirección Sede -->
+        <div class="col-span-1 md:col-span-2">
+          <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Dirección de la Sede</span>
+          <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300 truncate" [title]="activeAds().branch?.address || ''">
+            {{ activeAds().branch?.address || 'N/A' }}
+          </span>
+        </div>
+
+        <!-- Ubicación Geográfica -->
+        <div>
+          <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Ubicación</span>
+          <span class="block mt-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ activeAds().branch?.city?.name || 'N/A' }}, {{ activeAds().branch?.city?.state?.name || 'N/A' }}, {{ activeAds().branch?.city?.state?.country?.name || 'N/A' }} {{ activeAds().branch?.city?.state?.country?.emoji || '' }}
+          </span>
+        </div>
+
+        <!-- Atribuciones y Roles -->
+        <div class="col-span-1 md:col-span-2">
+          <span class="block text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider mb-1.5">Atribuciones de Firma y Recepción</span>
+          <div class="flex flex-wrap gap-1.5">
+            @if (activeAds().is_head || activeAds().is_in_charge) {
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-250 dark:border-emerald-500/20">
+                🏛️ Autoridad (Titular/Encargado)
+              </span>
+            }
+            @if (activeAds().is_reception) {
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-blue-55 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
+                📨 Receptor Oficial de Correspondencia
+              </span>
+            }
+            @if (activeAds().is_reviewer) {
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
+                📋 Revisor Autorizado de Documentos
+              </span>
+            }
+            @if (!activeAds().is_head && !activeAds().is_in_charge && !activeAds().is_reception && !activeAds().is_reviewer) {
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+                👤 Personal Operativo Estándar
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  @} @else {
+    <div class="mt-6 p-4 text-center border border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
+      <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Sin adscripción activa seleccionada.</span>
+    </div>
+  }
+
+  <!-- Adscripciones Secundarias -->
+  @if (secondaryAdscriptions().length > 0) {
+    <div class="mt-8 pt-6 border-t border-gray-150 dark:border-gray-800">
+      <h5 class="text-xs uppercase font-extrabold text-gray-400 dark:text-gray-500 tracking-wider mb-4">
+        Otras Adscripciones Vinculadas
+      </h5>
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        @for (ads of secondaryAdscriptions(); track ads.id_area) {
+          <div class="p-4 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-white/[0.01] flex flex-col gap-2">
+            <div class="flex items-start justify-between gap-2">
+              <span class="font-bold text-xs text-gray-800 dark:text-white truncate">
+                {{ ads.nombre_area }}
+              </span>
+              <span class="text-[10px] uppercase font-bold bg-gray-200/60 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-1.5 py-0.5 rounded">
+                {{ ads.acronym_area || 'S/A' }}
+              </span>
+            </div>
+            <span class="text-xs font-semibold text-[#BC955C]">
+              Puesto: {{ getResolvedJobPosition(ads) }}
+            </span>
+            <div class="flex flex-wrap gap-1 mt-1">
+              @if (ads.is_head || ads.is_in_charge) {
+                <span class="text-[9px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 px-1 py-0.5 rounded">Titular</span>
+              }
+              @if (ads.is_reception) {
+                <span class="text-[9px] font-semibold bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 px-1 py-0.5 rounded">Recepción</span>
+              }
+              @if (ads.is_reviewer) {
+                <span class="text-[9px] font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 px-1 py-0.5 rounded">Revisor</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Informativo -->
+  <div class="mt-6 flex gap-2 items-center text-xs text-amber-600 dark:text-amber-400/90 bg-amber-500/5 dark:bg-amber-500/10 p-3 rounded-lg border border-amber-500/10">
+    <svg class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <span><b>Nota institucional:</b> Los puestos funcionales y áreas de adscripción son cargados desde la base de datos de Recursos Humanos y no son editables por el usuario.</span>
+  </div>
+</div>
