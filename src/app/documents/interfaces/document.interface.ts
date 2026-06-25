@@ -38,6 +38,21 @@ export interface DocumentItem {
    recibe                  : string           , // Nickname de la persona que recibe el documento: Anita, Fili, etc
    estatus                 : Estatus          , // 'En edición','En firma','En espera','Entregado','Cancelado'
    medio_envio             : MedioEnvio       , // 'sin enviar','directo','sistema','correo','postal','whatsapp'
+
+    // Campos de acompañamiento de área (Opción A)
+    id_area_solicitante?    : number           ,
+    id_area_revisor?        : number           ,
+    id_area_turnado_a?      : number           ,
+    id_area_destinatario_interno?: number      ,
+    id_area_destinatario_atencion?: number     ,
+
+    // Campos adicionales del diccionario de datos
+    prioridad?              : string           ,
+    date_dispatch?          : Date             ,
+    date_received?          : Date             ,
+    acuse_pdf_url?          : string           ,
+    acuse_pdf_hash?         : string           ,
+    anexos_drive_folder_id? : string           ,
 }
 
 export type ClaseDocumentoId    = 'memo'        | 'oficio'      | 'ti'         | 'circular';
