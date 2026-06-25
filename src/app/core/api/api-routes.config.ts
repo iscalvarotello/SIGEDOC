@@ -53,7 +53,7 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
                                               getTree: { path: '/organization/areas/:id/tree', method: 'GET' },
                                               updateStatus: { path: '/organization/areas/:id/status', method: 'PATCH' },
                                               customFields: { path: '/organization/areas/custom_document_fields', method: 'PATCH' },
-                                              getTemas: { path: '/organization/areas/:id/temas', method: 'GET' },
+                                              getTemas: { path: '/organization/areas/:id/temas', method: 'GET', raw: true },
                                               addTema: { path: '/organization/areas/:id/temas', method: 'PATCH' }
                                      }
   },

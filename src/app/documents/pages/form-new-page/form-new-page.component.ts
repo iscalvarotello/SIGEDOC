@@ -414,7 +414,7 @@ export class FormNewPageComponent implements OnInit {
       const clase = this.claseDocumentoId();
       const adscription = this._session.activeAdscription();
       this.loadDynamicFieldsCatalogs();
-    }, { allowSignalWrites: true });
+    });
 
     effect(() => {
       const areaId = this.idAreaEmisora();
@@ -424,7 +424,7 @@ export class FormNewPageComponent implements OnInit {
       } else {
         this.temasList.set([]);
       }
-    }, { allowSignalWrites: true });
+    });
   }
 
   async loadTemas(areaId: string) {
