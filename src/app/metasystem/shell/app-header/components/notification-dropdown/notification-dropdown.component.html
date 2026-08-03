@@ -1,0 +1,32 @@
+<div class="relative">
+
+  <notification-button class="dropdown-toggle" [unreadCount]="unreadCount()" (clicked)="toggleDropdown()"></notification-button>
+  
+  <app-dropdown [isOpen]="isOpen" (close)="closeDropdown()" width="w-[320px] sm:w-[500px] md:w-[650px]" padding="p-4" position="-right-[240px] lg:right-0" marginTop="mt-[17px]" customClasses="h-[480px] z-50">
+    <!-- Encabezado Dropdown -->
+    <div class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-700">
+      <div class="flex items-center gap-2">
+        <h5 class="text-base font-bold text-gray-800 dark:text-gray-200">  Notificaciones  </h5>
+        @if (unreadCount() > 0) {
+          <span class="px-2 py-0.5 bg-orange-100 text-orange-600 dark:bg-orange-950/20 dark:text-orange-400 rounded-full text-[10px] font-black">
+            {{ unreadCount() }} nuevas
+          </span>
+        }
+      </div>
+      <icon-button icon="Cross" variant="ghost" (clicked)="closeDropdown()"></icon-button>
+    </div>
+    
+    <!-- Lista de Notificaciones -->
+    <ul class="flex flex-col h-auto overflow-y-auto custom-scrollbar flex-1 max-h-[380px]">
+      @if (notifications().length === 0) {
+        <div class="flex flex-col items-center justify-center py-16 text-center">
+          <app-title type="third" title="Sin notificaciones" subtitle="El sistema te avisará cuando tengas notificaciones nuevas" icon="BellOutline" iconSize="xl" align="center" customColorClass="text-gray-500 dark:text-gray-400" extraSubtitleClasses="max-w-[200px] leading-relaxed"></app-title>
+        </div>
+      } @else {
+        @for (notif of notifications(); track notif.id) {
+          <notification-item [notification]="notif" (clicked)="handleNotificationClick($event)" (dismissed)="dismissNotification($event, $any($event))"></notification-item>
+        }
+      }
+    </ul>
+  </app-dropdown>
+</div>

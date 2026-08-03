@@ -1,0 +1,38 @@
+<div class="mx-auto max-w-7xl p-1 md:p-6 flex flex-col gap-6 animate-fadeIn">
+  
+  <!-- Encabezado de la página -->
+  <div class="pb-4 border-b border-gray-150 dark:border-gray-800">
+    <app-title 
+      type="primary" 
+      title="Configuraciones Globales" 
+      subtitle="Gestione parámetros generales de impresión, minutarios, notificaciones SMTP y políticas de seguridad del sistema.">
+    </app-title>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- PESTAÑAS LATERALES (Sidebar Navigation) -->
+    <side-nav-card class="lg:col-span-3">
+      <button-tab (clicked)="setTab('institucion')"   [active]="activeTab() === 'institucion'"   icon="Organizacion"> Institucionalización </button-tab>
+      <button-tab (clicked)="setTab('documentos')"    [active]="activeTab() === 'documentos'"    icon="Documentos"> Firma Electrónica    </button-tab>
+      <button-tab (clicked)="setTab('minutarios')"    [active]="activeTab() === 'minutarios'"    icon="Ticket"    > Minutarios y Folios  </button-tab>
+      <button-tab (clicked)="setTab('smtp')"          [active]="activeTab() === 'smtp'"          icon="RH"        > Servidor SMTP        </button-tab>
+      <button-tab (clicked)="setTab('mantenimiento')" [active]="activeTab() === 'mantenimiento'" icon="Refresh"   > Mantenimiento        </button-tab>
+      <button-tab (clicked)="setTab('seguridad')"     [active]="activeTab() === 'seguridad'"     icon="Escudo"    > Seguridad y Sesiones </button-tab>
+    </side-nav-card>
+
+    <!-- PANELES DE CONTENIDO (Config Cards) -->
+    <content-nav-card class="lg:col-span-9">
+      @switch (activeTab()) {
+        @case ( 'institucion'   ) { <generales-institucion-tab></generales-institucion-tab>     }
+        @case ( 'documentos'    ) { <generales-documentos-tab></generales-documentos-tab>       }
+        @case ( 'minutarios'    ) { <generales-minutarios-tab></generales-minutarios-tab>       }
+        @case ( 'smtp'          ) { <generales-smtp-tab></generales-smtp-tab>                   }
+        @case ( 'mantenimiento' ) { <generales-mantenimiento-tab></generales-mantenimiento-tab> }
+        @case ( 'seguridad'     ) { <generales-seguridad-tab></generales-seguridad-tab>         }
+      }
+    </content-nav-card>
+
+  </div>
+
+</div>

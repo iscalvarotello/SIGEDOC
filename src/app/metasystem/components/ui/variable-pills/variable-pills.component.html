@@ -1,0 +1,22 @@
+<div class="flex flex-col h-full min-w-0">
+  <div class="mb-3">
+    <h4 class="text-xs font-bold text-gray-700 dark:text-zinc-300 uppercase tracking-wider">{{ title() }}</h4>
+    <p class="text-[10px] text-gray-500 dark:text-zinc-400 mt-0.5">{{ subtitle() }}</p>
+  </div>
+  
+  <div class="flex-1 overflow-y-auto min-w-0 pr-1 custom-scrollbar">
+    <div class="flex flex-wrap gap-2">
+      @for (variable of variables(); track variable.key) {
+        <button 
+          type="button"
+          (click)="handleClick(variable.key)"
+          class="inline-flex items-center px-2.5 py-1 rounded border border-gray-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs font-medium text-gray-700 dark:text-zinc-300 hover:bg-theme-primary hover:text-white dark:hover:bg-theme-secondary dark:hover:text-black hover:border-transparent transition-colors truncate max-w-full"
+          [title]="variable.label + ' (' + variable.key + ')'">
+          {{ variable.label }}
+        </button>
+      } @empty {
+        <p class="text-xs text-gray-400 italic">No hay variables disponibles.</p>
+      }
+    </div>
+  </div>
+</div>

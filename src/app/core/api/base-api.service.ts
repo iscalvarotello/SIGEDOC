@@ -4,15 +4,20 @@ import { environment } from '../../../environments/environment';
 import { ApiPackageConfig, DBResponse } from './api.interfaces';
 import { firstValueFrom } from 'rxjs';
 import { CacheManagerService } from '../services/cache-manager.service';
-import { GlobalCacheConfig } from '../../shared/components/master-detail/master-detail.interfaces';
+import { GlobalCacheConfig } from '@system-shared/master-detail/master-detail.interfaces';
 import { ApiRouteConfig } from './api-routes.config';
+import { ApiRouteService } from './api-route.service';
+import { applyFrontendMapping } from '../utils/data-mapper.util';
 
 export abstract class BaseApiService<T> {
   protected configPackage: ApiPackageConfig;
   
   // Usamos inject() para que las clases hijas no tengan que inyectar dependencias en su constructor
   protected http = inject(HttpClient); 
-  protected cacheManager = inject(CacheManagerService); 
+  protected cacheManager = inject(CacheManagerService);
+  protected apiRouteService = inject(ApiRouteService); 
+  
+  protected apiRouter: ReturnType<ApiRouteService['forEndpoint']>;
 
   constructor(
     protected configKey: string,
@@ -22,28 +27,11 @@ export abstract class BaseApiService<T> {
     if (!this.configPackage) {
       throw new Error(`ApiRouteConfig no encontrado para la key: ${this.configKey}`);
     }
+    this.apiRouter = this.apiRouteService.forEndpoint(this.configKey);
   }
 
-  /**
-   * Construye la URL completa usando environment.URL_PATH y reemplaza parámetros dinámicos (ej. :id)
-   */
-  protected buildUrl(path: string, paramsObj?: Record<string, any>): string {
-    let finalPath = path;
-    
-    if (paramsObj) {
-      Object.keys(paramsObj).forEach(key => {
-        if (finalPath.includes(`:${key}`)) {
-          finalPath = finalPath.replace(`:${key}`, encodeURIComponent(paramsObj[key]));
-          delete paramsObj[key]; // Lo quitamos para no enviarlo doble (en query params) si ya se usó
-        }
-      });
-    }
-    
-    // Normalizar slashes
-    const baseUrl = environment.URL_PATH.replace(/\/$/, '');
-    const cleanPath = finalPath.startsWith('/') ? finalPath : `/${finalPath}`;
-    
-    return `${baseUrl}${cleanPath}`;
+  protected buildUrl(path: string): string {
+    return this.apiRouteService.getAbsoluteUrl(path);
   }
 
   /**
@@ -53,10 +41,17 @@ export abstract class BaseApiService<T> {
     if (!this.dtoClass || !data) return data;
     if (data instanceof Blob) return data;
     
+    const applyMapping = (item: any) => {
+      if (this.configPackage.frontendMapping) {
+        return applyFrontendMapping(item, this.configPackage.frontendMapping);
+      }
+      return item;
+    };
+
     if (Array.isArray(data)) {
-      return data.map(item => new this.dtoClass!(item));
+      return data.map(item => new this.dtoClass!(applyMapping(item)));
     }
-    return new this.dtoClass(data);
+    return new this.dtoClass(applyMapping(data));
   }
 
   // ==========================================
@@ -97,7 +92,7 @@ export abstract class BaseApiService<T> {
     }
     
     // 2. Fetch Network
-    const url = this.buildUrl(this.configPackage.base);
+    const url = this.apiRouter.getAllUrl();
     let params = new HttpParams();
     
     // Usar 'plain=true' si está configurado para este paquete
@@ -131,7 +126,7 @@ export abstract class BaseApiService<T> {
   }
 
   public async getById(id: string | number, queryParams?: any): Promise<T> {
-    const url = this.buildUrl(`${this.configPackage.base}/${id}`);
+    const url = this.apiRouter.getByIdUrl(id);
     let params = new HttpParams();
     
     // Usar 'plain=true' si está configurado para este paquete
@@ -156,7 +151,7 @@ export abstract class BaseApiService<T> {
   }
 
   public async create(body: any, cacheKeyToInvalidate?: string): Promise<T> {
-    const url = this.buildUrl(this.configPackage.base);
+    const url = this.apiRouter.getAllUrl();
     const response = await this.handleRequest<any>(this.http.post<any>(url, body));
     
     if (cacheKeyToInvalidate) {
@@ -168,7 +163,7 @@ export abstract class BaseApiService<T> {
   }
 
   public async update(id: string | number, body: any, cacheKeyToInvalidate?: string): Promise<T> {
-    const url = this.buildUrl(`${this.configPackage.base}/${id}`);
+    const url = this.apiRouter.getByIdUrl(id);
     const response = await this.handleRequest<any>(this.http.patch<any>(url, body));
     
     if (cacheKeyToInvalidate) {
@@ -180,7 +175,7 @@ export abstract class BaseApiService<T> {
   }
 
   public async delete(id: string | number, cacheKeyToInvalidate?: string): Promise<any> {
-    const url = this.buildUrl(`${this.configPackage.base}/${id}`);
+    const url = this.apiRouter.getByIdUrl(id);
     const result = await this.handleRequest<any>(this.http.delete<any>(url));
     
     if (cacheKeyToInvalidate) {
@@ -223,9 +218,10 @@ export abstract class BaseApiService<T> {
     }
 
     const routeDef = this.configPackage.specialRoutes[routeName];
-    
     const paramsToReplace = urlParams ? { ...urlParams } : {};
-    const url = this.buildUrl(routeDef.path, paramsToReplace);
+    
+    // Delegamos la extracción y reemplazo de variables dinámicas al apiRouter
+    const url = this.apiRouter.getSpecialRouteUrl(routeName, paramsToReplace);
     
     let httpParams = new HttpParams();
     if (routeDef.method === 'GET' && this.configPackage.plain) {

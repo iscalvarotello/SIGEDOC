@@ -1,0 +1,20 @@
+<app-form-page-wrapper
+  titleNew="Crear Nuevo Estado / Región"
+  titleEdit="Editar Estado / Región"
+  subtitle="Complete los datos solicitados del estado."
+  breadcrumbLabel="Base de Datos de Estados"
+  breadcrumbRoute="/database/location/states"
+  [isEditMode]="isEditMode()"
+  [isLoading]="isLoading()"
+  [showSkeleton]="!form.dirty"
+  [isFormInvalid]="form.invalid" [globalErrors]="globalErrors()" 
+  (onSave)="onSave()"
+  (onCancel)="onCancel()">
+
+  <app-dynamic-form 
+    [config]="formConfig" 
+    [formGroup]="form"
+    [isEditMode]="isEditMode()">
+  </app-dynamic-form>
+
+</app-form-page-wrapper>

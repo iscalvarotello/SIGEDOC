@@ -1,0 +1,33 @@
+<app-master-wrapper 
+  title="Tareas Programadas (Cron Jobs)" 
+  icon="iconClock" 
+  [layoutSpan]="{ master: 7, detail: 5 }"
+  
+  [serverError]="serverError()"
+  searchPlaceholder="Buscar por nombre o tarea..."
+  (onSearch)="filtrar($event)"
+  (onRefresh)="refresh()"
+  (onSync)="sync()"
+  (onNew)="nuevo()">
+  
+  <div master class="h-full">
+    <app-data-table 
+      [data]="filteredItems()" 
+      [columns]="pageConfig.tableColumns"
+      [selectedItem]="selectedItem()"
+      [isLoading]="isLoading()"
+      (onRowSelect)="select($event)"
+      (onEdit)="edit($event)"
+      (onDelete)="delete($event)">
+    </app-data-table>
+  </div>
+
+  <div detail class="h-full flex flex-col">
+    <app-detail-viewer 
+      [data]="selectedItem()"
+      [headerConfig]="pageConfig.detailHeader"
+      [fields]="pageConfig.detailFields">
+    </app-detail-viewer>
+  </div>
+
+</app-master-wrapper>

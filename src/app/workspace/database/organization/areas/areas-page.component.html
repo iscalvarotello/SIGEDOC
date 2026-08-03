@@ -1,0 +1,67 @@
+@if (currentFormView() === 'schedule') {
+  <app-area-schedule-form
+    [area]="configuringArea()!"
+    [isSaving]="isSaving()"
+    (onSave)="saveSchedule($event)"
+    (onCancel)="closeFormView()">
+  </app-area-schedule-form>
+} @else if (currentFormView() === 'auth') {
+  <app-area-auth-form
+    [area]="configuringArea()!"
+    [isSaving]="isSaving()"
+    [employees]="employees()"
+    [isLoadingEmployees]="isLoadingEmployees()"
+    (onSave)="saveAuth($event)"
+    (onCancel)="closeFormView()"
+    (onReloadEmployees)="loadEmployees(true)">
+  </app-area-auth-form>
+} @else {
+      <!-- Listado Estándar -->
+      <app-master-wrapper 
+        title="Áreas Administrativas" 
+        icon="Organizacion"
+        [layoutSpan]="{ master: 7, detail: 5 }"
+        [searchTerm]="searchTerm()"
+        searchPlaceholder="Buscar por nombre, acrónimo..."
+        (onSearch)="filtrar($event)"
+        (onRefresh)="refresh()"
+        (onSync)="sync()"
+        (onNew)="nuevo()">
+        
+        <!-- Filtro custom de Área Padre -->
+        <div customFilters class="flex-1 w-full min-w-[300px]">
+          <app-filter-area (onAreaSelect)="onParentAreaChanged($event)"></app-filter-area>
+        </div>
+        
+        <div master class="h-full">
+          <app-data-table 
+            [data]="filteredItems()" 
+            [columns]="pageConfig.tableColumns"
+            [selectedItem]="selectedItem()"
+            [isLoading]="isLoading()"
+            (onRowSelect)="select($event)"
+            (onEdit)="edit($event)"
+            (onDelete)="delete($event)">
+          </app-data-table>
+        </div>
+
+        <div detail class="h-full flex flex-col">
+          <app-detail-viewer 
+            [data]="selectedItem()"
+            [headerConfig]="pageConfig.detailHeader"
+            [fields]="pageConfig.detailFields">
+            
+            @if (selectedItem() && canUpdate()) {
+              <div class="mt-6 border-t border-gray-100 dark:border-gray-700 pt-6">
+                <app-action-bar
+                  title="Configuración Especial de Incidencias"
+                  [actions]="areaActions()"
+                  (onAction)="handleAreaAction($event)">
+                </app-action-bar>
+              </div>
+            }
+          </app-detail-viewer>
+        </div>
+
+      </app-master-wrapper>
+    }

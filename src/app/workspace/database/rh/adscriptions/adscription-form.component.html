@@ -1,0 +1,200 @@
+<!-- =======================================================================
+     GORGOUS SLIDE-OVER DRAWER (FORMULARIO LATERAL REACTIVO ADAPTATIVO)
+     ======================================================================= -->
+@if (isOpen()) {
+  <div class="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+    <!-- Fondo Oscuro Backdrop con Blur -->
+    <div class="absolute inset-0 bg-gray-500/30 dark:bg-black/40 backdrop-blur-sm transition-opacity" (click)="closeDrawer()"></div>
+
+    <div class="absolute inset-y-0 right-0 pl-10 max-w-full flex">
+      <!-- Panel del Slide-over -->
+      <div class="w-screen max-w-lg bg-white dark:bg-gray-900 shadow-2xl flex flex-col border-l border-gray-100 dark:border-gray-800 animate-slideIn">
+        
+        <!-- Cabecera del Drawer -->
+        <div class="p-6 bg-theme-primary text-white flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-bold" id="slide-over-title">
+              {{ drawerTitle() }}
+            </h3>
+            <p class="text-xs text-gray-200 mt-1">
+              Área actual: {{ selectedArea()?.name }}
+            </p>
+          </div>
+          <action-button 
+            (clicked)="closeDrawer()"
+            variant="ghost"
+            class="text-white hover:bg-white/10 transition-colors rounded-full">
+            <icon icon="XClose" class="w-5 h-5 stroke-[2.5px]"></icon>
+          </action-button>
+        </div>
+
+        <!-- Formulario Reactivo (Scrollable) -->
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex-1 overflow-y-auto p-6 flex flex-col gap-5">
+          
+          <!-- ALERTA DE DOBLE TITULARIDAD REACTIVA -->
+          @if (doubleTitularWarning()) {
+            <div class="p-3.5 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/80 rounded-xl text-amber-700 dark:text-amber-400 text-xs flex flex-col gap-1.5 animate-fadeIn">
+              <span class="font-bold flex items-center gap-1 text-amber-850 dark:text-amber-300">⚠️ Doble Titularidad Detectada</span>
+              <span>
+                Este empleado ya es titular activo en el área <strong>"{{ doubleTitularWarning() }}"</strong>. 
+                Al asignarlo le estás asignando una doble titularidad, ¿Es esto lo que deseas hacer?
+              </span>
+            </div>
+          }
+
+          <!-- Campo: Selección de Empleado -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+              {{ employeeFieldLabel() }}
+            </label>
+            
+            @if (editingAdscription() || activeAction() === 'cambiar_titular') {
+              <!-- Modo Lectura o Edición -->
+              <div class="px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm font-semibold rounded-lg text-gray-700 dark:text-gray-300">
+                @if (activeAction() === 'cambiar_titular') {
+                  Reemplazando a: {{ titularAdscription()?.fullName }}
+                } @else {
+                  {{ editingAdscription()?.fullName }} ({{ editingAdscription()?.rfc }})
+                }
+              </div>
+            } 
+            
+            @if (!editingAdscription()) {
+              <!-- Selector Autocompletado de Empleado Genérico -->
+              <div [ngClass]="{ 'mt-2': activeAction() === 'cambiar_titular' }">
+                <app-employee-select
+                  [selectedId]="form.get('employee_id')?.value || ''"
+                  [employeesList]="employeesList()"
+                  [disabled]="form.get('employee_id')?.disabled || false"
+                  (onSelect)="onEmployeeSelect($event)"
+                  (onClear)="onEmployeeClear()">
+                </app-employee-select>
+              </div>
+              @if (form.get('employee_id')?.touched && form.get('employee_id')?.invalid) {
+                <span class="text-xs text-red-500 font-semibold mt-1 block">Este campo es requerido.</span>
+              }
+            }
+          </div>
+
+          <!-- Campo: Nueva Área (Sólo para Transferencia o Cambio de Titularidad) -->
+          @if (activeAction() === 'transferir' || activeAction() === 'cambiar_titular') {
+            <div class="flex flex-col gap-1.5 animate-fadeIn">
+              <label class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                Área Administrativa Destino
+              </label>
+              <div class="relative">
+                <select 
+                  formControlName="area_id"
+                  class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-theme-primary/50 focus:border-theme-primary transition-all  appearance-none">
+                  <option value="" disabled selected>Seleccione el área de destino...</option>
+                  @for (ar of areasList(); track ar.id) {
+                    <option [value]="ar.id">
+                      {{ ar.name }} ({{ ar.acronym || 'ORG' }})
+                    </option>
+                  }
+                </select>
+                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400">
+                  <icon icon="ChevronDown" class="w-4 h-4"></icon>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Campo 2: Catálogo de Puestos de Trabajo Genérico -->
+          <app-job-position-select
+            [selectedId]="form.get('job_position_id')?.value || ''"
+            [positionsList]="positionsList()"
+            [disabled]="form.get('job_position_id')?.disabled || false"
+            [initialFilter]="positionFilterState()"
+            label="Puesto Asignado"
+            (onSelect)="onPositionSelect($event)">
+          </app-job-position-select>
+          @if (form.get('job_position_id')?.touched && form.get('job_position_id')?.invalid) {
+            <span class="text-xs text-red-500 font-semibold mt-1 block">El puesto es un campo requerido.</span>
+          }
+
+          <!-- Campo 3: Roles y Flags -->
+          @if (activeAction() === 'adscribir' || activeAction() === 'transferir' || activeAction() === 'editar') {
+            <div class="flex flex-col gap-3.5 border-t border-b border-gray-100 dark:border-gray-800 py-4.5 my-1 animate-fadeIn">
+              <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Roles Operativos</span>
+              
+              <!-- Switch: Recepción de Correspondencia -->
+              <label class="flex items-center justify-between cursor-pointer p-2 hover:bg-gray-50 dark:hover:bg-gray-800/40 rounded-xl transition-all">
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm font-bold text-gray-800 dark:text-gray-200">📨 ¿Habilitar Recepción?</span>
+                  <span class="text-xs text-gray-400">Recibirá correspondencia física/digital del sistema.</span>
+                </div>
+                <div class="relative inline-flex items-center">
+                  <input type="checkbox" formControlName="is_reception" class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                </div>
+              </label>
+
+              <!-- Switch: Revisor de Documentos -->
+              <label class="flex items-center justify-between cursor-pointer p-2 hover:bg-gray-50 dark:hover:bg-gray-800/40 rounded-xl transition-all">
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-sm font-bold text-gray-800 dark:text-gray-200">📋 ¿Habilitar Revisor de Oficios?</span>
+                  <span class="text-xs text-gray-400">Visto bueno a borradores antes de la firma.</span>
+                </div>
+                <div class="relative inline-flex items-center">
+                  <input type="checkbox" formControlName="is_reviewer" class="sr-only peer">
+                  <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </div>
+              </label>
+            </div>
+          }
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                Fecha de Inicio
+              </label>
+              <app-date-picker 
+                formControlName="start_date"
+                placeholder="Seleccione fecha...">
+              </app-date-picker>
+              @if (form.get('start_date')?.touched && form.get('start_date')?.invalid) {
+                <span class="text-[10px] text-red-500 font-semibold">Requerido</span>
+              }
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
+                Fecha de Término
+              </label>
+              <app-date-picker 
+                formControlName="end_date"
+                placeholder="Seleccione fecha...">
+              </app-date-picker>
+            </div>
+          </div>
+
+          <!-- Switch: Estatus Activo -->
+          @if (editingAdscription()) {
+            <div class="flex items-center justify-between border-t border-gray-100 dark:border-gray-800 pt-4 mt-2">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-sm font-bold text-gray-800 dark:text-gray-200">Estatus Vigente</span>
+                <span class="text-xs text-gray-400">Si se desmarca, se dará de baja la adscripción.</span>
+              </div>
+              <div class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" formControlName="active" class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-primary"></div>
+              </div>
+            </div>
+          }
+
+          <!-- Botones de Acción Formulario -->
+          <div class="flex gap-4 mt-6 border-t border-gray-100 dark:border-gray-800 pt-6">
+            <cancel-button (clicked)="closeDrawer()"></cancel-button>
+            <submit-button 
+              [label]="editingAdscription() ? 'Guardar Cambios' : 'Confirmar'" 
+               
+              [submitting]="isFormSubmitting()">
+            </submit-button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+}

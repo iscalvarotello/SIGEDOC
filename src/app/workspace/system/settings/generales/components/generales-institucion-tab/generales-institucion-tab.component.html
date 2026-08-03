@@ -1,0 +1,92 @@
+<div class="flex flex-col gap-6 animate-fadeIn">
+  <app-title type="primary" title="Institucionalización y Personalización" subtitle="Modifique el nombre, acrónimo e imágenes que dan identidad a su Institución en el sistema."></app-title>
+
+  @if (isLoading()) {
+    <div class="flex flex-col justify-center items-center py-12 gap-3">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-primary"></div>
+      <p class="text-sm text-gray-500 font-medium">Cargando datos de la institución...</p>
+    </div>
+  } @else {
+    <form [formGroup]="institucionForm" (ngSubmit)="saveInstitutionSettings()" class="flex flex-col gap-5">
+      
+      <!-- Datos Generales -->
+      <div class="flex flex-col gap-3.5">
+        <app-title type="third" title="Datos Generales" subtitle="Información principal de la institución activa."></app-title>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <control type="text" formControlName="name" label="Nombre de la Institución" class="sm:col-span-1"></control>
+          <control type="text" formControlName="acronym" label="Acrónimo / Siglas" class="sm:col-span-1"></control>
+        </div>
+        <div class="grid grid-cols-1 gap-4">
+          <control type="textarea" formControlName="footer" label="Pie de Página Global (Footer)" help="Texto que aparecerá por defecto al calce de todos los documentos oficiales generados por las áreas si no definen uno propio." [rows]="4"></control>
+        </div>
+      </div>
+
+      <!-- Botón Guardar Datos -->
+      <div class="flex justify-end pt-2">
+        <action-button type="submit" variant="primary" size="md" label="Guardar Datos Generales" [disabled]="institucionForm.invalid || isSaving()" [loading]="isSaving()"></action-button>
+      </div>
+
+      <!-- Identidad Visual -->
+      <div class="flex flex-col gap-3.5 border-t border-gray-100 dark:border-gray-800 pt-5 mt-2">
+        <app-title type="third" title="Identidad Visual y Gráfica" subtitle="Suba las imágenes que representarán a su institución. Las proporciones recomendadas son especificadas en cada recuadro."></app-title>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          
+          <!-- Logo -->
+          <div class="flex flex-col gap-4">
+            <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200">Logotipo Institucional</h4>
+            <p class="text-xs text-gray-500">Formato PNG transparente, tamaño menor a 5MB. Se muestra en el menú lateral.</p>
+            <app-file-uploader accept=".jpg,.jpeg,.png,.webp" dragLabel="Subir Logo" helpLabel="Arrastre o haga clic" iconName="UploadCloud" (fileSelected)="onFileSelected('logo', $event)"></app-file-uploader>
+            @if (tenantService.currentTenant()?.logo) {
+              <server-image 
+                endpointKey="INSTITUTIONS" routeKey="getLogo" [params]="{id: tenantService.currentTenant()?.id}" 
+                [timestamp]="true"
+                imgClass="w-full h-auto max-h-[800px] object-contain rounded-xl shadow-sm" 
+                css_marco="min-h-[200px] md:min-h-[250px] w-full rounded-2xl border border-gray-150 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 overflow-hidden flex items-center justify-center relative p-4" [marco]="true">
+              </server-image>
+            } @else {
+              <preview-image [server_img]="null" label="Logo Actual" fallbackText="Sin Logo" fallbackSubText="No se ha subido logotipo" altText="Logo" minHeightClass="min-h-[200px] md:min-h-[250px]"></preview-image>
+            }
+          </div>
+
+          <!-- Escudo -->
+          <div class="flex flex-col gap-4">
+            <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200">Escudo Oficial</h4>
+            <p class="text-xs text-gray-500">Formato PNG o JPG cuadrado. Se muestra en la pantalla de inicio de sesión.</p>
+            <app-file-uploader accept=".jpg,.jpeg,.png,.webp" dragLabel="Subir Escudo" helpLabel="Arrastre o haga clic" iconName="UploadCloud" (fileSelected)="onFileSelected('escudo', $event)"></app-file-uploader>
+            @if (tenantService.currentTenant()?.shield) {
+              <server-image 
+                endpointKey="INSTITUTIONS" routeKey="getEscudo" [params]="{id: tenantService.currentTenant()?.id}" 
+                [timestamp]="true"
+                imgClass="w-full h-auto max-h-[800px] object-contain rounded-xl shadow-sm" 
+                css_marco="min-h-[200px] md:min-h-[250px] w-full rounded-2xl border border-gray-150 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 overflow-hidden flex items-center justify-center relative p-4" [marco]="true">
+              </server-image>
+            } @else {
+              <preview-image [server_img]="null" label="Escudo Actual" fallbackText="Sin Escudo" fallbackSubText="No se ha subido escudo" altText="Escudo" minHeightClass="min-h-[200px] md:min-h-[250px]"></preview-image>
+            }
+          </div>
+
+          <!-- Fondo / Back -->
+          <div class="flex flex-col gap-4 md:col-span-2 border-t border-gray-100 dark:border-gray-800 pt-4 mt-2">
+            <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200">Membrete / Fondo</h4>
+            <p class="text-xs text-gray-500">Formato JPG. Se renderiza como fondo en documentos o en la página de inicio. Se recomienda una imagen panorámica o textura de alta resolución.</p>
+            <app-file-uploader accept=".jpg,.jpeg,.png,.webp" dragLabel="Subir Membrete/Fondo" helpLabel="Arrastre o haga clic" iconName="UploadCloud" (fileSelected)="onFileSelected('back', $event)"></app-file-uploader>
+            @if (tenantService.currentTenant()?.background) {
+              <server-image 
+                endpointKey="INSTITUTIONS" routeKey="getBack" [params]="{id: tenantService.currentTenant()?.id}" 
+                [timestamp]="true"
+                imgClass="w-full h-auto max-h-[800px] object-contain rounded-xl shadow-sm" 
+                css_marco="min-h-[450px] md:min-h-[600px] w-full rounded-2xl border border-gray-150 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 overflow-hidden flex items-center justify-center relative p-4" [marco]="true">
+              </server-image>
+            } @else {
+              <preview-image [server_img]="null" label="Fondo Actual" fallbackText="Sin Fondo" fallbackSubText="No se ha subido fondo" altText="Fondo"></preview-image>
+            }
+          </div>
+
+        </div>
+      </div>
+
+    </form>
+  }
+</div>

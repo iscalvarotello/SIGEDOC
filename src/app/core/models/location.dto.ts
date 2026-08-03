@@ -1,6 +1,8 @@
-// CountryDTO y COUNTRY_REGIONS fueron movidos a blocks/CORE_DB/location/countries/country.dto.ts
+import { IBaseEntity, BaseDto } from '@core/models/base-entity.dto';
 
-export class StateDTO {
+// CountryDTO y COUNTRY_REGIONS fueron movidos a workspace/database/location/countries/country.dto.ts
+
+export class StateDTO extends BaseDto<StateDTO> implements IBaseEntity {
   id: string;
   index_state: number;
   name: string;
@@ -13,6 +15,7 @@ export class StateDTO {
   emoji?: string;
   
   constructor(data: any = {}) {
+    super();
     this.id = data.id_state || data.id;
     this.index_state = data.index_state;
     this.name = data.name || '';

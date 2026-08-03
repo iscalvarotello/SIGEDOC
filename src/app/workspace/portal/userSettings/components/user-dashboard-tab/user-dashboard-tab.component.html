@@ -1,0 +1,116 @@
+<div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-theme-xs space-y-6 animate-fadeIn">
+  <app-title title="Personalizar Vista de Dashboard" subtitle="Active o desactive las tarjetas estadísticas según su rol y necesidades de productividad. Los cambios se guardan al instante."></app-title>
+
+
+  <div class="space-y-4">
+    <!-- Switch 1: Correspondencia Recibida -->
+    <div class="flex items-start justify-between gap-4 p-4 border border-gray-150 dark:border-gray-855 rounded-xl hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📨</span>
+          <span class="text-sm font-bold text-gray-800 dark:text-white">Bandeja de Correspondencia Recibida</span>
+        </div>
+        <p class="text-xs text-gray-450 dark:text-gray-500 leading-relaxed max-w-xl">
+          Muestra el resumen estadístico de todos los documentos y correspondencia oficial que ingresan a la bandeja de tu área para atención, despacho o firma.
+        </p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer select-none shrink-0 mt-1">
+        <input 
+          type="checkbox" 
+          [checked]="dashboardConfig().showReceivedDocs" 
+          (change)="toggleDashboardCard('showReceivedDocs')"
+          class="sr-only peer"
+        />
+        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-secondary"></div>
+      </label>
+    </div>
+
+    <!-- Switch 2: Correspondencia Enviada -->
+    <div class="flex items-start justify-between gap-4 p-4 border border-gray-150 dark:border-gray-850 rounded-xl hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📤</span>
+          <span class="text-sm font-bold text-gray-800 dark:text-white">Bandeja de Correspondencia Enviada</span>
+        </div>
+        <p class="text-xs text-gray-450 dark:text-gray-500 leading-relaxed max-w-xl">
+          Muestra el balance estadístico de todos los oficios y documentos oficiales despachados o enviados a otros destinatarios por parte de tu área.
+        </p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer select-none shrink-0 mt-1">
+        <input 
+          type="checkbox" 
+          [checked]="dashboardConfig().showSentDocs" 
+          (change)="toggleDashboardCard('showSentDocs')"
+          class="sr-only peer"
+        />
+        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-secondary"></div>
+      </label>
+    </div>
+
+    <!-- Switch 3: Estadísticas de Incidencias -->
+    <div class="flex items-start justify-between gap-4 p-4 border border-gray-150 dark:border-gray-850 rounded-xl hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🛡️</span>
+          <span class="text-sm font-bold text-gray-800 dark:text-white">Estadísticas de Incidencias y Permisos</span>
+        </div>
+        <p class="text-xs text-gray-450 dark:text-gray-500 leading-relaxed max-w-xl">
+          Muestra los días restantes de tus vacaciones, balance de permisos económicos y el estatus en tiempo real de tus solicitudes de justificaciones de incidencias.
+        </p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer select-none shrink-0 mt-1">
+        <input 
+          type="checkbox" 
+          [checked]="dashboardConfig().showIncidents" 
+          (change)="toggleDashboardCard('showIncidents')"
+          class="sr-only peer"
+        />
+        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-secondary"></div>
+      </label>
+    </div>
+
+    <!-- Switch 4: Control de Gasolina -->
+    <div class="flex items-start justify-between gap-4 p-4 border border-gray-150 dark:border-gray-850 rounded-xl hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">⛽</span>
+          <span class="text-sm font-bold text-gray-800 dark:text-white">Consumo de Gasolina / Combustible</span>
+        </div>
+        <p class="text-xs text-gray-450 dark:text-gray-500 leading-relaxed max-w-xl">
+          Muestra tu saldo asignado en vales o presupuesto de combustible mensual, registro de últimas cargas y consumos de vehículos de tu área.
+        </p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer select-none shrink-0 mt-1">
+        <input 
+          type="checkbox" 
+          [checked]="dashboardConfig().showGasoline" 
+          (change)="toggleDashboardCard('showGasoline')"
+          class="sr-only peer"
+        />
+        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-secondary"></div>
+      </label>
+    </div>
+
+    <!-- Switch 5: Control de Viáticos -->
+    <div class="flex items-start justify-between gap-4 p-4 border border-gray-150 dark:border-gray-855 rounded-xl hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-colors">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">💼</span>
+          <span class="text-sm font-bold text-gray-800 dark:text-white">Control de Viáticos y Comisiones</span>
+        </div>
+        <p class="text-xs text-gray-450 dark:text-gray-500 leading-relaxed max-w-xl">
+          Muestra el estado de tus comisiones asignadas, montos de viáticos por comprobar y solicitudes pendientes de aprobación para viajes de trabajo.
+        </p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer select-none shrink-0 mt-1">
+        <input 
+          type="checkbox" 
+          [checked]="dashboardConfig().showViaticos" 
+          (change)="toggleDashboardCard('showViaticos')"
+          class="sr-only peer"
+        />
+        <div class="w-11 h-6 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-theme-secondary"></div>
+      </label>
+    </div>
+  </div>
+</div>

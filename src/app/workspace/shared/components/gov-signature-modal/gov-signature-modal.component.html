@@ -1,0 +1,71 @@
+@if (isOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 min-w-0" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeModal()"></div>
+
+    <!-- Modal Panel -->
+    <div class="relative transform overflow-hidden rounded-xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg min-w-0 flex flex-col">
+      
+      <!-- Header -->
+      <div class="bg-gray-50 px-4 py-4 sm:px-6 border-b border-gray-200 min-w-0">
+        <h3 class="text-lg font-semibold leading-6 text-gray-900 truncate" id="modal-title">Firma Electrónica Gubernamental</h3>
+      </div>
+
+      <!-- Timer Banner -->
+      <div class="p-4 bg-gray-50/50 border-b border-gray-100">
+        @if (expiresAt()) {
+          <app-countdown-timer 
+            [expiresAt]="expiresAt()!"
+            (expired)="onTimerExpired()">
+          </app-countdown-timer>
+        }
+      </div>
+
+      <!-- Body -->
+      <form [formGroup]="signForm" (ngSubmit)="submit()" class="flex-1 min-w-0">
+        <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 flex flex-col gap-4 min-w-0">
+          
+          <div class="flex flex-col gap-1 min-w-0">
+            <label for="p12File" class="block text-sm font-medium leading-6 text-gray-900">
+              Certificado (.p12) <span class="text-xs text-gray-500 font-normal ml-1">(Opcional si ya lo tiene configurado)</span>
+            </label>
+            <div class="relative mt-1 rounded-md shadow-sm min-w-0">
+              <input type="file" id="p12File" accept=".p12" (change)="onFileSelected($event)" class="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 focus:outline-none">
+            </div>
+            @if (selectedFile()) {
+              <p class="mt-1 text-xs text-green-600 flex items-center gap-1">
+                <icon icon="Check" class="w-3 h-3"></icon> Archivo {{ selectedFile()?.name }} seleccionado
+              </p>
+            }
+          </div>
+
+          <div class="flex flex-col gap-1 min-w-0 mt-2">
+            <label for="cert_password" class="block text-sm font-medium leading-6 text-gray-900">Contraseña del Certificado</label>
+            <div class="relative mt-1 rounded-md shadow-sm min-w-0">
+              <input type="password" id="cert_password" formControlName="password" autocomplete="new-password" class="block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6" placeholder="Ingrese su contraseña">
+            </div>
+            @if (signForm.get('password')?.invalid && (signForm.get('password')?.dirty || signForm.get('password')?.touched)) {
+              <p class="mt-1 text-sm text-red-600">La contraseña es obligatoria.</p>
+            }
+          </div>
+
+          @if (errorMessage()) {
+            <div class="rounded-md bg-red-50 p-4 mt-2 min-w-0">
+              <div class="flex min-w-0">
+                <div class="ml-3 min-w-0">
+                  <h3 class="text-sm font-medium text-red-800 break-words">{{ errorMessage() }}</h3>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6 border-t border-gray-200 min-w-0">
+          <submit-button [disabled]="signForm.invalid || isLoading() || isExpired()" [submitting]="isLoading()" label="Firmar"></submit-button>
+          <cancel-button (clicked)="closeModal()" label="Cerrar"></cancel-button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

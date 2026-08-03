@@ -1,0 +1,100 @@
+  <!-- Top spacing -->
+  <div class="w-full max-w-md pt-8 mx-auto"></div>
+
+  <div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+    <div class="space-y-6">
+      <!-- Header Section -->
+      <div class="flex flex-col items-center space-y-12">
+
+        <!-- Escudo y Nombre de la Institución -->
+        <app-institution-image 
+          [shield]="tenantService.currentTenant()?.shield || undefined"
+          [name]="tenantService.currentTenant()?.name || 'Sistema Estatal'">
+        </app-institution-image>
+
+         <!-- Logo y Nombre del Sistema -->
+        <app-title-system [inline]="true"></app-title-system>
+      </div>
+
+      <!-- Error Message -->
+      @if (errorMessage()) {
+        <div class="rounded-lg bg-rose-50 dark:bg-rose-950/20 p-4 text-sm text-rose-700 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 animate-fadeIn">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <!-- Form -->
+      <form (ngSubmit)="onSignIn()" class="space-y-5">
+        
+        <!-- Institución Selector -->
+        <div>
+          <app-label>Institución <span class="text-error-500">*</span></app-label>
+          @if (institutionOptions().length > 0) {
+            <app-listbox 
+              [options]="institutionOptions()" 
+              placeholder="Seleccione su institución"
+              [searchable]="true"
+              (onSelectionChange)="onInstitutionChange($event)"
+              [ngModel]="tenantService.currentTenant()?.id"
+              name="institution_select">
+            </app-listbox>
+          } @else {
+            <div class="rounded-lg bg-yellow-50 dark:bg-yellow-900/20 p-3 text-xs text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-700/50">
+              <i class="lucide-alert-circle inline-block align-middle mr-1"></i>
+              Configuración Inicial: No hay instituciones registradas. Inicie sesión como Super Administrador para ejecutar el <em>seed</em>.
+            </div>
+          }
+        </div>
+
+        <div>
+          <app-label>Correo Electrónico <span class="text-error-500">*</span></app-label>
+          <app-input-field
+            type="email"
+            placeholder="usuario@correo.com"
+            [(value)]="email"
+            name="email"
+            autocomplete="username email"
+            class="form-input"
+            required
+          />
+        </div>
+
+        <div>
+          <app-label>Contraseña <span class="text-error-500">*</span></app-label>
+          <app-password-input
+            placeholder="Ingrese su contraseña"
+            [(value)]="password"
+            name="password"
+            autocomplete="current-password"
+            [required]="true"
+          />
+        </div>
+
+        <div class="flex items-center justify-between">
+          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+            ¿No tiene una cuenta?
+            <a
+              routerLink="/signup"
+              class="text-theme-primary hover:text-theme-primary/80 dark:text-theme-secondary dark:hover:text-theme-secondary/80 font-bold"
+            >
+              Registrarse
+            </a>
+          </p>
+          <a
+            routerLink="/reset-password-required"
+            [queryParams]="{ security_alert: false }"
+            class="text-xs font-semibold text-theme-primary hover:text-theme-primary/80 dark:text-theme-secondary dark:hover:text-theme-secondary/80"
+          >
+            ¿Olvidó su contraseña?
+          </a>
+        </div>
+
+        <submit-button
+          [submitting]="isLoading()"
+          [disabled]="isLoading()"
+          [label]="isLoading() ? 'Iniciando sesión...' : 'Iniciar Sesión'"
+          (clicked)="onSignIn()">
+        </submit-button>
+      </form>
+    </div>
+  </div>

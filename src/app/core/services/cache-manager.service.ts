@@ -5,12 +5,14 @@ export interface CacheEntry {
   expiresAt: number | null; // Timestamp en milisegundos. null = infinito.
 }
 
+import { APP_SETTINGS } from '@metasystem/settings/app.settings';
+
 @Injectable({
   providedIn: 'root'
 })
 export class CacheManagerService {
-  
-  private readonly CACHE_PREFIX = 'SIGEDOC_CACHE_';
+  private cache = new Map<string, CacheEntry>();
+  private readonly CACHE_PREFIX = APP_SETTINGS.SYSTEM_SHORT_NAME.toUpperCase() + '_CACHE_';
 
   /**
    * Obtiene un valor del localStorage si existe y no ha expirado.

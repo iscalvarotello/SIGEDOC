@@ -1,0 +1,23 @@
+<app-modal  [isOpen]="isOpen"  (close)="onClose()"  className="max-w-[420px] w-full m-4">
+  <div class="relative w-full p-6 bg-white rounded-3xl dark:bg-gray-900 lg:p-8 flex flex-col gap-4">
+    <app-title type="secondary" icon="WarningTriangle" customColorClass="text-red-650 dark:text-red-500" [title]="maintenanceModeActive ? '¿Desactivar Modo Mantenimiento?' : '¿Activar Modo Mantenimiento?'"></app-title>
+    
+    <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+      @if (maintenanceModeActive) {
+        El sistema volverá a estar en línea para todos los colaboradores de las diferentes áreas. Las sesiones volverán a permitirse.
+      } @else {
+        Bloquearás el inicio de sesión para todos los usuarios. Todas las sesiones activas expirarán al recargar. Sólo los perfiles de sistema (Super Admin) podrán entrar.
+      }
+    </p>
+
+    <div class="flex flex-col gap-1.5 mt-2">
+      <control type="text" [ngModel]="confirmWord()" (ngModelChange)="confirmWord.set($event)" placeholder="Escriba la palabra aquí" [label]="'Escriba &quot;' + requiredMaintenanceWord + '&quot; para confirmar'"></control>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="flex items-center gap-3 justify-end mt-4">
+      <action-button type="button" (clicked)="onClose()" variant="default" label="Cancelar"></action-button>
+      <action-button type="button" (clicked)="onSubmit()" [disabled]="confirmWord() !== requiredMaintenanceWord || isSavingMaintenance" [loading]="isSavingMaintenance" variant="danger" label="Confirmar Acción"></action-button>
+    </div>
+  </div>
+</app-modal>

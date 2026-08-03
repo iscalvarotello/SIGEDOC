@@ -1,0 +1,29 @@
+<div class="relative inline-block text-left">
+  <!-- Botón Selector Acrónimo -->
+  <button-drop-down [title]="'Bandeja:'" [subtitle]="activeAcronym()" [inline]="true" [icon]="'circulo_verde'" [isOpen]="isOpen" (clicked)="toggleDropdown()"></button-drop-down>
+
+  <!-- Tarjeta de Ficha de Adscripción -->
+  <app-dropdown [isOpen]="isOpen" (close)="closeDropdown()" width="w-[320px]" padding="p-4" position="right-0" marginTop="mt-[17px]" customClasses="z-[9999]">    
+    <!-- Ficha Rápida -->
+    <div class="pb-3 border-b border-gray-150 dark:border-gray-800">
+      <app-title type="four" title="Ficha de Adscripción Activa" customColorClass="text-gray-400 dark:text-gray-500"></app-title>    
+      <div class="mt-3 space-y-3">
+        <app-title type="third" [title]="dataUser().fullName" subtitle="Nombre del Colaborador" [reverseOrder]="true" extraSubtitleClasses="uppercase font-bold tracking-wider"></app-title>
+        <app-title type="five"  [title]="dataUser().puesto || 'Colaborador Estándar'" subtitle="Puesto Funcional" [reverseOrder]="true" extraSubtitleClasses="uppercase font-bold tracking-wider"></app-title>
+        <app-title type="five"  [title]="dataUser().nombre_area + ' (' + activeAcronym() + ')'" subtitle="Área Administrativa" [reverseOrder]="true" extraSubtitleClasses="uppercase font-bold tracking-wider"></app-title>
+      </div>
+    </div>
+
+    <!-- Switcher de Adscripciones si hay más de una -->
+    @if (adscriptions().length > 1) {
+      <div class="pt-3">
+        <h4 class="text-xs uppercase font-extrabold text-gray-400 dark:text-gray-500 tracking-wider mb-2">Cambiar de Bandeja / Área</h4>      
+        <div class="flex flex-col gap-1.5 max-h-40 overflow-y-auto pr-1">
+          @for (ads of adscriptions(); track ads.id_area) {
+            <button-bandeja [active]="ads.id_area === dataUser().id_area" [title]="ads.nombre_area" [subtitle]="ads.job_position ? (dataUser().sex === 'F' && ads.job_position.name_fem ? ads.job_position.name_fem : ads.job_position.name) : (ads.area_type_name + (ads.is_head ? ' - Titular 🏛️' : (ads.is_in_charge ? ' - Encargado 👑' : '')))"              [badge]="ads.acronym_area || 'S/A'" (clicked)="switchAdscription(ads)"></button-bandeja>
+          }
+        </div>
+      </div>
+    }
+  </app-dropdown>
+</div>

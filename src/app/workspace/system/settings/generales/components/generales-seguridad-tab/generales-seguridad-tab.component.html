@@ -1,0 +1,59 @@
+<div class="flex flex-col gap-6 animate-fadeIn">
+  <app-title type="secondary" title="Seguridad de Cuentas y Control de Sesión" subtitle="Establezca políticas estrictas para evitar accesos no autorizados al sistema."></app-title>
+
+  <div class="flex flex-col gap-5">
+    
+    <!-- Tiempo inactividad y Contraseña por Defecto -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <app-listbox [ngModel]="sessionTimeout()" (ngModelChange)="sessionTimeout.set($event)" [options]="timeoutOptions" [searchable]="false" label="Tiempo Máximo de Inactividad (Token Expire)"></app-listbox>
+      <control type="text" [ngModel]="defaultPassword()" (ngModelChange)="defaultPassword.set($event)" placeholder="Ej: 123456" label="Contraseña Predeterminada (Nuevos Usuarios)"></control>    
+    </div>
+
+    <!-- Botón Guardar Políticas -->
+    <div class="flex justify-end pt-3 border-b border-gray-100 dark:border-gray-800 pb-5">
+      <action-button (clicked)="saveSecuritySettings()" [disabled]="isSaving() || !defaultPassword()" [loading]="isSaving()" variant="primary" label="Actualizar Políticas"></action-button>
+    </div>
+
+    <!-- Switch Modo Mantenimiento -->
+    <div class="flex items-center justify-between border-t border-gray-100 dark:border-gray-850 pt-5 mt-2">
+      <div class="flex flex-col gap-0.5">
+        <span class="text-sm font-bold text-gray-800 dark:text-gray-200">🚧 Switch de modo Modo Mantenimiento</span>
+        @if (maintenanceModeActive()) {
+          <span class="text-xs text-red-650 dark:text-red-500 font-bold animate-pulse">EL SISTEMA ESTA INACTIVO. Vuelve a activarlo para todos los usuarios</span>
+        } @else {
+          <span class="text-xs text-gray-400">Bloquea el acceso al sistema para todos los usuarios (excepto super-administradores).</span>
+        }
+      </div>
+      
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" [checked]="maintenanceModeActive()" (change)="openMaintenanceModal()" class="sr-only peer" />
+        <div class="w-11 h-6 bg-gray-250 dark:bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+      </label>
+    </div>
+
+    <!-- Cambio masivo de claves de emergencia -->
+    <general-bubble title="Restablecimiento Masivo Obligatorio" subtitle="Esto cerrará las sesiones de todos los colaboradores y les forzará a cambiar su contraseña en su próximo inicio de sesión. Use solo en caso de sospecha de hackeo." backcolor="bg-red-500/5 !border-red-200/40 dark:!border-red-500/25 mt-4" textColor="#b91c1c|#ef4444" orientation="vertical">  
+      <div class="flex justify-end mt-1 w-full">
+        <action-button (clicked)="openForcePasswordModal()" variant="danger" label="Forzar Cambio de Contraseña Global"></action-button>
+      </div>
+    </general-bubble>
+
+  </div>
+</div>
+
+<!-- MODALES EXTRAIDOS -->
+<maintenance-modal 
+  [isOpen]="isMaintenanceModalOpen()"
+  [maintenanceModeActive]="maintenanceModeActive()"
+  [requiredMaintenanceWord]="requiredMaintenanceWord()"
+  [isSavingMaintenance]="isSavingMaintenance()"
+  (close)="closeMaintenanceModal()"
+  (submitForm)="executeMaintenanceToggle()">
+</maintenance-modal>
+
+<force-password-modal 
+  [isOpen]="isForcePasswordModalOpen()"
+  [isForcingPassword]="isForcingPassword()"
+  (close)="closeForcePasswordModal()"
+  (submitForm)="executeForceResetPasswords()">
+</force-password-modal>

@@ -1,0 +1,32 @@
+<div class="flex flex-col gap-6 animate-fadeIn">
+  <app-title type="secondary" title="Servidor de Notificaciones SMTP" subtitle="Establezca los parámetros de red para el envío masivo de correos informativos."></app-title>
+
+  <form [formGroup]="smtpForm" (ngSubmit)="saveSmtpSettings()" class="flex flex-col gap-5">
+    
+    <!-- Grid Servidor -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="sm:col-span-2"><control type="text" formControlName="host" label="Host SMTP"></control></div>
+      <div class="sm:col-span-1"><control type="number" formControlName="port" label="Puerto"></control></div>
+      <div class="sm:col-span-2"><control type="text" formControlName="username" label="Usuario SMTP"></control></div>
+      <div class="sm:col-span-1"><control type="password" formControlName="password" label="Contraseña SMTP"></control></div>
+    </div>
+
+    <!-- Switch Global de Correos -->
+    <div class="flex items-center justify-between border-t border-gray-100 dark:border-gray-850 pt-5 mt-2">
+      <div class="flex flex-col gap-0.5">
+        <span class="text-sm font-bold text-gray-800 dark:text-gray-200">🔔 Switch de Notificaciones Global</span>
+        <span class="text-xs text-gray-400">Si se apaga, se detendrán todos los correos del sistema (mantenimiento).</span>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" formControlName="active_notifications" class="sr-only peer">
+        <div class="w-11 h-6 bg-gray-250 dark:bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-theme-primary"></div>
+      </label>
+    </div>
+
+    <!-- Botón Guardar -->
+    <div class="flex justify-end pt-5 border-t border-gray-100 dark:border-gray-800 mt-2">
+      <action-button type="submit" variant="primary" label="Guardar Parámetros" [disabled]="smtpForm.invalid || isSaving()" [loading]="isSaving()"></action-button>
+    </div>
+
+  </form>
+</div>

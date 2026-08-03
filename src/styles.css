@@ -36,11 +36,27 @@ layer(base);
   --text-theme-sm--line-height: 20px;
   --text-theme-xs: 12px;
   --text-theme-xs--line-height: 18px;
+  
+  --text-theme-title: var(--theme-title-size, 2.25rem);
+  --text-theme-subtitle: var(--theme-subtitle-size, 1.5rem);
+  --text-theme-normal: var(--theme-normal-size, 1rem);
+  --text-theme-button: var(--theme-button-size, 0.875rem);
 
   --color-current: currentColor;
   --color-transparent: transparent;
   --color-white: #ffffff;
   --color-black: #101828;
+
+  --color-theme-guinda: #691C32;
+  --color-theme-dorado: #BC955C;
+  --color-theme-primary: var(--theme-primary, #691C32);
+  --color-theme-secondary: var(--theme-secondary, #BC955C);
+  --color-theme-background: var(--theme-background, #FAF8F5);
+  
+  --color-primary-gov: var(--color-base-01);
+  --color-secondary-gov: var(--color-base-02);
+  --color-accent-gov: var(--color-base-03);
+  --color-neutral-gov: var(--color-base-04);
 
   --color-brand-25: #f2f7ff;
   --color-brand-50: #ecf3ff;

@@ -1,0 +1,33 @@
+<div class="relative inline-block w-full max-w-xs md:max-w-md text-left">
+  <!-- Trigger Button -->
+  <dropdown-button
+    (clicked)="toggleDropdown()"
+    [isOpen]="isOpen()"
+    [label]="selectedOption()?.label || 'Seleccionar Archivo...'"
+    [sublabel]="selectedOption()?.sublabel"
+    [icon]="selectedOption()?.type === 'document' ? '📄' : (selectedOption()?.type === 'merged' ? '📑' : '📎')"
+    [isEmoji]="true">
+  </dropdown-button>
+
+  <!-- Options List Dropdown -->
+  @if (isOpen()) {
+    <div 
+      class="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 py-1.5 z-50 max-h-60 overflow-y-auto overflow-x-hidden animate-fadeIn"
+      style="transform-origin: top;">
+      
+      @for (opt of options(); track opt.type + '-' + opt.id) {
+        <item-list-button
+          (clicked)="selectOption(opt)"
+          [label]="opt.label"
+          [sublabel]="opt.sublabel"
+          [icon]="opt.type === 'document' ? '📄' : (opt.type === 'merged' ? '📑' : '📎')"
+          [isEmoji]="true">
+        </item-list-button>
+      } @empty {
+        <div class="px-4 py-3 text-center text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+          Sin opciones disponibles
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,39 @@
+<div class="relative">
+  <!-- Botón de apertura con el Avatar -->
+  <avatar-button (click)="toggleDropdown()" [isOpen]="isOpen" [userId]="currentUser.currentUserData()?.id || currentUser.currentUserData()?.id_usuario" [reloadTrigger]="currentUser.photoTimestamp()">
+    {{ currentUser.dataUser.fullName || 'Usuario' }}
+  </avatar-button>
+
+  <app-dropdown [isOpen]="isOpen" (close)="closeDropdown()" width="w-[260px]" marginTop="mt-[17px]">
+    <!-- Cabecera del Dropdown -->
+    <div class="mb-2">
+      <app-title type="third" [title]="currentUser.dataUser.fullName"  [subtitle]="currentUser.dataUser.email"></app-title>
+    </div>
+
+    <!-- Menú de opciones usando el nuevo DropdownMenuComponent -->
+    <app-dropdown-menu [hasBottomBorder]="true">
+      <app-dropdown-item-two (itemClick)="closeDropdown()"  [to]="'/profile'" [queryParams]="{ tab: 'employee' }" icon="DatosEmpleado">
+        Datos del empleado
+      </app-dropdown-item-two>
+      
+      <app-dropdown-item-two (itemClick)="closeDropdown()" [to]="'/profile'"  [queryParams]="{ tab: 'area' }" icon="ConfiguracionArea">
+        Configuraciones del área
+      </app-dropdown-item-two>
+
+      <app-dropdown-item-two (itemClick)="closeDropdown()" [to]="'/profile'"  [queryParams]="{ tab: 'dashboard' }" icon="ConfiguracionDashboard">
+        Configuración del Dashboard
+      </app-dropdown-item-two>
+
+      <app-dropdown-item-two (itemClick)="closeDropdown()" [to]="'/profile'"  [queryParams]="{ tab: 'firma' }" icon="Lapiz">
+        Firma y Autorización
+      </app-dropdown-item-two>
+
+      <app-dropdown-item-two (itemClick)="closeDropdown()" [to]="'/profile'"  [queryParams]="{ tab: 'apariencia' }" icon="Sun">
+        Apariencia
+      </app-dropdown-item-two>
+    </app-dropdown-menu>
+
+    <!-- Acción de Salir -->
+    <action-button preset="logout" [fullWidth]="true" (clicked)="logout()" class="mt-3 block text-left"></action-button>
+  </app-dropdown>
+</div>

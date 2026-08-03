@@ -1,0 +1,40 @@
+<div class="relative bg-white z-1 dark:bg-gray-900 p-0 overflow-hidden">
+  <div
+    class="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 p-0"
+  >
+    <ng-content></ng-content>
+    <div
+      class="hidden w-full h-full lg:w-1/2 lg:block relative overflow-hidden"
+    >
+      <!-- Background Image with Cover -->
+      <smart-image 
+        [src]="tenantService.systemImage()" 
+        alt="Background" 
+        imgClass="absolute inset-0 w-full h-full object-cover filter brightness-[0.85] contrast-105">
+      </smart-image>
+      <!-- Gradient Overlay for rich aesthetics -->
+      <div class="absolute inset-0 bg-gradient-to-tr from-theme-primary/90 via-theme-primary/40 to-theme-secondary/30 mix-blend-multiply"></div>
+      
+      <!-- Content overlay -->
+      <div class="absolute inset-0 flex flex-col justify-end p-16 text-white z-10">
+        
+        <!-- Bottom overlay text -->
+        <div class="space-y-4 bg-theme-primary/25 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-2xl max-w-lg">
+          <h2 class="text-3xl font-extrabold tracking-tight leading-tight">
+            {{ appSettings.SYSTEM_NAME }}
+          </h2>
+          <p class="text-sm font-semibold text-gray-100 opacity-90 leading-relaxed">
+            {{ appSettings.SYSTEM_PURPOSE }}
+          </p>
+          <div class="pt-2 flex items-center gap-2 text-[10px] uppercase font-bold tracking-wider text-theme-secondary">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Sistema Operativo y Seguro</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fixed z-50 hidden bottom-6 right-6 sm:block">
+      <app-theme-toggle-two />
+    </div>
+  </div>
+</div>

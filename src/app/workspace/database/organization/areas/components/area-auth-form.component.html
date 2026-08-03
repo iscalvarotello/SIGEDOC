@@ -1,0 +1,67 @@
+<div class="fixed inset-0 z-50 bg-gray-50 dark:bg-gray-900 overflow-y-auto pt-16 pb-12 px-6 flex flex-col justify-start items-center">
+  <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-150 dark:border-gray-700 overflow-hidden flex flex-col">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-theme-secondary to-[#8c6c39] px-8 py-6 text-white relative">
+      <h2 class="text-2xl font-bold">Autorizaciones del área</h2>
+      <p class="text-sm opacity-90 mt-1">Seleccione el empleado que autorizará las incidencias para este área.</p>
+      <p class="text-xs font-mono bg-white/10 inline-block px-3 py-1 rounded-full mt-3">
+        Área: {{ area.name }} ({{ area.acronym }})
+      </p>
+    </div>
+
+    <!-- Body -->
+    <div class="p-8 pb-32 space-y-6 flex-1 min-h-[400px]">
+      <div class="bg-amber-50/50 dark:bg-amber-950/10 border border-amber-250 dark:border-amber-900/40 rounded-xl p-4 text-amber-800 dark:text-amber-300 text-xs leading-relaxed flex items-start gap-3">
+        <span class="text-lg">ℹ️</span>
+        <p>
+          <strong>Visto Bueno que autoriza las incidencias:</strong> Algunas áreas requieren que un empleado específico actúe como firmante autorizador adicional (cuarto firmante) en el módulo de incidencias. Si no se selecciona ningún empleado, no se solicitará este VoBo y el flujo estándar continuará con 3 firmantes.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2 relative">
+        <label class="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Seleccionar Empleado Autorizador</label>
+        <app-employee-select
+          [selectedId]="voboEmployeeId"
+          [employeesList]="employees"
+          [showReload]="true"
+          [isLoading]="isLoadingEmployees"
+          placeholder="Buscar empleado por nombre o RFC..."
+          (onSelect)="onVoboEmployeeSelect($event)"
+          (onClear)="onVoboEmployeeClear()"
+          (onReload)="reloadEmployees()">
+        </app-employee-select>
+      </div>
+
+      @if (selectedVoboEmployee) {
+        <div class="bg-gray-50 dark:bg-gray-900 border border-gray-150 dark:border-gray-800 rounded-xl p-5 flex items-start gap-4 animate-fadeIn">
+          <div class="w-12 h-12 rounded-full bg-theme-secondary/15 text-theme-secondary flex items-center justify-center text-xl shrink-0">
+            👤
+          </div>
+          <div class="min-w-0 flex-1">
+            <h4 class="text-sm font-bold text-gray-950 dark:text-white truncate">
+              {{ selectedVoboEmployee.fullName || (selectedVoboEmployee.name + ' ' + selectedVoboEmployee.first_surname) }}
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 mt-3 text-xs text-gray-500 dark:text-gray-400">
+              <div><span class="font-bold text-gray-450 uppercase">RFC:</span> {{ selectedVoboEmployee.rfc || 'N/A' }}</div>
+              <div><span class="font-bold text-gray-450 uppercase">Puesto:</span> {{ selectedVoboEmployee.job_name || selectedVoboEmployee.resolvedJobPosition || 'N/A' }}</div>
+              <div class="sm:col-span-2"><span class="font-bold text-gray-450 uppercase">Área Adscripción:</span> {{ selectedVoboEmployee.area_name || 'N/A' }}</div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="bg-gray-50 dark:bg-gray-900/50 px-8 py-5 border-t border-gray-150 dark:border-gray-800 flex justify-end gap-3 shrink-0">
+      <cancel-button (clicked)="cancel()" label="Cancelar"></cancel-button>
+      <action-button 
+        (clicked)="save()"
+        variant="secondary"
+        size="md"
+        [loading]="isSaving"
+        [disabled]="isSaving"
+        label="Guardar Configuración">
+      </action-button>
+    </div>
+  </div>
+</div>

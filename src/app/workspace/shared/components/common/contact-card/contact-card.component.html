@@ -1,0 +1,43 @@
+<div class="group relative flex flex-col p-4 bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-theme-primary/30 dark:hover:border-theme-secondary/30 transition-all duration-300 w-full h-full">
+  
+  <!-- Profile Icon & Header -->
+  <div class="flex items-start gap-3">
+    <div class="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-500 shrink-0 group-hover:scale-105 transition-transform duration-300 shadow-sm border border-gray-200 dark:border-gray-700">
+      <span class="flex w-5 h-5" [innerHTML]="'DatosEmpleado' | svgIcon"></span>
+    </div>
+    
+    <div class="flex flex-col flex-1 min-w-0">
+      <h5 class="font-bold text-sm text-gray-800 dark:text-gray-100 truncate group-hover:text-theme-primary dark:group-hover:text-theme-secondary transition-colors" [title]="contact.name">
+        {{ contact.name }}
+      </h5>
+      @if (contact.job) {
+        <span class="text-[11px] font-medium text-gray-500 dark:text-gray-400 truncate bg-gray-50 dark:bg-gray-800 self-start px-2 py-0.5 rounded-md mt-1 border border-gray-100 dark:border-gray-700">
+          {{ contact.job }}
+        </span>
+      }
+    </div>
+  </div>
+
+  <!-- Contact Details -->
+  <div class="mt-4 flex flex-col gap-2">
+    @if (contact.email) {
+      <a [href]="'mailto:' + contact.email" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group/link w-fit max-w-full">
+        <div class="flex items-center justify-center w-6 h-6 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-400 group-hover/link:bg-blue-50 dark:group-hover/link:bg-blue-900/20 group-hover/link:text-blue-600 dark:group-hover/link:text-blue-400 transition-colors shrink-0">
+          <!-- Correo icon SVG inline -->
+          <icon icon="Correo" class="w-3.5 h-3.5"></icon>
+        </div>
+        <span class="truncate">{{ contact.email }}</span>
+      </a>
+    }
+    
+    @if (contact.phone) {
+      <a [href]="'tel:' + contact.phone" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors group/link w-fit max-w-full">
+        <div class="flex items-center justify-center w-6 h-6 rounded-md bg-gray-50 dark:bg-gray-800 text-gray-400 group-hover/link:bg-emerald-50 dark:group-hover/link:bg-emerald-900/20 group-hover/link:text-emerald-600 dark:group-hover/link:text-emerald-400 transition-colors shrink-0">
+          <!-- Teléfono icon SVG inline -->
+          <icon icon="Telefono" class="w-3.5 h-3.5"></icon>
+        </div>
+        <span class="truncate">{{ contact.phone }}</span>
+      </a>
+    }
+  </div>
+</div>

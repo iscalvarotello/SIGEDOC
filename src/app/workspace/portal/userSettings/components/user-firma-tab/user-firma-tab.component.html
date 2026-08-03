@@ -1,0 +1,73 @@
+<div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-theme-xs space-y-6 animate-fadeIn">
+  <div class="border-b border-gray-150 dark:border-gray-800 pb-4">
+    <app-title type="secondary"  title="Firma Electrónica y Autorización" subtitle="Configure su archivo criptográfico .p12 para firmar documentos digitalmente e indique de forma individual a su superior responsable de otorgar el Visto Bueno (Vo.Bo.)."></app-title>
+  </div>
+
+  <!-- Bloque 1: Certificado de Firma Electrónica (.p12) -->
+  <general-bubble  orientation="vertical" title="1. Certificado Digital (.p12)" subtitle="Cargue su archivo con extensión <b>.p12</b>. Este archivo se guardará de forma segura en el servidor. <br> <span class=&quot;text-amber-600 dark:text-amber-400 font-medium mt-1 inline-block&quot;>⚠️ Por motivos de seguridad y para evitar la posibilidad de repudio, el sistema nunca le solicitará ni guardará su contraseña de firma. Ésta le será requerida al firmar cada documento.</span>" titleColorClass="text-xs uppercase font-extrabold text-gray-400 dark:text-gray-500 tracking-wider" subtitleColorClass="text-xs text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mt-1" backcolor="bg-gray-50/50 dark:bg-white/[0.01] border border-gray-150 dark:border-gray-800 rounded-xl" class="block">
+    <div class="flex flex-col gap-4 mt-2 w-full">
+
+      <!-- Tarjeta informativa si ya tiene firma cargada -->
+      @if (sesionService.currentUserData()?.has_p12) {
+        <general-bubble class="animate-fadeIn" title="Llave Electrónica Avanzada Configurada" subtitle="Su archivo <b>.p12</b> ya está guardado de manera segura en el sistema. Si desea reemplazarlo, puede seleccionar y cargar un nuevo certificado en cualquier momento." backcolor="bg-emerald-50 dark:bg-emerald-950/20 border-emerald-250 dark:border-emerald-900" titleColorClass="text-emerald-850 dark:text-emerald-400" subtitleColorClass="text-[11px] text-emerald-700 dark:text-emerald-500/90 leading-relaxed" icon="Lock" iconColorClass="text-emerald-600 dark:text-emerald-400 text-xl"></general-bubble>
+      }
+
+      <div class="flex flex-col gap-3">
+        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Seleccionar Archivo de Firma</label>
+        @if (!selectedFirmaFile()) {
+          <app-file-uploader accept=".p12" [maxSizeMB]="5" dragLabel="Arrastre su archivo .p12 o haga clic aquí" helpLabel="Solo archivos con extensión .p12" iconName="UploadCloud" (fileSelected)="onFirmaFileDropped($event)"></app-file-uploader>       
+        } @else {
+          <div class="text-xs text-gray-600 dark:text-gray-300 font-bold bg-theme-secondary/10 border border-theme-secondary/20 p-4 rounded-xl flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <icon icon="FilePdfSolid" class="w-5 h-5 text-theme-secondary"></icon>
+              <span>{{ selectedFirmaFile()?.name }}</span>
+            </div>
+            <action-button icon="XClose" variant="ghost-danger" size="sm" [iconOnly]="true" (clicked)="selectedFirmaFile.set(null)" title="Quitar archivo"></action-button>
+          </div>
+        }
+      </div>
+
+      @if (selectedFirmaFile()) {
+        <div class="flex justify-end pt-2">
+          <action-button variant="secondary" size="lg" label="Cargar Firma Electrónica" icon="UploadCloud" [loading]="isSavingFirma()" (clicked)="uploadFirmaFile()"></action-button>
+        </div>
+      }
+    </div>
+  </general-bubble>
+
+  <!-- Bloque 2: Visto Bueno de Comisión (VoBo) -->
+  <general-bubble orientation="vertical" title="2. Visto Bueno (Vo.Bo.) de Comisión" subtitle="Especifique de forma individual quién es el superior inmediato facultado para validar y otorgar el <b>Visto Bueno (Vo.Bo.)</b> en sus solicitudes de comisiones y viáticos." titleColorClass="text-xs uppercase font-extrabold text-gray-400 dark:text-gray-500 tracking-wider" subtitleColorClass="text-xs text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mt-1" backcolor="bg-gray-50/50 dark:bg-white/[0.01] border border-gray-150 dark:border-gray-800 rounded-xl" class="block mt-4">
+    <div class="flex flex-col gap-4 mt-2 w-full">
+
+      <!-- Tarjeta informativa si ya tiene Vo.Bo. asignado -->
+      @if (sesionService.currentUserData()?.has_vobo && sesionService.currentUserData()?.vobo) {
+        <general-bubble class="animate-fadeIn"  title="Visto Bueno (Vo.Bo.) Registrado" [subtitle]="getVoboSubtitle(sesionService.currentUserData()?.vobo)" backcolor="bg-emerald-50 dark:bg-emerald-950/20 border-emerald-250 dark:border-emerald-900" titleColorClass="text-emerald-850 dark:text-emerald-400" subtitleColorClass="text-[11px] text-emerald-700 dark:text-emerald-500/90 leading-relaxed" icon="UsuarioUnico" iconColorClass="text-emerald-600 dark:text-emerald-400 text-xl"></general-bubble>
+      }
+
+      <div class="flex flex-col gap-2 relative">
+        <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Seleccionar Empleado Responsable del Vo.Bo.</label>
+        <app-employee-select [selectedId]="voboFirmaEmployeeId" [employeesList]="employeesCatalog()" [showReload]="true" [isLoading]="isLoadingEmployees()" placeholder="Buscar superior por nombre o RFC..." (onSelect)="onVoboFirmaSelect($event)" (onClear)="onVoboFirmaClear()" (onReload)="loadEmployeesCatalog(true)"></app-employee-select>
+      </div>
+
+      @if (selectedVoboFirmaEmployee && voboFirmaEmployeeId !== sesionService.currentUserData()?.vobo?.idempleado) {
+        <div class="bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-855 rounded-xl p-4 flex items-center gap-3 animate-fadeIn">
+          <div class="w-10 h-10 rounded-full bg-theme-secondary/15 text-theme-secondary flex items-center justify-center shrink-0">
+            <icon icon="UsuarioUnico" class="w-5 h-5"></icon>
+          </div>
+          <div class="min-w-0 flex-1">
+            <h6 class="text-xs font-bold text-gray-900 dark:text-white truncate">
+              {{ selectedVoboFirmaEmployee.fullName || (selectedVoboFirmaEmployee.name + ' ' + selectedVoboFirmaEmployee.first_surname) }}
+            </h6>
+            <span class="block text-[10px] text-gray-500 dark:text-gray-400 truncate">
+              Puesto: {{ selectedVoboFirmaEmployee.resolvedJobPosition || selectedVoboFirmaEmployee.job_name || 'Sin Puesto' }}
+            </span>
+          </div>
+        </div>
+      }
+
+      <div class="flex justify-end pt-4 border-t border-gray-150 dark:border-gray-800">
+        <action-button variant="secondary" size="lg" label="Guardar Vo.Bo." icon="SaveDisk" [loading]="isSavingVoboFirma()" (clicked)="saveVoboFirma()"></action-button>
+      </div>
+    </div>
+  </general-bubble>
+</div>

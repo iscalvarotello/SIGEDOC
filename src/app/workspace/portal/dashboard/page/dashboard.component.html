@@ -1,0 +1,57 @@
+<div class="grid grid-cols-12 gap-4 md:gap-6">
+  <!-- Saludo de Bienvenida -->
+  <div class="col-span-12">
+    <div class="bg-gradient-to-r from-theme-primary via-[#9F2241] to-theme-secondary dark:bg-none dark:bg-transparent rounded-2xl p-6 md:p-8 text-white shadow-lg dark:shadow-none relative overflow-hidden">
+      <div class="relative z-10">
+        <h1 class="text-2xl md:text-3xl font-extrabold mb-2">¡Hola, {{ userName() }}! 👋</h1>
+        <p class="text-white/90 text-sm md:text-base font-medium">
+          Bienvenido a tu panel de control de {{ appSettings.SYSTEM_NAME }}. Hoy es {{ todayDate() }}.
+        </p>
+        @if (activeAreaName()) {
+          <div class="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 bg-white/15 backdrop-blur-md rounded-xl text-xs font-black tracking-wide uppercase border border-white/10 select-none shadow-sm">
+            <span class="inline-flex rounded-full h-2 w-2 bg-emerald-400 animate-pulse shrink-0"></span>
+            Estas en la Bandeja de la {{ activeAreaName() }}
+          </div>
+        }
+      </div>
+      <!-- Decorative background patterns -->
+      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
+    </div>
+  </div>
+
+  <!-- Sección de Tarjetas del Dashboard -->
+  <!-- 1. Correspondencia Recibida -->
+  @if (dashboardConfig().showReceivedDocs) {
+    <div class="col-span-12 lg:col-span-6 animate-fadeIn">
+      <app-received-document-card [stats]="stats().recibida" [isLoading]="isLoading()"></app-received-document-card>
+    </div>
+  }
+
+  <!-- 2. Correspondencia Enviada -->
+  @if (dashboardConfig().showSentDocs) {
+    <div class="col-span-12 lg:col-span-6 animate-fadeIn">
+      <app-sent-document-card [stats]="stats().enviada" [isLoading]="isLoading()"></app-sent-document-card>
+    </div>
+  }
+
+  <!-- 3. Estadísticas de Incidencias -->
+  @if (dashboardConfig().showIncidents) {
+    <div class="col-span-12 lg:col-span-6 animate-fadeIn">
+      <app-incidents-card [isLoading]="isLoading()"></app-incidents-card>
+    </div>
+  }
+
+  <!-- 4. Control de Gasolina -->
+  @if (dashboardConfig().showGasoline) {
+    <div class="col-span-12 lg:col-span-6 animate-fadeIn">
+      <app-gasoline-card [isLoading]="isLoading()"></app-gasoline-card>
+    </div>
+  }
+
+  <!-- 5. Control de Viáticos -->
+  @if (dashboardConfig().showViaticos) {
+    <div class="col-span-12 lg:col-span-6 animate-fadeIn">
+      <app-viaticos-card [isLoading]="isLoading()"></app-viaticos-card>
+    </div>
+  }
+</div>

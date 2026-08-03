@@ -1,0 +1,68 @@
+<div class="flex flex-col gap-1.5">
+  
+  @if (label) {
+    <label class="text-xs font-bold text-gray-500 uppercase">{{ label }}</label>
+  }
+
+  <div class="relative w-full">
+    @switch (type) {
+      @case ('textarea') {
+        <textarea 
+          [value]="value" 
+          (input)="onInput($event)" 
+          (blur)="onBlur()"
+          [disabled]="isDisabled"
+          [placeholder]="placeholder"
+          [rows]="rows"
+          [ngClass]="baseClasses + ' resize-none'"
+        ></textarea>
+      }
+      
+      @case ('password') {
+        <div class="relative w-full">
+          <input 
+            [type]="showPassword() ? 'text' : 'password'"
+            [value]="value" 
+            (input)="onInput($event)" 
+            (blur)="onBlur()"
+            [disabled]="isDisabled"
+            [placeholder]="placeholder"
+            [ngClass]="baseClasses + ' pr-10'"
+          />
+          <button 
+            type="button"
+            (click)="togglePassword()" 
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          >
+            @if (showPassword()) {
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            } @else {
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            }
+          </button>
+        </div>
+      }
+
+      @default {
+        <input 
+          [type]="type"
+          [value]="value" 
+          (input)="onInput($event)" 
+          (blur)="onBlur()"
+          [disabled]="isDisabled"
+          [placeholder]="placeholder"
+          [step]="step"
+          [ngClass]="baseClasses"
+        />
+      }
+    }
+  </div>
+
+  @if (errorMessage) {
+    <span class="text-[10px] font-bold text-red-500 mt-0.5 flex items-center gap-1 animate-fadeIn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      {{ errorMessage }}
+    </span>
+  }
+
+</div>

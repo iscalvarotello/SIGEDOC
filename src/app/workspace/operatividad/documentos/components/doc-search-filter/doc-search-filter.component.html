@@ -1,0 +1,87 @@
+<!-- PANEL DE CONTROLES (Buscador y Fechas) -->
+<div class="bg-white border border-gray-200 rounded-2xl p-4 mb-6 shadow-sm dark:border-gray-800 dark:bg-white/3">
+  <div class="flex flex-col xl:flex-row gap-4 items-center justify-between">
+    
+    <!-- Filtros de fecha y búsqueda -->
+    <div class="flex flex-col md:flex-row flex-wrap items-center gap-3 w-full xl:w-auto flex-1">
+      
+      <!-- Buscador -->
+      <div class="relative w-full md:w-72 lg:w-80 shrink-0">
+        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+          <icon icon="NewIcon1" class="w-4 h-4"></icon>
+        </span>
+        <input 
+          type="text" 
+          [ngModel]="searchQuery"
+          (ngModelChange)="searchQueryChange.emit($event)"
+          (input)="inputSearch.emit()"
+          placeholder="Buscar por asunto, tema o folio..."
+          class="w-full pl-10 pr-4 py-2 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-medium" />
+      </div>
+
+      <!-- Contenedor de Fechas y Filtrado -->
+      <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+        <!-- Año -->
+        <div class="relative w-24">
+          <input 
+            type="number" 
+            [ngModel]="year"
+            (ngModelChange)="yearChange.emit($event)"
+            (change)="applyFilter.emit()"
+            class="w-full pl-3 pr-3 py-2 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-bold text-center" />
+        </div>
+
+        <!-- Fecha Inicio -->
+        <div class="w-[135px]">
+          <app-date-picker
+            id="start_date_filter"
+            size="sm"
+            prefixLabel="Desde:"
+            [defaultDate]="startDateInput"
+            (dateChange)="startDateInputChange.emit($event.dateStr)">
+          </app-date-picker>
+        </div>
+
+        <!-- Fecha Fin -->
+        <div class="w-[135px]">
+          <app-date-picker
+            id="end_date_filter"
+            size="sm"
+            prefixLabel="Hasta:"
+            [defaultDate]="endDateInput"
+            (dateChange)="endDateInputChange.emit($event.dateStr)">
+          </app-date-picker>
+        </div>
+
+        <!-- Botones de Acción de Fechas -->
+        <div class="flex items-center gap-1.5">
+          <action-button 
+            variant="secondary" 
+            size="sm"
+            label="Filtrar"
+            icon="Filtro"
+            (clicked)="applyFilter.emit()">
+          </action-button>
+          
+          @if (appliedStartDate || appliedEndDate || startDateInput || endDateInput) {
+            <action-button 
+              variant="outline" 
+              size="sm"
+              icon="Basurero"
+              [iconOnly]="true"
+              title="Limpiar fechas"
+              (clicked)="clearFilter.emit()">
+            </action-button>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Botón Nuevo Documento o contenido proyectado -->
+    <div class="w-full xl:w-auto flex justify-end shrink-0">
+      <ng-content></ng-content>
+    </div>
+
+  </div>
+</div>

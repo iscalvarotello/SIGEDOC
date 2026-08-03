@@ -1,0 +1,163 @@
+<div class="max-w-4xl mx-auto py-6">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
+      {{ isEditMode() ? 'Editar Cron Job' : 'Nuevo Cron Job' }}
+    </h1>
+    <div class="flex gap-2">
+      <cancel-button (clicked)="cancel()" label="Cancelar"></cancel-button>
+      <action-button variant="primary" type="button" (clicked)="save()" [disabled]="isSaving()" label="Guardar"></action-button>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="flex justify-center p-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-primary"></div>
+    </div>
+  } @else {
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 space-y-6">
+      
+      <!-- Campos Base -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-gray-500 uppercase">Nombre descriptivo</label>
+          <input type="text" [(ngModel)]="formData().name" class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-900 dark:border-gray-600 dark:text-white" placeholder="Ej. Limpieza a las 4pm">
+        </div>
+        
+        <div class="space-y-2 relative z-20">
+          <label class="text-xs font-bold text-gray-500 uppercase">Tarea (Task Code)</label>
+          <app-listbox 
+            [options]="availableTasks()" 
+            [ngModel]="formData().task_code"
+            (onSelectionChange)="formData().task_code = $event ? $event.value : ''"
+            placeholder="Seleccione la tarea...">
+          </app-listbox>
+        </div>
+
+        <div class="space-y-2 relative z-10">
+          <label class="text-xs font-bold text-gray-500 uppercase">Dependencia / Área (Opcional)</label>
+          <app-area-select 
+            [selectedId]="formData().dependencia || ''"
+            (onSelect)="formData().dependencia = $event ? $event.id : ''"
+            (onClear)="formData().dependencia = null">
+          </app-area-select>
+        </div>
+
+        <div class="space-y-2 flex items-center pt-6">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input type="checkbox" [(ngModel)]="formData().is_active" class="w-5 h-5 rounded border-gray-300 text-theme-primary focus:ring-theme-primary">
+            <span class="text-sm font-bold text-gray-700 dark:text-gray-300">Cron Job Activo</span>
+          </label>
+        </div>
+      </div>
+
+      <hr class="border-gray-200 dark:border-gray-700">
+
+      <!-- Configuración de Ejecución -->
+      <div class="space-y-6">
+        <h3 class="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
+          <icon icon="ClockOutline" class="w-5 h-5 text-theme-secondary"></icon>
+          Reglas de Ejecución
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-gray-500 uppercase">Tipo de Ejecución</label>
+            <select [(ngModel)]="schedule.type" class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-900 dark:border-gray-600 dark:text-white font-semibold">
+              <option value="DAILY">Diario</option>
+              <option value="WEEKLY">Semanal</option>
+              <option value="MONTHLY">Mensual</option>
+              <option value="YEARLY">Anual</option>
+            </select>
+          </div>
+          
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-gray-500 uppercase">Zona Horaria</label>
+            <input type="text" [(ngModel)]="formData().timezone" class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-900 dark:border-gray-600 dark:text-gray-400" disabled>
+          </div>
+        </div>
+
+        <div class="p-5 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
+          
+          <!-- DIARIO -->
+          @if (schedule.type === 'DAILY') {
+            <div class="space-y-3 max-w-sm animate-fadeIn">
+              <p class="text-sm text-gray-600 dark:text-gray-400">Se ejecutará todos los días a la hora indicada.</p>
+              <div class="space-y-1">
+                <label class="text-xs font-bold text-gray-500 uppercase">Hora de ejecución</label>
+                <input type="time" [(ngModel)]="schedule.daily!.time" class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+              </div>
+            </div>
+          }
+
+          <!-- SEMANAL -->
+          @if (schedule.type === 'WEEKLY') {
+            <div class="space-y-4 animate-fadeIn">
+              <p class="text-sm text-gray-600 dark:text-gray-400">Seleccione los días de la semana y la hora exacta para cada uno.</p>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                @for (day of daysOfWeek; track day.key) {
+                  <div class="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col gap-3">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" [(ngModel)]="$any(schedule.weekly!)[day.key].enabled" class="w-4 h-4 rounded border-gray-300 text-theme-primary focus:ring-theme-primary">
+                      <span class="text-sm font-bold text-gray-700 dark:text-gray-300">{{ day.label }}</span>
+                    </label>
+                    @if ($any(schedule.weekly!)[day.key].enabled) {
+                      <input type="time" [(ngModel)]="$any(schedule.weekly!)[day.key].time" class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded dark:bg-gray-900 dark:border-gray-600 dark:text-white">
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- MENSUAL -->
+          @if (schedule.type === 'MONTHLY') {
+            <div class="space-y-4 max-w-md animate-fadeIn">
+              <p class="text-sm text-gray-600 dark:text-gray-400">Se ejecutará una vez al mes en el día y hora indicados.</p>
+              
+              <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Día del Mes</label>
+                  <input type="number" min="1" max="31" [(ngModel)]="schedule.monthly!.day" class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                </div>
+                <div class="space-y-1">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Hora</label>
+                  <input type="time" [(ngModel)]="schedule.monthly!.time" class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                </div>
+              </div>
+              <p class="text-[10px] text-amber-600 font-semibold">* Tenga cuidado con días como 31, ya que meses con 30 días omitirán la ejecución si el motor no lo ajusta.</p>
+            </div>
+          }
+
+          <!-- ANUAL -->
+          @if (schedule.type === 'YEARLY') {
+            <div class="space-y-4 max-w-2xl animate-fadeIn">
+              <p class="text-sm text-gray-600 dark:text-gray-400">Se ejecutará una vez al año en la fecha y hora indicadas.</p>
+              
+              <div class="grid grid-cols-3 gap-4">
+                <div class="space-y-1">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Mes</label>
+                  <select [(ngModel)]="schedule.yearly!.month" class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                    @for (m of monthsOfYear; track m.value) {
+                      <option [value]="m.value">{{ m.label }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="space-y-1">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Día</label>
+                  <input type="number" min="1" max="31" [(ngModel)]="schedule.yearly!.day" class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                </div>
+                <div class="space-y-1">
+                  <label class="text-xs font-bold text-gray-500 uppercase">Hora</label>
+                  <input type="time" [(ngModel)]="schedule.yearly!.time" class="w-full px-3 py-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                </div>
+              </div>
+            </div>
+          }
+
+        </div>
+      </div>
+
+    </div>
+  }
+</div>

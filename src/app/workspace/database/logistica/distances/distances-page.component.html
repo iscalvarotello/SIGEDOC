@@ -1,0 +1,61 @@
+<app-master-wrapper
+  title="Matriz de Distancias y Casetas"
+  subtitle="Consulta y gestiona las distancias, vías y peajes entre diferentes ciudades."
+  
+  [serverError]="serverError()"
+  (onSearch)="filtrar($event)"
+  (onRefresh)="refresh()"
+  (onSync)="sync()"
+  (onNew)="nuevo()">
+
+  <!-- Filtro Especial de Ciudad de Origen -->
+  <div customFilters class="w-full bg-white dark:bg-gray-800 p-4 border-b border-gray-100 dark:border-gray-700">
+    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Selecciona la Ciudad de Origen para ver sus destinos:</label>
+    <app-filter-city
+      layout="horizontal"
+      [initialCountryId]="activeUrlParams?.originCountryId || ''"
+      [initialStateId]="activeUrlParams?.originStateId || ''"
+      [initialCityId]="activeUrlParams?.originCityId || ''"
+      (onCountrySelect)="onOriginCountryChange($event)"
+      (onStateSelect)="onOriginStateChange($event)"
+      (onCitySelect)="onOriginCityChange($event)">
+    </app-filter-city>
+  </div>
+
+  <div master class="h-full relative">
+    @if (!activeUrlParams?.originCityId) {
+      <app-title 
+        type="third"
+        align="center"
+        icon="MapPin"
+        iconSize="xl"
+        title="Esperando Origen"
+        subtitle="Usa el selector de arriba para elegir una ciudad de origen y cargar sus distancias registradas."
+        customColorClass="text-gray-900 dark:text-white"
+        extraSubtitleClasses="max-w-xs"
+        class="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gray-50/50 dark:bg-gray-900/50"
+      ></app-title>
+    } @else {
+      <app-data-table
+        [data]="filteredItems()"
+        [columns]="pageConfig.tableColumns"
+        [selectedItem]="selectedItem()"
+        [isLoading]="isLoading()"
+        (onRowSelect)="select($event)"
+        (onEdit)="edit($event)"
+        (onDelete)="delete($event)">
+      </app-data-table>
+    }
+  </div>
+
+  <div detail class="h-full flex flex-col">
+    @if (selectedItem()) {
+      <app-detail-viewer
+        [data]="selectedItem()"
+        [headerConfig]="pageConfig.detailHeader"
+        [fields]="pageConfig.detailFields">
+      </app-detail-viewer>
+    }
+  </div>
+</app-master-wrapper>
+

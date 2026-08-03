@@ -1,0 +1,32 @@
+<button 
+  type="button" 
+  (click)="clicked.emit()"
+  class="w-full flex items-start gap-3 px-4 py-2.5 hover:bg-theme-secondary/10 transition-colors focus:outline-none text-left min-w-0">
+  
+  @if (icon()) {
+    <span class="shrink-0 mt-0.5">
+      @if (isEmoji()) {
+        <span class="text-sm block">{{ icon() }}</span>
+      } @else {
+        <icon [icon]="icon()!" class="w-4 h-4 text-gray-500"></icon>
+      }
+    </span>
+  }
+
+  <!-- Si se pasa label, usamos la estructura estándar de 2 líneas -->
+  @if (label()) {
+    <div class="min-w-0 flex-1">
+      <span class="block text-xs font-black text-gray-800 dark:text-gray-200 truncate">
+        {{ label() }}
+      </span>
+      @if (sublabel()) {
+        <span class="block text-[9px] font-bold truncate mt-0.5 transition-colors" [ngClass]="sublabelColorClass()">
+          {{ sublabel() }}
+        </span>
+      }
+    </div>
+  }
+  
+  <!-- Content slot para personalización avanzada -->
+  <ng-content></ng-content>
+</button>

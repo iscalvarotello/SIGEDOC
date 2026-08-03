@@ -1,0 +1,71 @@
+    <app-master-wrapper 
+      title="Directorio de Proveedores" 
+      icon="AvatarPremium" 
+      [layoutSpan]="{ master: 7, detail: 5 }"
+      [searchTerm]="searchTerm()"
+      searchPlaceholder="Buscar por nombre, RFC..."
+      (onSearch)="filtrar($event)"
+      (onRefresh)="refresh()"
+      (onSync)="sync()"
+      (onNew)="nuevo()">
+      
+      <div master class="h-full">
+        <app-data-table 
+          [data]="filteredItems()" 
+          [columns]="pageConfig.tableColumns"
+          [selectedItem]="selectedItem()"
+          [isLoading]="isLoading()"
+          (onRowSelect)="select($event)"
+          (onEdit)="edit($event)"
+          (onDelete)="delete($event)">
+        </app-data-table>
+      </div>
+
+      <div detail class="h-full flex flex-col">
+        <app-detail-viewer 
+          [data]="selectedItem()"
+          [headerConfig]="pageConfig.detailHeader"
+          [fields]="pageConfig.detailFields">
+          
+          <!-- Extra content in detail viewer for contacts -->
+          @if (selectedItem()?.contacts?.length) {
+            <div class="mt-6 border-t border-gray-100 dark:border-gray-700 pt-4">
+              <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Contactos</h4>
+              <div class="flex flex-col gap-4 w-full">
+                @for (contact of selectedItem()?.contacts; track contact.email || $index) {
+                  <app-contact-card [contact]="contact" class="block w-full"></app-contact-card>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Attachments (Anexos) section via generic component -->
+          <div class="mt-8 border-t border-gray-100 dark:border-gray-700 pt-6">
+            <app-attachment-list
+              [attachments]="selectedItem()?.attachments || []"
+              [isLoading]="isLoading()"
+              title="Anexos y Documentación"
+              widthClass="w-full"
+              [allowReorder]="true"
+              [allowDelete]="canDelete()"
+              [allowAdd]="canUpdate()"
+              emptyMessage="No hay anexos asociados a este proveedor"
+              (onAdd)="openAttachmentModal()"
+              (onDelete)="handleRemove($event)"
+              (onReorder)="handleReorder($event)">
+            </app-attachment-list>
+          </div>
+          
+        </app-detail-viewer>
+      </div>
+
+    </app-master-wrapper>
+
+    <!-- Modal de subida de anexos -->
+    <app-supplier-attachment-form
+      [isOpen]="isAttachmentModalOpen()"
+      [isUploading]="isUploading()"
+      [isSaving]="isSaving()"
+      (closeForm)="closeAttachmentModal()"
+      (saveForm)="onSaveAttachment($event)">
+    </app-supplier-attachment-form>

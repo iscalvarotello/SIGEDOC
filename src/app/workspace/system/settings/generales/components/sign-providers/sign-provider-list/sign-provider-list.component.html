@@ -1,0 +1,17 @@
+<!-- Header del Listado -->
+<app-list-header title="Proveedores de Firma"subtitle="Directorio de motores externos configurados">
+  <action-button variant="success-light" [iconOnly]="true" icon="Plus" size="md" title="Nuevo Proveedor" (clicked)="createNewProvider.emit()"></action-button>
+</app-list-header>
+
+<!-- Lista de Proveedores -->
+<div class="flex-1 overflow-y-auto p-3 flex flex-col gap-2 min-w-0">
+  @if (isLoading()) {
+    <spinner></spinner>
+  } @else if (providers().length > 0) {
+    @for (provider of providers(); track provider.id) {
+      <app-selectable-card [title]="provider.name" [badge]="provider.code" [subtitle]="provider.api_url" icon="LinkChain" [active]="selectedProviderId() === provider.id" (cardClick)="selectProvider.emit(provider)"></app-selectable-card>
+    }
+  } @else {
+    <app-empty-state icon="ArchiveAdd" title="No hay proveedores registrados" description="Haz clic en el botón superior para crear uno nuevo."></app-empty-state>
+  }
+</div>

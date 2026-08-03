@@ -1,0 +1,82 @@
+<!-- Cabecera del Formulario -->
+<div class="p-4 border-b border-gray-100 dark:border-zinc-800 flex justify-between items-center bg-gray-50/50 dark:bg-zinc-800/50">
+  <div class="flex flex-col min-w-0">
+    <h3 class="text-lg font-bold text-gray-800 dark:text-zinc-100 truncate block">
+      {{ isEditMode() ? 'Editar Proveedor' : 'Nuevo Proveedor de Firma' }}
+    </h3>
+    <p class="text-xs text-gray-500 dark:text-zinc-400 truncate block">
+      {{ isEditMode() ? 'Modificando los parámetros de conexión' : 'Configure un nuevo motor de firma externa' }}
+    </p>
+  </div>
+  
+  <action-button (clicked)="cancel.emit()" variant="ghost" class="shrink-0">
+    <icon icon="XClose" class="w-5 h-5"></icon>
+  </action-button>
+</div>
+
+<!-- Cuerpo del Formulario -->
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col flex-1 overflow-hidden min-w-0">
+  
+  <div class="flex-1 overflow-y-auto p-5 flex flex-col gap-5 min-w-0">
+    
+    <!-- Sección: Identificación -->
+    <div class="flex flex-col gap-3 min-w-0">
+      <h4 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-wider border-b border-gray-100 dark:border-zinc-800 pb-2">Identificación</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <control type="text" formControlName="name" label="Nombre del Proveedor" placeholder="Ej: Secretaría de Finanzas Chiapas" class="md:col-span-1"></control>
+        <control type="text" formControlName="code" label="Código Interno" placeholder="Ej: FINANZAS_CHIAPAS" helpText="Solo MAYÚSCULAS y guion bajo." class="md:col-span-1"></control>
+      </div>
+    </div>
+
+    <!-- Sección: Endpoints -->
+    <div class="flex flex-col gap-3 min-w-0">
+      <h4 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-wider border-b border-gray-100 dark:border-zinc-800 pb-2">Endpoints de Conexión</h4>
+      <control type="text" formControlName="api_url" label="URL Base de la API" placeholder="https://cifrado.finanzaschiapas.gob.mx"></control>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <control type="text" formControlName="auth_endpoint" label="Endpoint de Autenticación" placeholder="/users/login" class="md:col-span-1"></control>
+        <control type="text" formControlName="sign_endpoint" label="Endpoint de Firmado" placeholder="/sellar" class="md:col-span-1"></control>
+      </div>
+    </div>
+
+    <!-- Sección: Credenciales -->
+    <div class="flex flex-col gap-3 min-w-0">
+      <h4 class="text-sm font-semibold text-gray-700 dark:text-zinc-300 uppercase tracking-wider border-b border-gray-100 dark:border-zinc-800 pb-2">Credenciales (Basic/Token)</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <control type="text" formControlName="apiUser" label="Usuario API (apiUser)" placeholder="Usuario proporcionado por el ente" class="md:col-span-1"></control>
+        <!-- type="password" según las recomendaciones UI -->
+        <control type="password" formControlName="apiPassword" label="Contraseña API (apiPassword)" placeholder="••••••••••••" class="md:col-span-1"></control>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Pie del Formulario / Acciones -->
+  <div class="p-4 border-t border-gray-100 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-800/50 flex justify-between items-center gap-3">
+    
+    <!-- Botón Eliminar (solo en edición) -->
+    <div>
+      @if (isEditMode()) {
+        <action-button (clicked)="onDelete()" [disabled]="isDeleting()" variant="ghost-danger" class="flex items-center gap-2">
+          <icon icon="Basurero" class="w-4 h-4"></icon>
+          {{ isDeleting() ? 'Eliminando...' : 'Eliminar Proveedor' }}
+        </action-button>
+      }
+    </div>
+
+    <!-- Botones de Guardar / Cancelar -->
+    <div class="flex items-center gap-2">
+      <action-button (clicked)="cancel.emit()" variant="ghost">
+        Cancelar
+      </action-button>
+      <action-button 
+        type="submit" 
+        variant="primary" 
+        [label]="isEditMode() ? 'Actualizar Proveedor' : 'Guardar Nuevo Proveedor'"
+        [disabled]="form.invalid || isSaving()"
+        [loading]="isSaving()">
+      </action-button>
+    </div>
+    
+  </div>
+
+</form>

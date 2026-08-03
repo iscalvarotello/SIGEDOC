@@ -1,0 +1,73 @@
+<div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col flex-1 dark:border-gray-800 dark:bg-white/3 min-h-[600px] h-full transition-all duration-300">
+  <!-- Encabezado del Visor -->
+  <div class="bg-theme-primary text-white p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 select-none">
+    <div class="min-w-0">
+      @if (subtitle()) {
+        <div class="text-[10px] font-black uppercase text-theme-secondary tracking-widest">
+          {{ subtitle() }}
+        </div>
+      }
+      <h3 class="text-sm font-bold tracking-tight mt-0.5 truncate max-w-xs" [title]="title()">
+        {{ title() }}
+      </h3>
+    </div>
+
+    <!-- Selector de Archivo (Documento o Anexo) -->
+    <div class="flex-1 flex justify-start md:justify-center max-w-full md:max-w-[45%]">
+      @if (options().length > 0) {
+        <app-viewer-selector 
+          [options]="options()" 
+          [(selectedOption)]="selectedOption">
+        </app-viewer-selector>
+      }
+    </div>
+    
+    <div class="flex items-center gap-2 shrink-0">
+      @if (showRegenerateButton()) {
+        <action-button (clicked)="regenerateClick.emit()" [disabled]="isRegenerating()" variant="outline" icon="Refresh">
+          {{ isRegenerating() ? 'Regenerando...' : 'Regenerar' }}
+        </action-button>
+      }
+      @if (showNewTabButton()) {
+        <action-button (clicked)="newTabClick.emit()" variant="secondary" icon="ExternalLink">
+          Abrir
+        </action-button>
+      }
+      @if (showCloseButton()) {
+        <action-button (clicked)="closeClick.emit()" variant="secondary" icon="Cross">Cerrar</action-button>
+      }
+    </div>
+  </div>
+  <!-- Contenedor del Iframe -->
+  <div class="flex-1 w-full bg-gray-100 dark:bg-zinc-900 flex flex-col relative h-[500px] min-h-[500px]">
+    @if (isLoading()) {
+      <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-3 z-30 transition-opacity duration-300 animate-fadeIn">
+        <svg class="animate-spin h-8 w-8 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-xs font-extrabold uppercase tracking-wider text-gray-300">Cargando archivo PDF...</span>
+      </div>
+    }
+    @defer (when pdfUrl()) {
+      @if (pdfUrl()) {
+        <iframe [src]="pdfUrl()!" class="w-full h-full border-none flex-1 z-10 bg-zinc-800" title="Visor de PDF"></iframe>
+      } @else {
+        @if (!isLoading()) {
+          <div class="flex-1 flex flex-col items-center justify-center text-gray-400 gap-2 p-8 z-10">
+            <span class="text-4xl">📄</span>
+            <span class="text-xs font-extrabold uppercase tracking-wider">No se pudo cargar el archivo PDF</span>
+          </div>
+        }
+      }
+    } @placeholder {
+      <div class="flex-1 flex flex-col items-center justify-center text-gray-400 gap-3 z-10 p-8">
+        <svg class="animate-spin h-6 w-6 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-gray-450">Preparando visualizador...</span>
+      </div>
+    }
+  </div>
+</div>

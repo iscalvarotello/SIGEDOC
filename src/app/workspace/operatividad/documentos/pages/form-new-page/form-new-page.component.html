@@ -1,0 +1,1007 @@
+<app-page-breadcrumb pageTitle="{{ claseDocumentoId() | claseDocument:'singular':true }} {{ claseDocumentoId() | claseDocument:'singular' }}" />
+
+<div class="max-w-8xl mx-auto">
+  <div class="bg-white border border-gray-200 rounded-2xl shadow-sm dark:border-gray-800 dark:bg-white/3 overflow-hidden">
+    
+    <!-- Encabezado del Formulario -->
+    <div class="bg-theme-primary text-white p-6">
+      <h3 class="text-lg font-black tracking-tight uppercase">
+        DATOS DE CREACIÓN DEL DOCUMENTO
+      </h3>
+      <p class="text-xs text-white/70 font-medium mt-1">
+        El sistema consumirá automáticamente el consecutivo del minutario de tu dependencia al guardar.
+      </p>
+    </div>
+
+    <!-- Cuerpo del Formulario -->
+    <form (submit)="onSubmit(); $event.preventDefault()" class="p-6 space-y-6">
+
+      <!-- Fila 1: Tipo de Documento, Plantilla y Fecha -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Tipo de Documento -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Tipo de Documento</label>
+          <app-document-type-select
+            [value]="claseDocumentoId()"
+            (valueChange)="onClaseDocumentoChange($event)">
+          </app-document-type-select>
+        </div>
+
+        <!-- Plantilla -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Plantilla del Documento</label>
+          <select 
+            [ngModel]="idTemplate()"
+            (ngModelChange)="idTemplate.set($event)"
+            [ngModelOptions]="{standalone: true}"
+            required
+            class="w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-bold">
+            @for (temp of templatesForClass(); track temp.id) {
+              <option [value]="temp.id">{{ temp.name }}</option>
+            }
+            @if (templatesForClass().length === 0) {
+              <option value="">Sin plantillas disponibles para esta clase</option>
+            }
+          </select>
+        </div>
+
+        <!-- Fecha -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Fecha del Documento</label>
+          <app-date-picker
+            id="fecha_documento"
+            [defaultDate]="fechaDocumento()"
+            (dateChange)="fechaDocumento.set($event.dateStr)"
+            placeholder="Seleccione fecha del documento...">
+          </app-date-picker>
+        </div>
+      </div>
+
+      <!-- Fila 2: SECTOR DE REMITENTE (Quién Firma) -->
+      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-200 pb-3">
+          <h4 class="text-xs font-black text-theme-primary uppercase tracking-wider">Remitente (Firma el Documento)</h4>
+          
+          <!-- Toggle Directo / Gestionado -->
+          <div class="inline-flex p-0.5 bg-gray-250 rounded-xl shadow-inner shrink-0">
+            <action-button 
+  (clicked)="changeTipoRemitente('directo')" [variant]="tipoRemitente() === 'directo' ? 'secondary' : 'ghost'">
+
+              Titular Directo
+            </action-button>
+            <action-button 
+  (clicked)="changeTipoRemitente('gestionado')" [variant]="tipoRemitente() === 'gestionado' ? 'secondary' : 'ghost'">
+
+              Bajo Gestión (Acronimo)
+            </action-button>
+          </div>
+        </div>
+
+        @if (tipoRemitente() === 'directo') {
+          <div class="text-sm">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Área Emisora Base</span>
+            <div class="font-extrabold text-gray-800 text-sm mt-0.5 flex items-center gap-2">
+              <span class="bg-theme-primary/10 text-theme-primary px-2 py-0.5 rounded text-xs font-black">{{ remitenteAcronimo() || 'DAYSE' }}</span>
+              <span>{{ remitenteNombre() || 'Cargando titular...' }}</span>
+            </div>
+            <span class="text-xs text-gray-500 font-medium block mt-0.5">{{ remitentePuesto() || 'Titular de Área' }}</span>
+          </div>
+        } @else {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5 md:col-span-2">
+              <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Seleccionar Área Remitente</label>
+              <app-area-select
+                [selectedId]="idAreaEmisora()"
+                (onSelect)="onGestionadoAreaChange($event)">
+              </app-area-select>
+            </div>
+            
+            <div class="flex flex-col justify-center bg-white rounded-xl p-3 border border-gray-150">
+              <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Titular Firmante</span>
+              @if (idRemitente()) {
+                <span class="text-sm font-extrabold text-gray-800 block mt-0.5">{{ remitenteNombre() }}</span>
+                <span class="text-xs font-semibold text-gray-500 block">{{ remitentePuesto() }}</span>
+              } @else {
+                <span class="text-xs text-gray-400 italic">Seleccione un Área remitente para mostrar el titular</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Fila 3: SECTOR DE DESTINATARIO (Quién Recibe) -->
+      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4">
+        
+        <!-- MEMO / TARJETA INFORMATIVA -->
+        @if (claseDocumentoId() === 'memo' || claseDocumentoId() === 'ti') {
+          <h4 class="text-xs font-black text-theme-primary uppercase tracking-wider border-b border-gray-200 pb-2">Destinatario</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+             <div class="flex flex-col gap-1.5 md:col-span-2">
+               <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Seleccionar Área Destinataria</label>
+               <app-area-select
+                 [selectedId]="idAreaReceptora()"
+                 (onSelect)="onDestinatarioAreaChange($event)">
+               </app-area-select>
+             </div>
+            
+            <div class="flex flex-col justify-center bg-white rounded-xl p-3 border border-gray-150">
+              <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Recibe Titular</span>
+              @if (idDestinatarioInterno()) {
+                <span class="text-sm font-extrabold text-gray-800 block mt-0.5">{{ destinatarioNombre() }}</span>
+                <span class="text-xs font-semibold text-gray-500 block">{{ destinatarioPuesto() }}</span>
+              } @else {
+                <span class="text-xs text-gray-400 italic">Seleccione un Área destinataria para mostrar el titular</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- OFICIO (Destinatario Oficial vs Libre) -->
+        @if (claseDocumentoId() === 'oficio') {
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-200 pb-3">
+            <h4 class="text-xs font-black text-theme-primary uppercase tracking-wider">Destinatario (Oficios)</h4>
+            
+            <!-- Toggle Oficial / Libre -->
+            <div class="inline-flex rounded-xl bg-gray-200/60 p-0.5 shadow-sm">
+              <action-button 
+  (clicked)="tipoDestinatarioOficio.set('oficial')" [variant]="tipoDestinatarioOficio() === 'oficial' ? 'secondary' : 'ghost'">
+
+                Destinatario Oficial
+              </action-button>
+              <action-button 
+  (clicked)="tipoDestinatarioOficio.set('libre')" [variant]="tipoDestinatarioOficio() === 'libre' ? 'secondary' : 'ghost'">
+
+                Texto Libre
+              </action-button>
+            </div>
+          </div>
+
+          <!-- MODO OFICIAL -->
+          @if (tipoDestinatarioOficio() === 'oficial') {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fadeIn">
+              <div class="flex flex-col gap-1.5 md:col-span-2">
+                <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Seleccionar Destinatario Oficial</label>
+                <select 
+                  [value]="idDestinatarioOficial()"
+                  (change)="onOfficialRecipientChange($event)"
+                  class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold outline-none text-gray-700 shadow-sm focus:ring-2 focus:ring-theme-primary/30 focus:border-theme-primary">
+                  <option value="">Seleccione Destinatario Oficial...</option>
+                  @for (rec of officialRecipientsList(); track rec.id) {
+                    <option [value]="rec.id">
+                      {{ rec.nombre }} - {{ rec.puesto }} ({{ rec.empresa_dependencia }})
+                    </option>
+                  }
+                </select>
+              </div>
+              
+              <div class="flex flex-col justify-center bg-white rounded-xl p-4 border border-gray-150 space-y-1 md:col-span-2">
+                <span class="text-[9px] font-black text-theme-secondary uppercase tracking-wider block">Detalles del Destinatario Oficial</span>
+                @if (selectedOfficialRecipient()) {
+                  <span class="text-sm font-extrabold text-gray-800 block mt-0.5">{{ selectedOfficialRecipient().nombre }}</span>
+                  <span class="text-xs font-semibold text-gray-650 block">👉½╝ {{ selectedOfficialRecipient().puesto || 'Sin Puesto' }}</span>
+                  <span class="text-xs font-semibold text-gray-550 block">👉 {{ selectedOfficialRecipient().empresa_dependencia || 'Sin Dependencia' }}</span>
+                  @if (selectedOfficialRecipient().telefono || selectedOfficialRecipient().email) {
+                    <span class="text-[11px] text-gray-400 block pt-1 border-t border-gray-100 mt-1">
+                      👉 {{ selectedOfficialRecipient().telefono || 'N/A' }} &nbsp;뿯뿯½&nbsp; 뿯뿯뿯 {{ selectedOfficialRecipient().email || 'N/A' }}
+                    </span>
+                  }
+                } @else {
+                  <span class="text-xs text-gray-400 italic">Seleccione un destinatario oficial de la lista para mostrar sus detalles</span>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Escribir Nombre y Cargo del Destinatario Libre</label>
+              <textarea 
+                [ngModel]="destinatarioTextoLibre()"
+                (ngModelChange)="destinatarioTextoLibre.set($event)"
+                [ngModelOptions]="{standalone: true}"
+                rows="3"
+                placeholder="Ej. Ing. Juan Pérez Gómez&#10;Director General de Vinculación y Competitividad Comercial"
+                class="w-full px-4 py-3 bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-semibold"></textarea>
+            </div>
+          }
+        }
+
+        <!-- CIRCULAR (Destinatario Plural) -->
+        @if (claseDocumentoId() === 'circular') {
+          <h4 class="text-xs font-black text-theme-primary uppercase tracking-wider border-b border-gray-200 pb-2">Destinatarios Plural (Puestos)</h4>
+          
+          <div class="space-y-4">
+            <app-job-position-select
+              [positionsList]="allJobPositions()"
+              [showReload]="true"
+              [isLoading]="isJobPositionsLoading()"
+              [includeAllEmployees]="true"
+              label="Seleccione un Puesto para añadirlo"
+              initialFilter="todos"
+              (onSelect)="addCircularJobPosition($event)"
+              (onReload)="loadJobPositions(true)">
+            </app-job-position-select>
+
+            <!-- Listado de Puestos seleccionados como tags -->
+            <div class="space-y-1.5">
+              <label class="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Puestos Destinatarios Seleccionados</label>
+              @if (circularDestinatariosPuestos().length > 0) {
+                <div class="flex flex-wrap gap-2 pt-1">
+                  @for (jp of circularDestinatariosPuestos(); track jp.id) {
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-750 text-gray-700 dark:text-gray-200 rounded-xl text-xs font-bold shadow-sm">
+                      <span>{{ jp.id === 'ALL_EMPLOYES' ? 'Todo el personal' : (jp.name_plural || jp.name) }}</span>
+                      <action-button 
+  (clicked)="removeCircularJobPosition(jp.id)" variant="ghost">
+
+                        <icon icon="NewIcon3" class="w-3.5 h-3.5"></icon>
+                      </action-button>
+                    </span>
+                  }
+                </div>
+              } @else {
+                <p class="text-xs text-gray-400 italic">No ha seleccionado ningún puesto destinatario aún.</p>
+              }
+            </div>
+          </div>
+        }
+
+      </div>
+
+      <!-- Fila 4: Tema y Asunto -->
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="flex flex-col gap-1.5 md:col-span-1">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Tema del Documento</label>
+            <div class="relative w-full">
+              <input 
+                #temaInput
+                type="text" 
+                list="newDocumentTemasList"
+                [ngModel]="tema()"
+                (ngModelChange)="tema.set($event)"
+                [ngModelOptions]="{standalone: true}"
+                (click)="temaInput.showPicker()"
+                placeholder="Ej. Solicitud de Viáticos"
+                class="w-full pl-4 pr-10 py-2.5 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-semibold cursor-pointer" />
+              <div 
+                class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-gray-400">
+                <icon icon="FlechaAbajo" class="h-4.5 w-4.5"></icon>
+              </div>
+            </div>
+            <datalist id="newDocumentTemasList">
+              @for (t of temasList(); track t) {
+                <option [value]="t"></option>
+              }
+            </datalist>
+          </div>
+
+          <div class="flex flex-col gap-1.5 md:col-span-2">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Asunto Específico</label>
+            <input 
+              type="text" 
+              [ngModel]="asunto()"
+              (ngModelChange)="asunto.set($event)"
+              [ngModelOptions]="{standalone: true}"
+              required
+              placeholder="Ej. Solicitud de comisión oficial al municipio de Tapachula para..."
+              class="w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-bold" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Fila 5: Cuerpo del Documento y Panel de Campos Dinámicos (Diseño Dos Columnas) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Columna Izquierda: Editor y Plantillas -->
+        <div class="lg:col-span-6 flex flex-col gap-3">
+          
+          <!-- Encabezado del Editor: Lista de Plantillas y Guardar -->
+          <div class="flex flex-wrap items-center justify-between gap-3 bg-gray-50 dark:bg-white/3 p-3.5 rounded-2xl border border-gray-200 dark:border-gray-800">
+            <div class="flex items-center gap-2 flex-1 min-w-[200px]">
+              <span class="text-xs font-black text-gray-500 uppercase tracking-wider whitespace-nowrap">Plantillas:</span>
+              <select 
+                [ngModel]="selectedInternalTemplateId()"
+                (ngModelChange)="loadInternalTemplate($event)"
+                [ngModelOptions]="{standalone: true}"
+                class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-bold outline-none text-gray-750 dark:text-gray-200 shadow-sm focus:ring-2 focus:ring-theme-secondary/30 focus:border-theme-secondary">
+                <option value="">-- Plantillas --</option>
+                @for (temp of internalTemplatesList(); track temp.id) {
+                  <option [value]="temp.id">{{ temp.name }}</option>
+                }
+              </select>
+            </div>
+            
+            <div class="relative shrink-0">
+              @if (!showSaveTemplatePopover()) {
+                <action-button 
+  (clicked)="showSaveTemplatePopover.set(true)" variant="secondary">
+
+                  <icon icon="NewIcon4" class="w-3.5 h-3.5"></icon>
+                  Guardar plantilla
+                </action-button>
+              } @else {
+                <div class="flex items-center gap-2 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 p-1.5 rounded-xl shadow-md animate-fadeIn z-10">
+                  <input 
+                    type="text" 
+                    placeholder="Nombre de la plantilla..." 
+                    [ngModel]="newTemplateName()"
+                    (ngModelChange)="newTemplateName.set($event)"
+                    [ngModelOptions]="{standalone: true}"
+                    class="px-2.5 py-1 text-xs border border-gray-250 dark:border-gray-700 rounded-lg outline-none focus:border-theme-secondary font-semibold text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 min-w-[150px]" />
+                  
+                  <action-button 
+  (clicked)="saveAsInternalTemplate()" variant="primary" [disabled]="isSavingTemplate() || !newTemplateName().trim()">
+
+                    Grabar
+                  </action-button>
+                  <action-button 
+  (clicked)="showSaveTemplatePopover.set(false); newTemplateName.set('')" variant="ghost">
+
+                    X
+                  </action-button>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Textarea Principal del Cuerpo -->
+          <div class="flex flex-col gap-1.5">
+            <textarea 
+              id="document-body-textarea"
+              [ngModel]="cuerpo()"
+              (ngModelChange)="cuerpo.set($event)"
+              [ngModelOptions]="{standalone: true}"
+              rows="12"
+              placeholder="Escriba los párrafos iniciales o contenido base aquí. Puede inyectar variables haciendo clic en los botones del panel derecho en su cursor..."
+              class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-2xl text-sm transition-all outline-none text-gray-700 font-semibold"></textarea>
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Panel de Campos Dinámicos / Variables -->
+        <div class="lg:col-span-6 bg-gray-50/50 dark:bg-white/2 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col gap-4 shadow-inner">
+          <div class="border-b border-gray-200 dark:border-gray-800 pb-2.5">
+            <h5 class="text-xs font-black text-theme-primary dark:text-theme-secondary uppercase tracking-wider">Campos Dinámicos</h5>
+            <p class="text-[10px] text-gray-400 dark:text-gray-500 font-semibold mt-0.5">Seleccione un registro y haga clic en un campo para inyectar su etiqueta en el editor.</p>
+          </div>
+
+          <!-- Navegación de Pestañas (Tabs) -->
+          <div class="flex p-0.5 bg-gray-250 dark:bg-gray-800/50 rounded-xl shadow-inner shrink-0">
+            <action-button 
+  (clicked)="activeFieldsTab.set('proyecto')" [variant]="activeFieldsTab() === 'proyecto' ? 'primary' : 'ghost'">
+
+              Proyecto
+            </action-button>
+            <action-button 
+  (clicked)="activeFieldsTab.set('proveedor')" [variant]="activeFieldsTab() === 'proveedor' ? 'primary' : 'ghost'">
+
+              Proveedor
+            </action-button>
+            <action-button 
+  (clicked)="activeFieldsTab.set('vehiculo')" [variant]="activeFieldsTab() === 'vehiculo' ? 'primary' : 'ghost'">
+
+              Vehículo
+            </action-button>
+            <action-button 
+  (clicked)="activeFieldsTab.set('libre')" [variant]="activeFieldsTab() === 'libre' ? 'primary' : 'ghost'">
+
+              Libre
+            </action-button>
+            <action-button 
+  (clicked)="activeFieldsTab.set('personalizados')" [variant]="activeFieldsTab() === 'personalizados' ? 'primary' : 'ghost'">
+
+              Personalizados
+            </action-button>
+          </div>
+
+          <!-- Contenido de Pestaña: Proyecto -->
+          @if (activeFieldsTab() === 'proyecto') {
+            <div class="space-y-4 animate-fadeIn">
+              <!-- Selector de Proyecto -->
+              <div class="flex flex-col gap-1.5 relative">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Seleccionar Proyecto:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <app-project-select
+                      [selectedId]="selectedProjectId()"
+                      [showReload]="true"
+                      (onSelect)="selectedProjectObj.set($event)"
+                      (onClear)="selectedProjectObj.set(null)">
+                    </app-project-select>
+                  </div>
+                  <action-button 
+  (clicked)="showProjectFields.set(!showProjectFields())" [variant]="showProjectFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Proyecto -->
+              @if (showProjectFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Proyecto:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__project_name__}}')" variant="ghost">
+
+                      👉 Nombre
+                    </action-button>
+                    <action-button 
+  (clicked)="insertTag('{{__project_code__}}')" variant="ghost">
+
+                      👉 Clave
+                    </action-button>
+                    <action-button 
+  (clicked)="insertTag('{{__project_type__}}')" variant="ghost">
+
+                      👉뿯뿯½ Tipo
+                    </action-button>
+                  </div>
+                </div>
+                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
+              }
+
+              <!-- Selector de Partida -->
+              <div class="flex flex-col gap-1.5 relative z-20">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Seleccionar Partida:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <app-partida-select
+                      [selectedId]="selectedPartidaId()"
+                      [showReload]="true"
+                      (onSelect)="selectedPartidaObj.set($event)"
+                      (onClear)="selectedPartidaObj.set(null)">
+                    </app-partida-select>
+                  </div>
+                  <action-button 
+  (clicked)="showPartidaFields.set(!showPartidaFields())" [variant]="showPartidaFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Partida -->
+              @if (showPartidaFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de la Partida:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__partida__}}')" variant="ghost">
+
+                      👉 Partida Completa
+                    </action-button>
+                  </div>
+                </div>
+                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
+              }
+
+              <!-- Selector de Mes de Ministración -->
+              <div class="flex flex-col gap-1.5 relative z-10">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Mes de Ministración:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <select 
+                      [ngModel]="selectedMonth()"
+                      (ngModelChange)="selectedMonth.set($event)"
+                      [ngModelOptions]="{standalone: true}"
+                      class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-bold outline-none text-gray-700 dark:text-gray-200 shadow-sm focus:ring-2 focus:ring-theme-primary/30">
+                      <option value="Enero">Enero</option>
+                      <option value="Febrero">Febrero</option>
+                      <option value="Marzo">Marzo</option>
+                      <option value="Abril">Abril</option>
+                      <option value="Mayo">Mayo</option>
+                      <option value="Junio">Junio</option>
+                      <option value="Julio">Julio</option>
+                      <option value="Agosto">Agosto</option>
+                      <option value="Septiembre">Septiembre</option>
+                      <option value="Octubre">Octubre</option>
+                      <option value="Noviembre">Noviembre</option>
+                      <option value="Diciembre">Diciembre</option>
+                    </select>
+                  </div>
+                  <action-button 
+  (clicked)="showMonthFields.set(!showMonthFields())" [variant]="showMonthFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Ministración -->
+              @if (showMonthFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de Ministración:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__mes_ministracion__}}')" variant="ghost">
+
+                      👉 Mes Ministrado
+                    </action-button>
+                  </div>
+                </div>
+                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
+              }
+
+              <!-- Selector de Fecha de Proyecto -->
+              <div class="flex flex-col gap-1.5 relative z-0">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Fecha del Proyecto:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <app-date-picker
+                      id="fecha_proyecto"
+                      [defaultDate]="selectedProjectDate()"
+                      (dateChange)="selectedProjectDate.set($event.dateStr)"
+                      placeholder="Seleccione fecha del proyecto...">
+                    </app-date-picker>
+                  </div>
+                  <action-button 
+  (clicked)="showProjectDateFields.set(!showProjectDateFields())" [variant]="showProjectDateFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Fecha -->
+              @if (showProjectDateFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de Fecha:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__project_date_with_day__}}')" variant="ghost">
+
+                      👉 Fecha con día
+                    </action-button>
+                    <action-button 
+  (clicked)="insertTag('{{__project_date_full__}}')" variant="ghost">
+
+                      👉 Fecha completa
+                    </action-button>
+                    <action-button 
+  (clicked)="insertTag('{{__project_date_compact__}}')" variant="ghost">
+
+                      👉 Fecha compacta
+                    </action-button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Contenido de Pestaña: Proveedor -->
+          @if (activeFieldsTab() === 'proveedor') {
+            <div class="space-y-4 animate-fadeIn">
+              <!-- Selector de Proveedor -->
+              <div class="flex flex-col gap-1.5 relative z-20">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Seleccionar Proveedor:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <app-supplier-select
+                      [selectedId]="selectedSupplierId()"
+                      [showReload]="true"
+                      (onSelect)="selectedSupplierObj.set($event)"
+                      (onClear)="selectedSupplierObj.set(null)">
+                    </app-supplier-select>
+                  </div>
+                  <action-button 
+  (clicked)="showSupplierFields.set(!showSupplierFields())" [variant]="showSupplierFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Proveedor -->
+              @if (showSupplierFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Proveedor:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__provider_name__}}')" variant="ghost">
+
+                      👉 Nombre/Razón Social
+                    </action-button>
+                    <action-button 
+  (clicked)="insertTag('{{__provider_rfc__}}')" variant="ghost">
+
+                      👉 RFC
+                    </action-button>
+                  </div>
+                </div>
+                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
+              }
+
+              <!-- Campo de Dirección (Manual) -->
+              <div class="flex flex-col gap-1.5 relative z-10">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Dirección del Proveedor:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <input 
+                      type="text" 
+                      [ngModel]="customSupplierAddress()"
+                      (ngModelChange)="customSupplierAddress.set($event)"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="Escriba la dirección aquí..."
+                      class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
+                  </div>
+                  <action-button 
+  (clicked)="showSupplierAddressFields.set(!showSupplierAddressFields())" [variant]="showSupplierAddressFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Dirección -->
+              @if (showSupplierAddressFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Dirección:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__provider_address__}}')" variant="ghost">
+
+                      👉 Dirección Física
+                    </action-button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Contenido de Pestaña: Vehículo -->
+          @if (activeFieldsTab() === 'vehiculo') {
+            <div class="space-y-4 animate-fadeIn">
+              <!-- Selector de Vehículo -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Seleccionar Vehículo:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <app-car-select
+                      [selectedId]="selectedCarId()"
+                      [showReload]="true"
+                      (onSelect)="selectedCarObj.set($event)"
+                      (onClear)="selectedCarObj.set(null)">
+                    </app-car-select>
+                  </div>
+                  <action-button 
+  (clicked)="showVehicleFields.set(!showVehicleFields())" [variant]="showVehicleFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Vehículo -->
+              @if (showVehicleFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Vehículo:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__vehicle_brand__}}')" variant="ghost">
+
+                      👉 Marca
+                    </action-button>
+                    <action-button 
+  (clicked)="insertTag('{{__vehicle_model__}}')" variant="ghost">
+
+                      👉뿯뿯½ Modelo
+                    </action-button>
+                    <action-button 
+  (clicked)="insertTag('{{__vehicle_plates__}}')" variant="ghost">
+
+                      👉 Placas
+                    </action-button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Contenido de Pestaña: Libre -->
+          @if (activeFieldsTab() === 'libre') {
+            <div class="space-y-4 animate-fadeIn">
+              <!-- Nombre evento -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Nombre del Evento:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <input 
+                      type="text"
+                      [ngModel]="customEventName()"
+                      (ngModelChange)="customEventName.set($event)"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="Escriba el nombre del evento..."
+                      class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
+                  </div>
+                  <action-button 
+  (clicked)="showEventNameFields.set(!showEventNameFields())" [variant]="showEventNameFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Evento -->
+              @if (showEventNameFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Evento:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__event_name__}}')" variant="ghost">
+
+                      👉 Nombre Evento
+                    </action-button>
+                  </div>
+                </div>
+                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
+              }
+
+              <!-- Lugar evento -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Lugar del Evento:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <input 
+                      type="text"
+                      [ngModel]="customEventPlace()"
+                      (ngModelChange)="customEventPlace.set($event)"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="Escriba el lugar del evento..."
+                      class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
+                  </div>
+                  <action-button 
+  (clicked)="showEventPlaceFields.set(!showEventPlaceFields())" [variant]="showEventPlaceFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Lugar -->
+              @if (showEventPlaceFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Lugar:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__lugar_evento__}}')" variant="ghost">
+
+                      👉 Lugar Evento
+                    </action-button>
+                  </div>
+                </div>
+                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
+              }
+
+              <!-- Folio Factura -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Folio Factura:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <input 
+                      type="text"
+                      [ngModel]="customInvoice()"
+                      (ngModelChange)="customInvoice.set($event)"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="Escriba el folio de la factura..."
+                      class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
+                  </div>
+                  <action-button 
+  (clicked)="showInvoiceFields.set(!showInvoiceFields())" [variant]="showInvoiceFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Factura -->
+              @if (showInvoiceFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de Factura:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__invoice__}}')" variant="ghost">
+
+                      👉 Folio Factura
+                    </action-button>
+                  </div>
+                </div>
+                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
+              }
+
+              <!-- Monto -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Monto:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1">
+                    <input 
+                      type="text"
+                      [ngModel]="customMonto()"
+                      (ngModelChange)="customMonto.set($event)"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="Escriba el monto (ej. 63456)..."
+                      class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
+                  </div>
+                  <action-button 
+  (clicked)="showMontoFields.set(!showMontoFields())" [variant]="showMontoFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Monto -->
+              @if (showMontoFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de Monto:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__monto_moneda__}}')" variant="ghost">
+
+                      👉 $ Moneda
+                    </action-button>
+                    <action-button 
+  (clicked)="insertTag('{{__monto_letra__}}')" variant="ghost">
+
+                      뿯뿯뿯 Letra
+                    </action-button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Contenido de Pestaña: Personalizados -->
+          @if (activeFieldsTab() === 'personalizados') {
+            <div class="space-y-4 animate-fadeIn">
+              
+              <!-- Lista de campos personalizados existentes -->
+              @for (field of activeAreaCustomFields(); track field) {
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">{{ field }}:</label>
+                  <div class="flex items-center gap-2">
+                    <div class="flex-1">
+                      <input 
+                        type="text"
+                        [ngModel]="personalFieldValues()[field] || ''"
+                        (ngModelChange)="onPersonalFieldValueChange(field, $event)"
+                        [ngModelOptions]="{standalone: true}"
+                        placeholder="Escriba el valor de {{ field }}..."
+                        class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold outline-none text-gray-750 focus:ring-2 focus:ring-theme-primary/30" />
+                    </div>
+                    <action-button 
+  (clicked)="insertTag('{{__personalizado_' + normalizeKeyName(field) + '__}}')" variant="ghost" title="Insertar etiqueta {{ field }}">
+
+                      <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                    </action-button>
+                  </div>
+                </div>
+              }
+
+              @if (activeAreaCustomFields().length === 0) {
+                <div class="text-xs text-gray-450 italic text-center py-3 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                  No hay campos personalizados para esta Área aún.
+                </div>
+              }
+
+              <hr class="border-gray-200" />
+
+              <!-- Agregar nuevo campo personalizado -->
+              <div class="flex flex-col gap-1.5 p-3.5 bg-gray-50 border border-gray-150 rounded-2xl">
+                <label class="text-[10px] font-black text-gray-600 uppercase tracking-wider">Registrar Nuevo Campo Personalizado:</label>
+                <div class="flex items-center gap-2 mt-1">
+                  <input 
+                    type="text"
+                    [ngModel]="newCustomFieldName()"
+                    (ngModelChange)="newCustomFieldName.set($event)"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Ej. Oficio de Comisión, ID Solicitud..."
+                    class="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold outline-none text-gray-750" />
+                  <action-button 
+  (clicked)="addCustomField()" variant="primary">
+
+                    Agregar
+                  </action-button>
+                </div>
+              </div>
+
+            </div>
+          }
+        </div>
+
+      </div>
+
+      <!-- Fila 6: SECTOR Con Copia Para (C.C.P.) -->
+      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4">
+        <h4 class="text-xs font-black text-theme-primary uppercase tracking-wider border-b border-gray-200 pb-2">Con Copia Para (C.C.P.)</h4>
+        
+        <div class="flex flex-col gap-4 max-w-xl">
+          <div class="flex flex-col gap-1.5 relative">
+            <label class="text-xs font-bold text-gray-500 uppercase">Seleccionar Área</label>
+            <app-area-select
+              [selectedId]="ccpAreaId()"
+              (onSelect)="onCcpAreaChange($event)">
+            </app-area-select>
+          </div>
+
+          <div class="flex flex-col gap-1.5 relative">
+            <label class="text-xs font-bold text-gray-500 uppercase">Empleado</label>
+            <app-employee-select
+              [selectedId]="ccpEmployeeId()"
+              [employeesList]="ccpEmployeesList()"
+              [showReload]="true"
+              [isLoading]="isCcpEmployeesLoading()"
+              [disabled]="!ccpAreaId()"
+              placeholder="Seleccione Empleado..."
+              (onSelect)="onCcpEmployeeSelect($event)"
+              (onClear)="onCcpEmployeeClear()"
+              (onReload)="onCcpAreaChange(ccpAreaId(), true)">
+            </app-employee-select>
+          </div>
+
+          <div class="flex flex-col gap-1.5 relative">
+            <label class="text-xs font-bold text-gray-500 uppercase">Motivo / Para qué</label>
+            <select 
+              [ngModel]="selectedCcpPhrase()"
+              (ngModelChange)="onCcpPhraseChange($event)"
+              class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold outline-none text-gray-700 shadow-sm focus:ring-2 focus:ring-theme-primary/30 focus:border-theme-primary">
+              @for (phrase of ccpPhrases; track phrase) {
+                <option [value]="phrase">{{ phrase }}</option>
+              }
+              <option value="Otro">Otro...</option>
+            </select>
+          </div>
+
+          @if (selectedCcpPhrase() === 'Otro') {
+            <div class="flex flex-col gap-1.5 animate-fadeIn">
+              <label class="text-xs font-bold text-gray-500 uppercase">Especificar Motivo (Otro)</label>
+              <input 
+                type="text" 
+                [ngModel]="customCcpPhrase()"
+                (ngModelChange)="customCcpPhrase.set($event)"
+                placeholder="Escriba el motivo personalizado..."
+                class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold outline-none text-gray-700 shadow-sm focus:ring-2 focus:ring-theme-primary/30 focus:border-theme-primary">
+            </div>
+          }
+
+          <div class="pt-2">
+            <action-button 
+  (clicked)="addCcp()" variant="secondary">
+
+              + Agregar C.C.P.
+            </action-button>
+          </div>
+        </div>
+
+        <!-- Listado de CCPs Agregados -->
+        @if (ccps().length > 0) {
+          <div class="flex flex-wrap gap-2 pt-2">
+            @for (c of ccps(); track c.id_empleado) {
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-bold shadow-sm">
+                <span class="text-theme-primary">{{ c.area_name }}</span>: {{ c.employee_name }} <span class="text-gray-400 font-medium">({{ c.motivo }})</span>
+                <action-button 
+  (clicked)="removeCcp(c.id_empleado)" variant="ghost">
+
+                  <icon icon="NewIcon3" class="w-3.5 h-3.5"></icon>
+                </action-button>
+              </span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Fila 7: ANEXOS Y EVIDENCIAS -->
+      <app-document-attachments [(anexos)]="anexos"></app-document-attachments>
+
+      <!-- BOTONES DE CONFIRMACIÓN Y NAVEGACIÓN -->
+      <div class="flex justify-end gap-4 border-t border-gray-200 pt-6">
+        <cancel-button [routerLink]="ROUTES.DOCUMENT_DETAIL | localRoute: { id: claseDocumentoId() }" label="Cancelar"></cancel-button>
+        
+        <submit-button 
+          [submitting]="isLoading()"
+          label="Guardar Documento">
+        </submit-button>
+      </div>
+
+    </form>
+
+  </div>
+</div>

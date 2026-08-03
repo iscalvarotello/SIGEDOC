@@ -1,0 +1,234 @@
+@if (!doc) {
+  <div class="bg-white border border-gray-200 rounded-2xl flex-1 flex flex-col items-center justify-center p-12 text-center min-h-[400px] shadow-sm dark:border-gray-800 dark:bg-white/3">
+    <app-title 
+      type="secondary"
+      align="center"
+      icon="DocumentoEdicion"
+      iconSize="xl"
+      title="Visualizar Detalle"
+      subtitle="Selecciona cualquier documento de la lista de la izquierda para gestionarlo, ver su trazabilidad o previsualizar el PDF."
+      customColorClass="text-gray-700 dark:text-gray-300"
+      extraSubtitleClasses="max-w-sm mt-2"
+    ></app-title>
+  </div>
+} @else if (pdfViewerUrl() || isLoadingPdf()) {
+  <!-- Visor de PDF Genérico y Reutilizable -->
+  <app-pdf-viewer
+    [title]="doc.num_doc || 'DRAFT / SIN FOLIO'"
+    [subtitle]="doc.estatus_emisor === 'despachado' || doc.estatus_emisor === 'entregado' ? 'PDF Oficial' : 'PDF Borrador'"
+    [pdfUrl]="pdfViewerUrl()"
+    [isLoading]="isLoadingPdf()"
+    [options]="viewerOptions()"
+    [selectedOption]="selectedViewerOption()"
+    [showRegenerateButton]="(selectedViewerOption()?.type === 'document' || selectedViewerOption()?.type === 'merged') && !doc?.is_final_render"
+    [isRegenerating]="isRegeneratingPdf()"
+    (regenerateClick)="onRegeneratePdf()"
+    (selectedOptionChange)="onOptionSelected($event)"
+    (newTabClick)="openPdfInNewTab()"
+    (closeClick)="closePdfViewer()">
+  </app-pdf-viewer>
+} @else {
+  <!-- Ficha de Detalle de Documento -->
+  <div class="bg-theme-background border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col flex-1 dark:border-gray-800 dark:bg-white/3">
+    
+    <!-- Encabezado de la Ficha -->
+    <div class="bg-theme-primary dark:bg-gray-900 text-white p-5 flex flex-col gap-4">
+      <!-- Titulo y Botones de Documento -->
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-[10px] font-black uppercase text-theme-secondary tracking-widest"> {{ doc.clase_documento }} {{ doc.tipo_documento }} </div>
+          <h3 class="text-lg font-black tracking-tight mt-0.5"> {{ doc.num_doc || 'DRAFT / SIN FOLIO' }} </h3>
+        </div>
+        
+        <div class="flex items-center gap-2">
+          @if (doc.url_drive_edition && (doc.estatus_emisor === 'en_edicion' || doc.estatus_emisor === 'en_correccion' || doc.estatus_receptor === 'rechazado')) {
+            <app-google-drive-viewer-link [url]="doc.url_drive_edition"></app-google-drive-viewer-link>
+          }
+          @if (doc.estatus_emisor === 'despachado' || doc.estatus_emisor === 'entregado' || doc.estatus_emisor === 'cancelado') {
+            <open-pdf-button (clicked)="openPdf('final')"></open-pdf-button>
+          } @else {
+            <preview-pdf-button (clicked)="openPdf('draft')"></preview-pdf-button>
+          }
+          @if (!doc.is_final_render && doc.attachments && doc.attachments.length > 0)     { <merge-pdf-button (clicked)="openMergedPdf(doc.id)"></merge-pdf-button>       }
+        </div>
+      </div>
+
+      <!-- Barra de Acciones del Flujo -->
+      @if (!activeActionForm()) {
+        <doc-actions-toolbar
+          [doc]="doc"
+          [isActionLoading]="actionForms.isActionLoading() || isConsolidating()"
+          (showForm)="showActionForm($event)"
+          (submitAction)="actionForms.submitAction($event)"
+          (reply)="replyDocument()"
+          (followUp)="followUpDocument()"
+          (makeFollowUp)="makeFollowUpDocument()"
+          (consolidate)="onConsolidateDocument()"
+          (autoRechazar)="onAutoRechazar()">
+        </doc-actions-toolbar>
+      }
+    </div>
+
+    <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+      
+      <!-- Metadatos del documento -->
+      <meta-data-doc [doc]="doc"></meta-data-doc>
+
+      <!-- 2 COLUMNAS: Izquierda (Asunto + CCP), Derecha (Anexos) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
+        
+        <!-- COLUMNA IZQUIERDA: Asunto y CCP -->
+        <div class="space-y-6">
+          <!-- Asunto y Tema ampliado -->
+          <div class="space-y-2 bg-white dark:bg-gray-900 shadow-sm p-4 rounded-xl border border-gray-150 dark:border-gray-800 relative group">
+            
+            <!-- Botón del lapicito azul para editar -->
+            @if (canEditDetails() && !isEditingDetails()) {
+              <action-button 
+                variant="outline"
+                size="sm"
+                [iconOnly]="true"
+                icon="LapizSolid"
+                title="Editar Tema y Asunto"
+                class="absolute top-2 right-2 shadow-theme-xs !border-transparent hover:!border-blue-100"
+                (clicked)="startEditingDetails()">
+              </action-button>
+            }
+
+            @if (!isEditingDetails()) {
+              @if (doc.tema) { 
+                <div class="flex">
+                  <app-badge variant="light" color="secondary" size="sm">Tema: {{ doc.tema }}</app-badge>
+                </div>
+              }
+              <div class="space-y-1">
+                <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Asunto</span>
+                <p class="text-base font-extrabold text-gray-800 leading-snug"> {{ doc.asunto }} </p>
+              </div>
+            } @else {
+              <!-- Formulario de Edición Directa -->
+              <div class="space-y-3 pt-1">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Tema del Documento</label>
+                  <div class="relative w-full">
+                    <input 
+                      #detailTemaInput
+                      type="text" 
+                      list="detailTemasList"
+                      [(ngModel)]="editTema"
+                      [ngModelOptions]="{standalone: true}"
+                      (click)="detailTemaInput.showPicker()"
+                      placeholder="Escribe o selecciona un tema"
+                      class="w-full pl-3 pr-8 py-2 bg-white hover:bg-gray-50 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-lg text-xs font-semibold text-gray-700 outline-none transition-all cursor-pointer" />
+                    <div 
+                      class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-gray-400">
+                      <icon icon="FlechaAbajo" class="h-3.5 w-3.5"></icon>
+                    </div>
+                  </div>
+                  <datalist id="detailTemasList">
+                    @for (t of temasList(); track t) {
+                      <option [value]="t"></option>
+                    }
+                  </datalist>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Asunto del Documento</label>
+                  <textarea 
+                    rows="3"
+                    [(ngModel)]="editAsunto"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Escribe el asunto"
+                    class="w-full px-3 py-2 bg-white hover:bg-gray-50 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-lg text-xs font-semibold text-gray-700 outline-none transition-all resize-y"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-1">
+                  <action-button 
+                    variant="outline" 
+                    size="sm" 
+                    label="Cancelar"
+                    [disabled]="isSavingDetails()"
+                    (clicked)="cancelEditingDetails()">
+                  </action-button>
+                  <action-button 
+                    variant="info" 
+                    size="sm" 
+                    [label]="isSavingDetails() ? 'Guardando...' : 'Guardar'"
+                    [disabled]="isSavingDetails() || !editAsunto.trim()"
+                    (clicked)="saveDetails()">
+                  </action-button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- SECCIÓN DE C.C.P. (Con Copia Para) REGISTRADOS -->
+          <doc-ccp-list [doc]="doc"></doc-ccp-list>
+        </div>
+
+        <!-- COLUMNA DERECHA: Anexos -->
+        <div class="h-full">
+          <!-- SECCIÓN DE ANEXOS / EVIDENCIAS REGISTRADOS -->
+          <doc-attachments-list
+            [(attachments)]="selectedDocAttachments"
+            [isLoading]="isLoadingSelectedDocAttachments()"
+            [isConsolidated]="doc?.is_final_render"
+            (onView)="handleAttachmentView($event)"
+            (onDelete)="handleAttachmentDelete($event)"
+            (onReorder)="handleAttachmentReorder($event)"
+            (onDownload)="handleAttachmentDownload($event)">
+          </doc-attachments-list>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comentarios de Observaciones / Correcciones -->
+    @if (doc.comentarios) {
+      <hr class="border-gray-150 my-4" />
+      <globe type="warning" title="OBSERVACIONES / MOTIVOS DE CORRECCIÓN">
+        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 italic whitespace-pre-line leading-relaxed">"{{ doc.comentarios }}"</p>
+
+        <!-- Botones de Acción sobre Comentarios (OK y X) -->
+        <div actions class="flex items-center gap-1.5">
+          <button-ok [loading]="isCommentsLoading()" (clicked)="deleteComments('ok')"></button-ok>
+          <button-x [loading]="isCommentsLoading()" (clicked)="deleteComments('x')"></button-x>
+        </div>
+      </globe>
+    }
+
+    <!-- Instrucciones de Asignación / Derivación (Turnado) -->
+    @if (doc.instruccion) {
+      <hr class="border-gray-150 my-4" />
+      <globe type="info" title="INSTRUCCIONES DE ASIGNACIÓN / TAREA">
+        @if (doc.turnado_a_nombre) {
+          <span class="text-[10px] font-bold text-indigo-700/80 dark:text-indigo-300 block mb-1">
+            Asignado a: {{ doc.turnado_a_nombre }}
+          </span>
+        }
+        <p class="text-sm font-semibold text-gray-750 dark:text-gray-300 italic whitespace-pre-line leading-relaxed">
+          "{{ doc.instruccion }}"
+        </p>
+      </globe>
+    }
+
+
+    <!-- Trazabilidad / Enlaces del Historial ("Elefantitos") -->
+    <doc-history-links [doc]="doc"></doc-history-links>
+
+    <!-- SECCIÓN DE ACCIONES OFICIALES -->
+    <div class="space-y-4">
+
+      <!-- FORMULARIOS EXPANDIBLES PARA CAPTURA DE DTO -->
+      <doc-action-forms #actionForms
+        [doc]="doc"
+        [(activeActionForm)]="activeActionForm"
+        [selectedTipo]="selectedTipo"
+        [claseDocumentoId]="claseDocumentoId"
+        [(selectedDocAttachments)]="selectedDocAttachments"
+        (actionCompleted)="actionCompleted.emit()">
+      </doc-action-forms>
+
+    </div>
+
+  </div>
+}

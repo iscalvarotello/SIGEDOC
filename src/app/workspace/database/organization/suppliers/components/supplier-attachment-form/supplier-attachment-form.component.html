@@ -1,0 +1,104 @@
+<app-modal [isOpen]="isOpen" (close)="handleClose()">
+  <div class="p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <h4 class="text-lg font-extrabold text-gray-800 dark:text-white flex items-center gap-2">
+        <span class="text-theme-primary dark:text-theme-secondary">📄</span> Subir Nuevo Anexo
+      </h4>
+      <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+        Carga un documento PDF (máximo 10MB) y asócialo a este proveedor.
+      </p>
+    </div>
+
+    <!-- Form fields -->
+    <div class="flex flex-col gap-4">
+      <!-- Title -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nombre corto / Nombre económico</label>
+        <input 
+          type="text" 
+          [ngModel]="newAttTitle()"
+          (ngModelChange)="newAttTitle.set($event)"
+          placeholder="Ej. Acta Constitutiva, Opinión de Cumplimiento" 
+          class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-xs rounded-xl focus:border-theme-primary dark:focus:border-theme-secondary focus:ring-1 focus:ring-theme-primary dark:focus:ring-theme-secondary outline-none transition-colors dark:text-white" />
+      </div>
+
+      <!-- Name -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Título Oficial / Descripción Formal</label>
+        <input 
+          type="text" 
+          [ngModel]="newAttName()"
+          (ngModelChange)="newAttName.set($event)"
+          placeholder="Ej. Acta de Asamblea, Opinión en sentido positivo" 
+          class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-xs rounded-xl focus:border-theme-primary dark:focus:border-theme-secondary focus:ring-1 focus:ring-theme-primary dark:focus:ring-theme-secondary outline-none transition-colors dark:text-white" />
+      </div>
+
+      <!-- Year & Versionable -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Año (Opcional)</label>
+          <input 
+            type="number" 
+            [ngModel]="newAttYear()"
+            (ngModelChange)="newAttYear.set($event)"
+            placeholder="Ej. 2026" 
+            class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 text-xs rounded-xl focus:border-theme-primary dark:focus:border-theme-secondary focus:ring-1 focus:ring-theme-primary dark:focus:ring-theme-secondary outline-none transition-colors dark:text-white" />
+        </div>
+
+        <div class="flex flex-col justify-end">
+          <label class="relative flex items-center gap-2 cursor-pointer py-2">
+            <input 
+              type="checkbox" 
+              [ngModel]="newAttVersionable()"
+              (ngModelChange)="newAttVersionable.set($event)"
+              class="sr-only peer" />
+            <div class="w-10 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[10px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-theme-primary dark:peer-checked:bg-theme-secondary"></div>
+            <span class="text-xs font-bold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Versionable</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- File Upload Dropzone -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Archivo PDF</label>
+        
+        <label 
+          class="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-theme-primary/40 dark:hover:border-theme-secondary/40 rounded-2xl p-6 text-center cursor-pointer transition-colors duration-300 bg-gray-50/50 dark:bg-gray-950/20 hover:bg-gray-50 dark:hover:bg-gray-950/40">
+          
+          <input 
+            type="file" 
+            accept=".pdf" 
+            class="hidden" 
+            (change)="onFileSelected($event)" />
+
+          <div class="text-3xl mb-2">📄</div>
+          
+          @if (selectedFile()) {
+            <div class="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate max-w-xs">
+              {{ selectedFile()?.name }}
+            </div>
+            <div class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+              {{ (selectedFile()?.size || 0) / 1024 / 1024 | number:'1.0-2' }} MB
+            </div>
+          } @else {
+            <div class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+              Haz clic para seleccionar un archivo PDF
+            </div>
+            <div class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+              Solo PDF. Máximo 10MB.
+            </div>
+          }
+        </label>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-gray-100 dark:border-gray-700">
+      <cancel-button (clicked)="handleClose()" label="Cancelar"></cancel-button>
+      <action-button variant="primary" type="button" (clicked)="handleSave()" [disabled]="!selectedFile() || isUploading || isSaving" label="Subiendo...
+          {
+          Guardar Anexo"></action-button>
+    </div>
+  </div>
+</app-modal>

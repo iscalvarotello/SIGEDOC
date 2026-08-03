@@ -1,0 +1,40 @@
+<header class="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 xl:border-b">
+  <div class="flex flex-col items-center justify-between grow xl:flex-row xl:px-6">
+
+    <div class="flex items-center justify-between w-full gap-2 px-3 py-3 border-b border-gray-200 dark:border-gray-800 sm:gap-4 xl:justify-normal xl:border-b-0 xl:px-0 lg:py-4">
+      <!-- Hamburger Toggle Button -->
+      <toggle-icon-button [active]="(isMobileOpen$ | async)!" (toggled)="handleToggle()" iconOn="Cross" iconOff="HamburgerMenu" title="Toggle Sidebar" class="z-99999"></toggle-icon-button>
+
+      <!-- Logo (placeholder) -->
+      <a routerLink="/" class="xl:hidden"><logo></logo></a>
+
+      <!-- Icon Button for DotsMenu -->
+      <icon-button icon="DotsMenu" variant="ghost" customClasses="xl:hidden z-99999" (clicked)="toggleApplicationMenu()"></icon-button>
+
+      <div class="flex items-center justify-end w-full gap-2 xl:w-auto xl:justify-normal sm:gap-4">
+        <div class="hidden sm:block">
+          <search-input #searchInput placeholder="Search or type command..." commands="⌘|K" containerClasses="max-w-[340px] xl:w-[340px]"></search-input>
+        </div>
+      </div>
+
+    </div>
+
+    <div [ngClass]="isApplicationMenuOpen ? 'flex' : 'hidden'" class="items-center justify-between w-full gap-4 px-5 py-4 xl:flex shadow-theme-md xl:justify-end xl:px-0 xl:shadow-none">
+
+      <div class="flex items-center gap-2 2xsm:gap-3">
+
+        <!-- ThemeToggleButton placeholder -->
+        <app-theme-toggle-button />
+        <!-- NotificationDropdown placeholder -->
+        <app-notification-dropdown />
+
+      </div>
+      
+      <!-- UserDropdown placeholder -->
+      <app-adscription-selector />
+      <app-user-dropdown />
+
+    </div>
+
+  </div>
+</header>

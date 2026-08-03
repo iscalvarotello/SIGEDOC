@@ -1,0 +1,33 @@
+<div class="flex flex-col w-full min-w-0">
+  @if (label()) {
+    <app-label>{{ label() }}</app-label>
+  }
+  
+  <div class="flex flex-col lg:flex-row gap-4 w-full h-full min-w-0 mt-1">
+    <!-- Editor Textarea -->
+    <div class="w-full lg:w-[65%] flex flex-col min-w-0 h-full">
+      <textarea
+        #textArea
+        [value]="value()"
+        (input)="onInput($event)"
+        (blur)="handleBlur()"
+        [disabled]="isDisabled()"
+        [rows]="rows()"
+        [placeholder]="placeholder()"
+        class="w-full form-input font-mono text-sm leading-relaxed p-4 bg-gray-50 dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 rounded-xl focus:ring-theme-primary focus:border-theme-primary shadow-inner resize-y min-h-[250px]"
+        spellcheck="false"
+      ></textarea>
+    </div>
+
+    <!-- Variable Pills -->
+    <div class="w-full lg:w-[35%] flex flex-col min-w-0 min-h-[200px] lg:h-auto">
+      <app-variable-pills
+        [variables]="variables()"
+        title="Variables Dinámicas"
+        subtitle="Haz clic en una variable para insertarla en la plantilla"
+        (onPillClick)="insertVariable($event)"
+        class="h-full"
+      ></app-variable-pills>
+    </div>
+  </div>
+</div>

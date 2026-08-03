@@ -1,0 +1,20 @@
+<app-form-page-wrapper
+  titleNew="Crear Nueva Plantilla de Documento"
+  titleEdit="Editar Plantilla de Documento"
+  subtitle="Completa los campos a continuación para configurar esta plantilla de documento."
+  breadcrumbLabel="Plantillas"
+  breadcrumbRoute="/system/security/templates"
+  [isEditMode]="isEditMode()"
+  [isLoading]="isLoading()"
+  [showSkeleton]="!form.dirty"
+  [isFormInvalid]="false" [globalErrors]="globalErrors()" 
+  (onSave)="onSave()"
+  (onCancel)="onCancel()">
+
+  <app-dynamic-form 
+    [config]="formConfig" 
+    [formGroup]="form"
+    [isEditMode]="isEditMode()">
+  </app-dynamic-form>
+
+</app-form-page-wrapper>

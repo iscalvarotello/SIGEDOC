@@ -1,0 +1,76 @@
+<div class="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0" id="maintenance-container">
+  <div class="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 sm:p-0">
+    
+    <!-- Left panel: Maintenance details -->
+    <div class="flex flex-col justify-center flex-1 w-full max-w-lg mx-auto px-6 lg:px-12">
+      <div class="text-center lg:text-left">
+        <!-- Logo -->
+        <div class="mb-8 flex justify-center lg:justify-start">
+          <img
+            width="{{ appSettings.LOGO_WIDTH }}"
+            height="{{ appSettings.LOGO_HEIGHT }}"
+            src="{{ appSettings.LOGO_PATH_LIGHT }}"
+            alt="Logo {{ appSettings.SYSTEM_NAME }}"
+            class="block dark:hidden"
+          />
+          <img
+            width="{{ appSettings.LOGO_WIDTH }}"
+            height="{{ appSettings.LOGO_HEIGHT }}"
+            src="{{ appSettings.LOGO_PATH_LIGHT }}"
+            alt="Logo {{ appSettings.SYSTEM_NAME }}"
+            class="hidden dark:block opacity-90 filter invert dark:invert-0"
+          />
+        </div>
+
+        <!-- Maintenance Icon -->
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-50 dark:bg-amber-950/30 text-amber-500 mb-6">
+          <icon icon="SettingsSpin" class="w-10 h-10 animate-spin-slow"></icon>
+        </div>
+
+        <!-- Heading -->
+        <h1 class="mb-4 font-bold text-gray-800 text-title-md dark:text-white/90 sm:text-title-lg" id="maintenance-title">
+          Sistema en Mantenimiento
+        </h1>
+        
+        <!-- Message -->
+        <p class="text-base text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto lg:mx-0" id="maintenance-message">
+          Actualmente nos encontramos realizando tareas de mejora y mantenimiento programado para ofrecerle un mejor servicio. El acceso se encuentra restringido temporalmente.
+        </p>
+
+        <!-- Action Button -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+          <action-button variant="warning" (clicked)="retry()" label="Reintentar Acceso" icon="Refresh"></action-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right panel: Visual design with Grid Shape -->
+    <div class="items-center hidden w-full h-full lg:w-1/2 bg-amber-950 dark:bg-white/5 lg:grid relative">
+      <div class="flex items-center justify-center z-1">
+        <!-- ===== Common Grid Shape Start ===== -->
+        <app-grid-shape />
+        <div class="flex flex-col items-center max-w-sm text-center">
+          <a routerLink="/" class="block mb-6">
+            <img
+              width="231"
+              height="48"
+              src="{{ appSettings.LOGO_PATH_LIGHT }}"
+              alt="Logo"
+              class="filter invert dark:invert-0"
+            />
+          </a>
+          <h2 class="text-xl font-semibold text-white/90 mb-3">{{ appSettings.SYSTEM_NAME }}</h2>
+          <p class="text-sm text-amber-200/60 dark:text-white/60 px-6">
+            Sistema Integral de Control Documental. Volveremos a estar en línea muy pronto. ¡Gracias por su paciencia!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Theme Toggle -->
+    <div class="fixed z-50 hidden bottom-6 right-6 sm:block">
+      <app-theme-toggle-two />
+    </div>
+
+  </div>
+</div>

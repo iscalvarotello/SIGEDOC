@@ -1,0 +1,23 @@
+<div class="flex flex-col gap-6 animate-fadeIn">
+  <app-title type="secondary" title="Mantenimiento de Datos y Catálogos" subtitle="Ejecute procesos de inicialización de semillas de base de datos o limpieza física."></app-title>
+
+  <!-- Seeds Panel -->
+  <general-bubble title="Carga de Semillas del Sistema (Catalog Seeds)" subtitle="Restablece o inicializa catálogos con información predeterminada del estado de Chiapas."  textColor="#751533"  orientation="vertical">  
+    <div class="w-full">
+      <action-button (clicked)="runSuperSeed()" [disabled]="isSuperSeedLoading()" [loading]="isSuperSeedLoading()" variant="primary-light" label="Ejecutar Súper Semilla (Todos los catálogos)" [fullWidth]="true"></action-button>
+    </div>
+  </general-bubble>
+
+  <!-- Limpieza y Límites -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">    
+    <!-- Limpieza de PDFs huérfanos -->
+    <general-bubble title="Purgado de Archivos Temporales" subtitle="Elimina del disco los PDFs huérfanos generados durante firmas fallidas o borradores no guardados." backcolor="bg-transparent" orientation="vertical">      
+      <div class="w-full"><action-button (clicked)="purgeOrphanTemporals()" [disabled]="isPurging()" [loading]="isPurging()" variant="primary-light" label="Limpiar Disco Temporales" [fullWidth]="true"></action-button></div>
+    </general-bubble>
+    <!-- Límites de peso de archivos -->
+    <general-bubble title="Límites de Peso de Archivo" subtitle="Defina el tamaño máximo permitido para fotos de perfil y adjuntos documentales." backcolor="bg-transparent" orientation="vertical">      
+      <app-range [min]="2" [max]="50" [ngModel]="fileLimitMB()" (ngModelChange)="fileLimitMB.set($event)" (changed)="updateFileLimit($event)" leftLabel="Límite Máximo" [rightLabel]="fileLimitMB() + ' MB'"></app-range>
+    </general-bubble>
+  </div>
+  
+</div>

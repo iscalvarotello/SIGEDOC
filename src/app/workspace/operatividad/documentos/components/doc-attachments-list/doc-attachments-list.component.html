@@ -1,0 +1,66 @@
+<app-section-card
+  title="Anexos / Evidencias Vinculados"
+  icon="Clip"
+  [isLoading]="isLoading">
+  
+  @if (isConsolidated) {
+    <div class="bg-blue-50/50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 rounded-lg p-3 mb-3 flex items-start gap-2.5">
+      <span class="text-base leading-none mt-0.5">🔒</span>
+      <p class="text-[10px] font-semibold text-blue-800 dark:text-blue-400 leading-snug">
+        Este documento está consolidado. Los anexos PDF forman parte del archivo maestro.
+      </p>
+    </div>
+  }
+  
+  @if (attachments().length > 0) {
+    <div class="flex flex-col gap-1.5 flex-1 overflow-y-auto max-h-[300px] pr-1">
+      @for (att of attachments(); track att.id_attachment; let idx = $index) {
+        <div class="bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 border border-gray-200 dark:border-gray-800 rounded-lg p-2.5 text-xs flex items-center justify-between shadow-sm transition-colors group">
+          <div class="flex items-start gap-2.5 min-w-0 flex-1">
+            <!-- Dynamic PNG Icon -->
+            <div class="w-8 h-8 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-md shrink-0 flex items-center justify-center p-1">
+              <smart-image [src]="getAttachmentIconPath(att.extension || att.attachment_title || att.attachment_name)" alt="icon"></smart-image>
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="block font-bold text-gray-700 dark:text-gray-200 truncate" [title]="att.attachment_name">
+                {{ att.attachment_name }}
+              </span>
+              @if (att.attachment_title) {
+                <span class="block text-[9px] text-gray-400 dark:text-gray-400 font-bold truncate mt-0.5" [title]="att.attachment_title">
+                  {{ att.attachment_title }}
+                </span>
+              }
+            </div>
+          </div>
+          <div class="flex items-center gap-1 ml-3 shrink-0">
+            @if (att.canView) {
+              <action-button variant="outline" size="xs" [iconOnly]="true" icon="OjoAbierto" (clicked)="viewAttachment(att.id_attachment)" title="Ver"></action-button>
+            }
+            @if (att.canDownload) {
+              <action-button variant="outline" size="xs" [iconOnly]="true" icon="Descargar" (clicked)="downloadAttachment(att.id_attachment)" title="Descargar"></action-button>
+            }
+            @if (att.canDelete) {
+              <action-button variant="ghost-danger" size="xs" [iconOnly]="true" icon="Basurero" (clicked)="removeDocumentAttachment(att.id_attachment)" title="Eliminar anexo"></action-button>
+            }
+            @if (att.canReorder && idx > 0) {
+              <!-- Botones de Reordenar -->
+              <action-button variant="outline" size="xs" [iconOnly]="true" icon="FlechaArriba" (clicked)="moveDocumentAttachment(idx, 'up')" title="Mover arriba"></action-button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    @if (!isLoading) {
+      <div class="flex flex-col items-center justify-center flex-1 py-4 text-gray-400">
+        <icon icon="ArchivoVacio" class="w-8 h-8 mb-1.5 opacity-40"></icon>
+        <span class="text-[10px] font-bold uppercase tracking-wider">No hay anexos</span>
+      </div>
+    } @else {
+      <div class="flex flex-col items-center justify-center flex-1 py-4 text-gray-400">
+        <icon icon="Spinner" class="animate-spin h-6 w-6 text-gray-400 mb-1.5"></icon>
+        <span class="text-[10px] font-bold uppercase tracking-wider">Cargando anexos...</span>
+      </div>
+    }
+  }
+</app-section-card>

@@ -1,0 +1,36 @@
+<app-page-breadcrumb pageTitle="Configuración Personal" />
+
+<div class="grid grid-cols-12 gap-6 mt-6">
+  <!-- Barra Lateral de Navegación (Tabs) -->
+  <div class="col-span-12 lg:col-span-3">
+    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 shadow-theme-xs space-y-1">
+      <button-tab [active]="currentTab() === 'employee'" (clicked)="setTab('employee')" icon="DatosEmpleado">Datos del empleado</button-tab>
+
+      <button-tab [active]="currentTab() === 'area'" (clicked)="setTab('area')" icon="ConfiguracionArea">Configuraciones del área</button-tab>
+
+      <button-tab [active]="currentTab() === 'dashboard'" (clicked)="setTab('dashboard')" icon="ConfiguracionDashboard">Configuración del Dashboard</button-tab>
+
+      <button-tab [active]="currentTab() === 'firma'" (clicked)="setTab('firma')" icon="Lapiz">Firma y Autorización</button-tab>
+
+      <button-tab [active]="currentTab() === 'apariencia'" (clicked)="setTab('apariencia')" icon="Sun">Apariencia</button-tab>
+    </div>
+  </div>
+
+  <!-- Contenedor Principal de Contenido -->
+  <div class="col-span-12 lg:col-span-9">
+    <!-- PESTAÑA: Datos del empleado -->
+    @if (currentTab() === 'employee') { <app-user-employee-tab /> }
+
+    <!-- PESTAÑA: Configuraciones del área -->
+    @if (currentTab() === 'area') { <app-user-area-tab />}
+
+    <!-- PESTAÑA: Configuración del Dashboard -->
+    @if (currentTab() === 'dashboard') {<app-user-dashboard-tab />}
+
+    <!-- PESTAÑA: Firma y Autorización (Vo.Bo.) -->
+    @if (currentTab() === 'firma') { <app-user-firma-tab /> }
+
+    <!-- PESTAÑA: Apariencia / Temas -->
+    @if (currentTab() === 'apariencia') { <app-user-apariencia-tab /> }
+  </div>
+</div>

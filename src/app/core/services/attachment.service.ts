@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BaseApiService } from '../api/base-api.service';
 import { ENDPOINT_KEYS } from '../api/api-routes.config';
 import { environment } from '../../../environments/environment';
+import { extractFileExtension } from '@utils/file.utils';
 
 @Injectable({
   providedIn: 'root'
@@ -27,12 +28,7 @@ export class AttachmentService extends BaseApiService<any> {
   }
 
   getFileExtension(filenameOrExt: string): string {
-    const name = (filenameOrExt || '').trim().toLowerCase();
-    if (!name) return '';
-    if (name.includes('.')) {
-      return name.split('.').pop() || '';
-    }
-    return name;
+    return extractFileExtension(filenameOrExt);
   }
 
   ensureDotExtension(filenameOrExt: string): string {

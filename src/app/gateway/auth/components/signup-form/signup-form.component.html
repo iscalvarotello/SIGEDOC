@@ -1,0 +1,174 @@
+<div class="w-full max-w-md mx-auto mb-5 sm:pt-10">
+  <a routerLink="/signin"
+    class="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 cursor-pointer">
+    <icon icon="ChevronLeft" class="size-5 mr-1"></icon>
+    Volver al Login
+  </a>
+</div>
+
+<div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+  <div>
+    <div class="mb-6 sm:mb-8">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-theme-primary/10 text-theme-primary dark:bg-theme-secondary/10 dark:text-theme-secondary mb-4">
+        <icon icon="RegisterBadge" class="w-6 h-6"></icon>
+      </div>
+      <h1 class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+        Solicitud de usuario en {{ appSettings.SYSTEM_NAME }}
+      </h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Ingresa tu CURP para validar tu registro en la base de datos de colaboradores y crear tus credenciales.
+      </p>
+    </div>
+
+    <!-- Alertas de Estado -->
+    @if (errorMessage()) {
+      <div class="mb-5 rounded-lg bg-rose-50 p-4 text-sm text-rose-700 dark:bg-rose-950/20 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30">
+        <div class="flex">
+          <icon icon="XCircleSolid" class="h-5 w-5 text-rose-400 mr-2 flex-shrink-0"></icon>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      </div>
+    }
+
+    @if (successMessage()) {
+      <div class="mb-5 rounded-lg bg-emerald-50 p-4 text-sm text-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30">
+        <div class="flex">
+          <icon icon="CheckCircleSolid" class="h-5 w-5 text-emerald-400 mr-2 flex-shrink-0"></icon>
+          <span>{{ successMessage() }}</span>
+        </div>
+      </div>
+    }
+
+    <!-- Formulario Principal -->
+    <div class="space-y-6">
+      
+      <!-- PASO 1: Validación de CURP -->
+      <div class="bg-gray-50/50 dark:bg-white/2 p-5 rounded-xl border border-gray-150 dark:border-gray-800 space-y-4">
+        <div>
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-theme-primary/10 text-theme-primary dark:bg-theme-secondary/15 dark:text-theme-secondary mb-2">
+            Paso 1
+          </span>
+          <app-label>Clave Única de Registro de Población (CURP) <span class="text-error-500">*</span></app-label>
+          <div class="flex gap-2 mt-1">
+            <app-input-field
+              type="text"
+              placeholder="Ingresa tu CURP de 18 caracteres"
+              [(value)]="curp"
+              name="curp"
+              class="form-input uppercase tracking-wider font-semibold"
+              [disabled]="curpVerified || isCheckingCurp()"
+            />
+            @if (!curpVerified) {
+              <action-button variant="primary" type="button" (clicked)="verifyCurp()" [disabled]="isCheckingCurp() || curp.length !== 18" [loading]="isCheckingCurp()">{{ isCheckingCurp() ? 'Buscando...' : 'Verificar' }}</action-button>
+            } @else {
+              <span class="inline-flex items-center justify-center w-11 h-11 bg-emerald-500 text-white rounded-lg shrink-0 shadow-sm">
+                <icon icon="Check" class="w-6 h-6 stroke-[2.5px]"></icon>
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 2: Creación de Cuenta (Se muestra solo tras validar CURP) -->
+      @if (curpVerified) {
+        <div class="bg-gray-50/50 dark:bg-white/2 p-5 rounded-xl border border-gray-150 dark:border-gray-800 space-y-4 animate-fadeIn">
+          
+          <!-- Ficha de Datos del Colaborador (Lectura previa de RH) -->
+          <div class="bg-white dark:bg-gray-900 border border-gray-150 dark:border-gray-800 p-4 rounded-xl shadow-theme-xs space-y-2.5">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-2">
+              <span class="block text-[10px] uppercase font-black text-gray-400 dark:text-gray-500 tracking-wider">Colaborador Identificado</span>
+              <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-theme-primary/10 text-theme-primary dark:bg-theme-secondary/15 dark:text-theme-secondary">
+                Paso 2
+              </span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div class="col-span-2">
+                <span class="block font-medium text-gray-400">Nombre Completo:</span>
+                <span class="block font-bold text-gray-800 dark:text-white/90 text-sm mt-0.5">{{ collaboratorName }}</span>
+              </div>
+              <div>
+                <span class="block font-medium text-gray-400">CURP:</span>
+                <span class="block font-bold text-gray-800 dark:text-white/90 mt-0.5 uppercase tracking-wide">{{ curp.toUpperCase() }}</span>
+              </div>
+              <div>
+                <span class="block font-medium text-gray-400">RFC:</span>
+                <span class="block font-bold text-gray-800 dark:text-white/90 mt-0.5 uppercase tracking-wide">{{ collaboratorRfc || 'No asignado' }}</span>
+              </div>
+              <div class="col-span-2">
+                <span class="block font-medium text-gray-400">Puesto / Cargo:</span>
+                <span class="block font-bold text-gray-800 dark:text-white/90 mt-0.5">{{ collaboratorPuesto }}</span>
+              </div>
+              <div class="col-span-2">
+                <span class="block font-medium text-gray-400">Adscripción / Área:</span>
+                <span class="block text-theme-primary dark:text-theme-secondary mt-0.5 uppercase text-[11px] font-black tracking-wide">{{ collaboratorArea }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div>
+            <app-label>Correo Electrónico <span class="text-error-500">*</span></app-label>
+            <app-input-field
+              type="email"
+              placeholder="usuario@correo.com"
+              [(value)]="email"
+              name="email"
+              autocomplete="username email"
+              [disabled]="isRegistering()"
+            />
+          </div>
+
+          <!-- Password -->
+          <div>
+            <app-label>Contraseña <span class="text-error-500">*</span></app-label>
+            <app-password-input
+              placeholder="Crea una contraseña segura"
+              [(value)]="password"
+              name="password"
+              autocomplete="new-password"
+              [required]="true"
+              [disabled]="isRegistering()"
+              hint="Mínimo 6 caracteres"
+            />
+          </div>
+
+          <!-- Confirm Password -->
+          <div>
+            <app-label>Confirmar Contraseña <span class="text-error-500">*</span></app-label>
+            <app-password-input
+              placeholder="Confirma tu contraseña"
+              [(value)]="confirmPassword"
+              name="confirmPassword"
+              autocomplete="new-password"
+              [required]="true"
+              [disabled]="isRegistering()"
+              [error]="confirmPassword.length > 0 && password !== confirmPassword"
+              [success]="confirmPassword.length > 0 && password === confirmPassword"
+            />
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2">
+            <submit-button
+          [disabled]="isRegistering() || !email || !password || !confirmPassword || password !== confirmPassword || password.length < 6"
+          [submitting]="isRegistering()"
+          [label]="isRegistering() ? 'Completando registro...' : 'Completar Registro'"
+          (clicked)="onSignUpSubmit()">
+        </submit-button>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Login Link -->
+    <div class="mt-8 pt-4 border-t border-gray-150 dark:border-gray-800">
+      <p class="text-xs font-semibold text-center text-gray-500 dark:text-gray-400">
+        ¿Ya tiene una cuenta?
+        <a routerLink="/signin" class="text-theme-primary hover:text-theme-primary/80 dark:text-theme-secondary dark:hover:text-theme-secondary/80 font-black ml-1">
+          Iniciar Sesión
+        </a>
+      </p>
+    </div>
+  </div>
+</div>

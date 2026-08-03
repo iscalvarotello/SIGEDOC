@@ -1,0 +1,69 @@
+<div class="flex flex-col gap-6 animate-fadeIn">
+  <app-title type="primary" title="Firma Electrónica Avanzada" subtitle="Establezca los parámetros y motores para la generación de firmas electrónicas oficiales."></app-title>
+
+  <form [formGroup]="documentosForm" (ngSubmit)="saveDocumentSettings()" class="flex flex-col gap-5">
+    
+    <!-- Parámetros de la Firma Electrónica -->
+    <div class="flex flex-col gap-3.5">
+      <app-title type="third" title="Parámetros de la firma electrónica" subtitle="Estos parámetros establecen en dónde aparece la firma electrónica, ya que puede interferir con el membrete."></app-title>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <control type="number" formControlName="margin_x" label="Margen lateral izquierdo (mm)"    class="sm:col-span-1" [step]="1" ></control>
+        <control type="number" formControlName="offset_y" label="Distancia desde la cabecera (mm)" class="sm:col-span-1" [step]="1" ></control>
+        
+        <div class="sm:col-span-1 block w-full min-w-0">
+          <label class="block text-xs font-bold text-gray-700 dark:text-zinc-300 mb-1">Motor de Firma Activo</label>
+          <select formControlName="active_provider_id" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block p-2.5 dark:bg-zinc-800 dark:border-zinc-700 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 min-w-0">
+            <option [ngValue]="null">Motor Interno Local (Default)</option>
+            @for (provider of providers(); track provider.id) {
+              <option [ngValue]="provider.id">{{ provider.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Textos Legales de Firmado -->
+    <control type="textarea" formControlName="legend_footnote" label="Leyenda de Firma Electrónica (Footnote)" [rows]="3"></control>
+    <control type="textarea" formControlName="legend_acuse"    label="Leyenda de Hoja de Acuse Oficial"        [rows]="2"></control>
+
+    <!-- Catálogo de Proveedores de Firma -->
+    <div class="flex flex-col gap-3.5 border-t border-gray-100 dark:border-gray-800 pt-5 mt-2">
+      <app-title type="third" title="Catálogo de Motores de Firma" subtitle="Gestione los proveedores externos disponibles para firmar la documentación oficial."></app-title>
+      
+      <!-- VISTA PRINCIPAL DE 2 COLUMNAS (Master-Detail) -->
+      <div class="flex flex-col lg:flex-row gap-6 min-h-[550px]">
+        
+        <!-- COLUMNA IZQUIERDA: Tarjetas de Proveedores (40%) -->
+        <app-sign-provider-list class="w-full lg:w-[42%] flex flex-col min-w-0" [providers]="providers()" [selectedProviderId]="selectedProvider()?.id || null" [isLoading]="isLoadingProviders()" (selectProvider)="selectProvider($event!)" (createNewProvider)="createProvider()"></app-sign-provider-list>
+
+        <!-- COLUMNA DERECHA: Detalle del Proveedor (60%) -->
+        <div class="w-full lg:w-[58%] flex flex-col min-w-0">
+          @if (showProviderForm()) {
+            <app-sign-provider-detail class="flex flex-col min-w-0" [provider]="selectedProvider()" [isSaving]="isSavingProvider()" [isDeleting]="isDeletingProvider()" (save)="saveProvider($event)" (delete)="deleteProvider($event)" (cancel)="cancelProviderForm()"></app-sign-provider-detail>
+          } @else {
+            <div class="flex-1 flex flex-col justify-center bg-gray-50/50 dark:bg-zinc-800/30 rounded-2xl border border-dashed border-gray-200 dark:border-zinc-700 min-w-0">
+              <app-empty-state icon="DocumentText" title="Seleccione un Proveedor" description="Haga clic en un proveedor de la lista para ver o editar sus detalles, o cree uno nuevo."></app-empty-state>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR XML A TODO ANCHO ABAJO (Si hay proveedor seleccionado) -->
+    @if (showProviderForm() && selectedProvider()?.id) {
+      <div class="mt-2 animate-fadeIn border-t border-gray-100 dark:border-gray-800 pt-4">
+        <app-sign-provider-xml-editor 
+          [provider]="selectedProvider()!"
+          [isSaving]="isSavingProvider()"
+          (save)="saveProviderXml($event)">
+        </app-sign-provider-xml-editor>
+      </div>
+    }
+
+    <!-- Botón Guardar Configuraciones Generales -->
+    <div class="flex justify-end pt-4 border-t border-gray-100 dark:border-gray-800">
+      <action-button type="submit" variant="primary" size="lg" label="Guardar Cambios" [disabled]="documentosForm.invalid || isSaving()" [loading]="isSaving()"></action-button>
+    </div>
+  </form>
+</div>

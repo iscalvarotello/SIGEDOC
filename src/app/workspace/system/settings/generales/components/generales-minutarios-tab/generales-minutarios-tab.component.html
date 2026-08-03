@@ -1,0 +1,123 @@
+<div class="flex flex-col gap-6 animate-fadeIn">
+  <div class="flex justify-between items-start">
+    <div class="flex-1">
+      <app-title type="secondary" title="Minutarios y Contadores Anuales" subtitle="Vigile el consecutivo de folios por cada ejercicio fiscal."></app-title>
+    </div>
+    
+    <action-button 
+      variant="emerald"
+      icon="Plus"
+      label="Año Nuevo Fiscal"
+      (clicked)="openNewFiscalYear()">
+    </action-button>
+  </div>
+
+  <!-- Historial de Minutarios Globales (Read-Only Table) -->
+  <div class="flex flex-col gap-3">
+    <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Historial de Folios Globales (Viáticos)</span>
+    <data-table 
+      [columns]="['Año Fiscal', 'Contador de Viáticos']" 
+      [data]="globalMinutarios()" 
+      [loading]="isLoadingMinutarios()" 
+      loadingMessage="Cargando minutarios globales..." 
+      emptyMessage="No se encontraron minutarios registrados.">
+      <ng-template let-m>
+        <td class="px-5 py-3.5 font-bold text-gray-900 dark:text-white">{{ m.year }}</td>
+        <td class="px-5 py-3.5 font-semibold text-amber-600 dark:text-amber-500">{{ m.viaticos }} folios</td>
+      </ng-template>
+    </data-table>
+  </div>
+
+  <!-- Separador -->
+  <div class="h-px bg-gray-150 dark:bg-gray-800 my-2"></div>
+
+  <!-- Consecutivos por Área -->
+  <div class="flex flex-col gap-4">
+    <general-bubble 
+      title="Folios por Área Administrativa" 
+      subtitle="Consulte los folios asignados a cada departamento del año seleccionado.">
+      
+      <!-- Selector de Año -->
+      <div class="flex items-center gap-2">
+        <label class="text-xs font-bold text-gray-500 uppercase whitespace-nowrap">Año:</label>
+        <select 
+          [value]="selectedYear()" 
+          (change)="onYearSelectedChange($any($event.target).value)"
+          class="px-3 py-1.5 bg-white dark:bg-gray-950 border border-gray-250 dark:border-gray-800 text-xs rounded-xl font-semibold text-gray-700 dark:text-gray-300 cursor-pointer focus:outline-none focus:border-theme-primary"
+        >
+          @for (yr of availableYears(); track yr) {
+            <option [value]="yr">{{ yr }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Switch para gestión vs oficial -->
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-gray-500 uppercase whitespace-nowrap">En Gestión:</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input 
+            type="checkbox" 
+            [checked]="showGestDocs()"
+            (change)="showGestDocs.set(!showGestDocs())" 
+            class="sr-only peer"
+          />
+          <div class="w-9 h-5 bg-gray-255 dark:bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-theme-primary"></div>
+        </label>
+      </div>
+    </general-bubble>
+
+    <!-- Tabla de Minutarios de Áreas -->
+    <data-table 
+      [columns]="areaTableColumns" 
+      [data]="areasMinutarios()" 
+      [loading]="isLoadingAreas()" 
+      loadingMessage="Cargando minutarios de áreas del año {{ selectedYear() }}..." 
+      emptyMessage="No se encontraron minutarios por área para este año."
+      css_row="hover:bg-gray-50/50 dark:hover:bg-gray-955/30 text-gray-700 dark:text-gray-300">
+      
+      <ng-template let-m>
+        <td class="px-5 py-3">
+          <div class="flex flex-col">
+            <span class="font-bold text-gray-900 dark:text-white text-sm">{{ m.area?.acronym || 'S/A' }}</span>
+            <span class="text-[10px] text-gray-400 truncate max-w-xs sm:max-w-md md:max-w-lg" [title]="m.area?.name">{{ m.area?.name }}</span>
+          </div>
+        </td>
+        @if (!showGestDocs()) {
+          <td class="px-5 py-3 font-medium">{{ m.memo }}</td>
+          <td class="px-5 py-3 font-medium">{{ m.oficio }}</td>
+          <td class="px-5 py-3 font-medium">{{ m.ti }}</td>
+          <td class="px-5 py-3 font-medium">{{ m.circular }}</td>
+        } @else {
+          <td class="px-5 py-3 font-medium text-gray-650 dark:text-gray-400">{{ m.memo_gest }}</td>
+          <td class="px-5 py-3 font-medium text-gray-650 dark:text-gray-400">{{ m.oficio_gest }}</td>
+          <td class="px-5 py-3 font-medium text-gray-650 dark:text-gray-400">{{ m.ti_gest }}</td>
+          <td class="px-5 py-3 font-medium text-gray-650 dark:text-gray-400">{{ m.circular_gest }}</td>
+        }
+      </ng-template>
+
+    </data-table>
+  </div>
+
+  <!-- Ajuste manual advertencia y botón -->
+  <globe 
+    type="alert"
+    title="Ajuste de Emergencia de Minutarios"
+    subtitle="Requiere contraseña de administrador y solo debe realizarse ante desfases manuales de folios físicos."
+    [showButton]="true"
+    buttonText="Ajustar Contador"
+    (buttonClicked)="openAjusteModal()"
+  ></globe>
+
+</div>
+
+<!-- MODAL 1: AJUSTE DE CONTADOR DE FOLIO (Pestaña Minutarios) -->
+<ajuste-minutarios-modal
+  [isOpen]="isAjusteModalOpen()"
+  [formGroup]="ajusteForm"
+  [availableYears]="availableYears()"
+  [showGestDocs]="showGestDocs()"
+  [areasMinutarios]="areasMinutarios()"
+  [isAdjusting]="isAdjusting()"
+  (close)="closeAjusteModal()"
+  (submitForm)="executeContadorAdjustment()">
+</ajuste-minutarios-modal>

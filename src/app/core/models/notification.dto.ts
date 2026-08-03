@@ -1,4 +1,6 @@
-export class NotificationDTO {
+import { IBaseEntity, BaseDto } from '@core/models/base-entity.dto';
+
+export class NotificationDTO extends BaseDto<NotificationDTO> implements IBaseEntity {
   id!: string;
   titulo!: string;
   mensaje!: string;
@@ -17,6 +19,7 @@ export class NotificationDTO {
   } | null;
 
   constructor(data: any = {}) {
+    super();
     this.id = data.id || '';
     this.titulo = data.titulo || '';
     this.mensaje = data.mensaje || '';

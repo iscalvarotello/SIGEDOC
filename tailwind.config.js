@@ -12,10 +12,24 @@ module.exports = {
                 'secondary-gov': 'var(--color-base-02)',
                 'accent-gov': 'var(--color-base-03)',
                 'neutral-gov': 'var(--color-base-04)',
-
-                // OPCIONAL: Si el Dashboard usa un color específico para el Sidebar, cámbialo aquí
-                // 'sidebar-bg': 'var(--color-base-01)', // Descomenta si quieres el Sidebar Guinda
+                
+                // Colores Institucionales Dinámicos (Atados al ThemeService)
+                'theme-primary': 'var(--theme-primary, #691C32)',
+                'theme-secondary': 'var(--theme-secondary, #BC955C)',
+                
+                // Semánticos del Tema
+                'theme-success': 'var(--theme-success, #10B981)',
+                'theme-warning': 'var(--theme-warning, #F59E0B)',
+                'theme-danger': 'var(--theme-danger, #EF4444)',
+                'theme-info': 'var(--theme-info, #3B82F6)',
+                
+                // Mantenemos guinda y dorado para compatibilidad hacia atrás si hay componentes crudos
+                'theme-guinda': '#691C32',
+                'theme-dorado': '#BC955C',
             },
+            fontSize: {
+                'theme-title': 'var(--theme-title-size, 2.25rem)', // 4xl por defecto
+            }
         },
     },
     plugins: [

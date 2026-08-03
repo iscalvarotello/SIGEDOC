@@ -1,0 +1,87 @@
+<!-- Breadcrumb Superior -->
+<app-page-breadcrumb 
+  [pageTitle]="claseDocumentoId() | claseDocument:'plural'" 
+  [badgeLabel]="activeAreaName() ? 'BANDEJA:' : ''" 
+  [badgeValue]="activeAreaName() || ''" />
+
+<!-- SELECTOR DIRECTO / GESTIONADO Y REFRESH -->
+ <doc-type-selector
+  [selectedTipo]="selectedTipo()"
+  [countDirecto]="countDirecto()"
+  [countGestionado]="countGestionado()"
+  [isLoading]="isLoading()"
+  (tipoChange)="selectedTipo.set($event); closeActionForm()"
+  (refresh)="loadInbox()">
+</doc-type-selector>
+
+
+<!-- BANDEJAS HORIZONTALES (Selector Superior de Carpetas) -->
+ <doc-bandeja-tabs
+  [bandejas]="bandejasWithCounts()"
+  [selectedBandeja]="selectedBandeja()"
+  [isLoading]="isLoading()"
+  (bandejaChange)="selectBandeja($event)">
+</doc-bandeja-tabs>
+
+
+<!-- PANEL DE CONTROLES (Buscador y Fechas) -->
+<doc-search-filter
+  [searchQuery]="searchQuery()"
+  [startDateInput]="startDateInput()"
+  [endDateInput]="endDateInput()"
+  [appliedStartDate]="appliedStartDate()"
+  [appliedEndDate]="appliedEndDate()"
+  [year]="selectedYear()"
+  (searchQueryChange)="searchQuery.set($event)"
+  (startDateInputChange)="startDateInput.set($event)"
+  (endDateInputChange)="endDateInput.set($event)"
+  (yearChange)="selectedYear.set($event)"
+  (inputSearch)="closeActionForm()"
+  (applyFilter)="applyDateFilter()"
+  (clearFilter)="clearDateFilter()">
+  
+  <!-- Botón Nuevo Documento -->
+  <action-button variant="primary" type="button" (clicked)="navigateToNewDocument()"><icon icon="NewIcon2" class="w-4 h-4"></icon>
+    Nuevo {{ claseDocumentoId() | claseDocument:'singular' }}</action-button>
+  
+  <!-- Botón Copiar Link de Firma Remota -->
+  @if (selectedBulkDocIds().length > 0) {
+    <action-button 
+      variant="primary"
+      (clicked)="generateBulkLink()"
+      [disabled]="isGeneratingBulkLink()"
+      class="w-full xl:w-auto bg-green-600 hover:bg-green-700 text-white flex items-center justify-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+      </svg>
+      {{ isGeneratingBulkLink() ? 'Generando...' : 'Copiar Link de Firma (' + selectedBulkDocIds().length + ')' }}
+    </action-button>
+  }
+</doc-search-filter>
+
+<!-- VISTA PRINCIPAL DE 2 COLUMNAS -->
+<div class="flex flex-col lg:flex-row gap-6 min-h-[500px]">
+
+  <!-- COLUMNA IZQUIERDA: Tarjetas de Documentos (40%) -->
+  <doc-list
+    class="w-full lg:w-[42%] flex flex-col"
+    [documents]="filteredDocuments()"
+    [selectedDocId]="selectedDocId()"
+    [isLoading]="isLoading()"
+    [bulkSelectionEnabled]="bulkSelectionEnabled()"
+    [selectedBulkDocIds]="selectedBulkDocIds()"
+    (selectDocument)="selectDocument($event)"
+    (openPdf)="openPdf($event.type, $event.doc)"
+    (toggleBulkSelection)="toggleBulkSelection($event)">
+  </doc-list>
+
+  <!-- COLUMNA DERECHA: Detalle y Acciones del Documento (60%) -->
+  <doc-detail
+    class="w-full lg:w-[58%] flex flex-col"
+    [doc]="selectedDoc()"
+    [selectedTipo]="selectedTipo()"
+    [claseDocumentoId]="claseDocumentoId()"
+    (actionCompleted)="loadInbox()">
+  </doc-detail>
+
+</div>

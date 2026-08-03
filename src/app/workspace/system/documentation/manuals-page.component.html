@@ -1,0 +1,18 @@
+<div class="space-y-6">
+  <app-page-breadcrumb pageTitle="Manuales del Sistema"></app-page-breadcrumb>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let manual of manuals" class="bg-white dark:bg-[#1a202c] rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 flex flex-col h-full hover:shadow-md transition-shadow">
+      <div class="flex-grow">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ manual.title }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ manual.description }}</p>
+      </div>
+      <div>
+        <a [href]="manual.link" class="text-theme-primary font-medium text-sm hover:underline flex items-center">
+          Ver Manual
+          <icon icon="ArrowRight" class="h-4 w-4 ml-1"></icon>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,173 @@
+<app-dashboard-card>
+  
+  <!-- HEADER -->
+  <div card-header class="flex items-center gap-2.5">
+    <span class="text-sm font-black text-gray-800 dark:text-white flex items-center gap-2">
+      📤 Correspondencia Enviada
+    </span>
+  </div>
+
+  <!-- BODY -->
+  <div card-body class="overflow-x-auto">
+    <table class="w-full text-left border-collapse text-xs">
+      <thead>
+        <tr class="border-b border-gray-100 dark:border-gray-800 text-[9px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+          <th class="pb-1.5 font-extrabold w-28 md:w-32 shrink-0">Tipo</th>
+          <th class="pb-1.5 text-center font-extrabold">Total</th>
+          <th class="pb-1.5 text-center font-extrabold text-gray-500">Borrador</th>
+          <th class="pb-1.5 text-center font-extrabold text-blue-600 dark:text-blue-500">En Revisión</th>
+          <th class="pb-1.5 text-center font-extrabold text-emerald-600 dark:text-emerald-500">Despachados</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-50 dark:divide-gray-850">
+        @if (isLoading()) {
+          <!-- Loading Skeletons -->
+          @for (row of [1, 2, 3, 4]; track row) {
+            <tr class="animate-pulse">
+              <td class="py-1.5 pr-2">
+                <div class="h-3 bg-gray-200 dark:bg-gray-800 rounded-md w-20"></div>
+              </td>
+              <td class="py-1.5 text-center">
+                <div class="h-5 bg-gray-200 dark:bg-gray-800 rounded-md w-6 mx-auto"></div>
+              </td>
+              <td class="py-1.5 text-center">
+                <div class="h-5 bg-gray-200 dark:bg-gray-800 rounded-md w-6 mx-auto"></div>
+              </td>
+              <td class="py-1.5 text-center">
+                <div class="h-5 bg-gray-200 dark:bg-gray-800 rounded-md w-6 mx-auto"></div>
+              </td>
+              <td class="py-1.5 text-center">
+                <div class="h-5 bg-gray-200 dark:bg-gray-800 rounded-md w-6 mx-auto"></div>
+              </td>
+            </tr>
+          }
+        } @else {
+          <!-- Memorandums -->
+          <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors">
+            <td class="py-1.5 pr-2 font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              Memorándums
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
+                {{ stats().memo.total }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-gray-50 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 rounded">
+                {{ stats().memo.borrador }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-450 rounded">
+                {{ stats().memo.revision }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 rounded">
+                {{ stats().memo.despachado }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Oficios -->
+          <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors">
+            <td class="py-1.5 pr-2 font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+              Oficios
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
+                {{ stats().oficio.total }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-gray-50 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 rounded">
+                {{ stats().oficio.borrador }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-450 rounded">
+                {{ stats().oficio.revision }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 rounded">
+                {{ stats().oficio.despachado }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Tarjetas Informativas -->
+          <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors">
+            <td class="py-1.5 pr-2 font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              Tarjetas Inf.
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
+                {{ stats().ti.total }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-gray-50 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 rounded">
+                {{ stats().ti.borrador }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-450 rounded">
+                {{ stats().ti.revision }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 rounded">
+                {{ stats().ti.despachado }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- Circulares -->
+          <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-800/10 transition-colors">
+            <td class="py-1.5 pr-2 font-bold text-gray-800 dark:text-gray-200 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+              Circulares
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
+                {{ stats().circular.total }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-gray-50 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 rounded">
+                {{ stats().circular.borrador }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-455 rounded">
+                {{ stats().circular.revision }}
+              </span>
+            </td>
+            <td class="py-1.5 text-center">
+              <span class="inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 rounded">
+                {{ stats().circular.despachado }}
+              </span>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FOOTER -->
+  <div card-footer class="flex items-center justify-between w-full">
+    <span class="flex items-center gap-1 text-gray-400 dark:text-gray-500 font-medium">
+      <span class="inline-flex rounded-full h-1.5 w-1.5 bg-emerald-400 shrink-0 animate-pulse"></span>
+      Actualizado
+    </span>
+    <a href="/operatividad/documento/memo?bandeja=📝 Borradores" class="text-theme-primary dark:text-theme-secondary hover:underline font-bold inline-flex items-center gap-0.5 transition-all active:translate-x-0.5">
+      Ver bandeja
+      <icon icon="ArrowRight" class="w-3 h-3"></icon>
+    </a>
+  </div>
+  
+</app-dashboard-card>

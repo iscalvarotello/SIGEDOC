@@ -1,0 +1,270 @@
+<div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4">
+  <div class="flex items-center justify-between border-b border-gray-200 pb-2">
+    <h4 class="text-xs font-black text-theme-primary uppercase tracking-wider">Anexos / Evidencias del Documento</h4>
+    <span class="text-[10px] font-bold text-gray-400 uppercase">Consolidados en Payload</span>
+  </div>
+
+  <div class="flex flex-col sm:flex-row gap-3">
+    <action-button 
+      (clicked)="openSupplierModal()"
+      variant="outline"
+      size="lg"
+      [fullWidth]="true"
+      class="flex-1">
+      <icon icon="ArchiveAdd" class="w-4 h-4 mr-2 inline-block"></icon>
+      Anexar Documento de Proveedor
+    </action-button>
+
+    <action-button 
+      (clicked)="openPureAttachmentModal()"
+      variant="primary"
+      size="lg"
+      [fullWidth]="true"
+      class="flex-1">
+      <icon icon="InboxUpload" class="w-4 h-4 mr-2 inline-block"></icon>
+      Anexo Directo (Puro)
+    </action-button>
+  </div>
+
+  <!-- Listado de Anexos Vinculados -->
+  @if (anexos().length > 0) {
+    <div class="grid grid-cols-1 gap-2 pt-2">
+      @for (an of anexos(); track $index; let idx = $index) {
+        <div class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-theme-primary/20 transition-all">
+          <div class="flex items-start gap-3 min-w-0 flex-1">
+            <div class="w-8 h-8 rounded shrink-0 flex items-center justify-center bg-white border border-gray-150">
+              <icon type="png" [icon]="an.extension || an.attachment_title || an.attachment_name || 'pdf'" class="w-5 h-5 block"></icon>
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="block text-xs font-black text-gray-700 truncate" [title]="an.attachment_name">
+                {{ an.attachment_name }}
+              </span>
+              <span class="block text-[10px] text-gray-400 font-bold truncate mt-0.5" [title]="an.attachment_title">
+                {{ an.attachment_title }}
+              </span>
+              <div class="mt-1.5 flex flex-wrap gap-1.5">
+                @if (an.source_type === 'supplier') {
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-[8px] font-black uppercase bg-amber-50 text-amber-700 border border-amber-200">
+                    Proveedor: {{ an.source_name }}
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-[8px] font-black uppercase bg-blue-50 text-blue-700 border border-blue-200">
+                    Carga Directa
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1.5 ml-4 shrink-0">
+            <!-- Botones de Reordenar -->
+            <action-button 
+              (clicked)="moveAttachment(idx, 'up')"
+              [disabled]="idx === 0"
+              variant="ghost"
+              title="Subir orden">
+              <icon icon="FlechaArriba" class="w-4 h-4"></icon>
+            </action-button>
+            <action-button 
+              (clicked)="moveAttachment(idx, 'down')"
+              [disabled]="idx === anexos().length - 1"
+              variant="ghost"
+              title="Bajar orden">
+              <icon icon="FlechaAbajo" class="w-4 h-4"></icon>
+            </action-button>
+
+            @if (isPdf(an.extension || an.attachment_title || an.attachment_name)) {
+              <a 
+                [href]="getAttachmentDownloadUrl(an.id_attachment)"
+                target="_blank"
+                class="p-1.5 bg-gray-50 text-gray-400 hover:text-theme-secondary rounded-lg border border-gray-200 hover:bg-amber-50 transition-colors"
+                title="Ver Anexo (PDF)">
+                <icon icon="NewIcon6" class="w-4 h-4"></icon>
+              </a>
+            } @else {
+              <a 
+                [href]="getAttachmentDownloadUrl(an.id_attachment)"
+                target="_blank"
+                class="p-1.5 bg-gray-50 text-gray-400 hover:text-theme-secondary rounded-lg border border-gray-200 hover:bg-amber-50 transition-colors"
+                title="Descargar Anexo">
+                <icon icon="Descargar" class="w-4 h-4"></icon>
+              </a>
+            }
+            
+            <action-button 
+              (clicked)="removeDocumentAttachment(idx, an.id_attachment)"
+              variant="ghost-danger"
+              title="Eliminar Anexo">
+              <icon icon="NewIcon7" class="w-4 h-4"></icon>
+            </action-button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- MODAL: ANEXAR DE PROVEEDOR -->
+<app-modal [isOpen]="isSupplierModalOpen()" (close)="closeSupplierModal()" className="max-w-[540px] w-full m-4">
+  <div class="p-6 space-y-5">
+    <div class="border-b border-gray-150 pb-3">
+      <h3 class="text-sm font-black text-theme-primary uppercase tracking-wider">Anexar Documento de Proveedor</h3>
+      <p class="text-[10px] text-gray-400 mt-1 font-bold">Selecciona el proveedor para obtener sus anexos no versionables y del año actual.</p>
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-xs font-bold text-gray-500 uppercase">Proveedor</label>
+      <app-supplier-select 
+        [selectedId]="selectedSupplierIdForModal()" 
+        (onSelect)="onSupplierForAttachmentChange($event)"
+        (onClear)="onSupplierForAttachmentChange(null)">
+      </app-supplier-select>
+    </div>
+
+    @if (selectedSupplierIdForModal()) {
+      <div class="space-y-2.5">
+        <label class="text-xs font-bold text-gray-500 uppercase block border-b border-gray-100 pb-1">Anexos Disponibles</label>
+        
+        @if (supplierAttachmentsList().length === 0) {
+          <div class="p-5 text-center bg-gray-50 border border-dashed border-gray-200 rounded-xl text-xs font-bold text-gray-400">
+            El proveedor seleccionado no tiene anexos que cumplan el criterio de filtrado (no versionables o del año actual).
+          </div>
+        } @else {
+          <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+            @for (att of supplierAttachmentsList(); track att.id_attachment) {
+              <label class="flex items-start gap-3.5 p-3 bg-white hover:bg-gray-50 border border-gray-200 hover:border-theme-primary/30 rounded-xl cursor-pointer transition-all shadow-sm group">
+                <input 
+                  type="checkbox"
+                  [checked]="selectedSupplierAttachmentsIds()[att.id_attachment]"
+                  (change)="toggleSupplierAttachmentSelection(att.id_attachment)"
+                  class="mt-1 rounded border-gray-300 text-theme-primary focus:ring-theme-primary h-4 w-4">
+                
+                <div class="flex-1 min-w-0">
+                  <span class="block text-xs font-black text-gray-700 truncate group-hover:text-theme-primary transition-colors" [title]="att.attachment_name">
+                    {{ att.attachment_name }}
+                  </span>
+                  <span class="block text-[10px] text-gray-400 font-bold truncate mt-0.5" [title]="att.attachment_title">
+                    {{ att.attachment_title }}
+                  </span>
+                  <div class="mt-1.5">
+                    @if (att.versionable) {
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-[8px] font-black uppercase bg-amber-50 text-amber-700 border border-amber-200">
+                        Versionable (Año: {{ att.year }})
+                      </span>
+                    } @else {
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-[8px] font-black uppercase bg-gray-100 text-gray-650 border border-gray-200">
+                        No Versionable
+                      </span>
+                    }
+                  </div>
+                </div>
+              </label>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <div class="flex justify-end gap-3 border-t border-gray-150 pt-4 mt-2">
+      <action-button 
+        (clicked)="closeSupplierModal()"
+        variant="ghost">
+        Cancelar
+      </action-button>
+      <action-button 
+        (clicked)="addSelectedSupplierAttachments()"
+        [disabled]="!selectedSupplierIdForModal() || supplierAttachmentsList().length === 0"
+        variant="primary">
+        Anexar Seleccionados
+      </action-button>
+    </div>
+  </div>
+</app-modal>
+
+<!-- MODAL: ANEXO DIRECTO (PURO) -->
+<app-modal [isOpen]="isPureAttachmentModalOpen()" (close)="closePureAttachmentModal()" className="max-w-[480px] w-full m-4">
+  <div class="p-6 space-y-5">
+    <div class="border-b border-gray-150 pb-3">
+      <h3 class="text-sm font-black text-theme-primary uppercase tracking-wider">Agregar Anexo Directo</h3>
+      <p class="text-[10px] text-gray-400 mt-1 font-bold">Sube un archivo y define sus nombres de identificación para adjuntarlo al documento.</p>
+    </div>
+
+    <div class="space-y-4">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold text-gray-500 uppercase">Nombre o Descripción del Anexo</label>
+        <input 
+          type="text" 
+          [ngModel]="pureAttTitle()"
+          (ngModelChange)="pureAttTitle.set($event)"
+          [ngModelOptions]="{standalone: true}"
+          placeholder="Ej. Factura de compra o reporte"
+          class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold outline-none text-gray-700 focus:ring-2 focus:ring-theme-primary/10 focus:border-theme-primary transition-all" />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold text-gray-500 uppercase">Nombre Oficial (En el Sistema)</label>
+        <input 
+          type="text" 
+          [ngModel]="pureAttName()"
+          (ngModelChange)="pureAttName.set($event)"
+          [ngModelOptions]="{standalone: true}"
+          placeholder="Ej. FACTURA_12345.pdf"
+          class="w-full px-3.5 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold outline-none text-gray-700 focus:ring-2 focus:ring-theme-primary/10 focus:border-theme-primary transition-all" />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold text-gray-500 uppercase">Archivo / Anexo (Máx. 10MB)</label>
+        
+        @if (!pureSelectedFile()) {
+          <app-file-uploader
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.jpg,.jpeg,.png,.gif,.tiff"
+            [maxSizeMB]="10"
+            dragLabel="Arrastra tu archivo aquá o haz clic para buscar"
+            helpLabel="Formatos permitidos: PDF, Word, Excel, PowerPoint, ZIP, RAR, Imágenes (Máx. 10MB)"
+            (fileSelected)="onPureFileUploaded($event)">
+          </app-file-uploader>
+        } @else {
+          <div class="flex items-center justify-between p-3.5 bg-white border border-gray-200 rounded-2xl animate-fadeIn dark:bg-black/10 dark:border-gray-800">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-10 h-10 bg-gray-50 border border-gray-100 rounded-lg shrink-0 flex items-center justify-center p-1.5">
+                <icon type="png" [icon]="pureSelectedFile()?.name || 'pdf'" class="w-full h-full block"></icon>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-gray-805 truncate dark:text-gray-200">{{ pureSelectedFile()?.name }}</p>
+                <p class="text-[9px] text-gray-400 font-bold font-mono mt-0.5">
+                  {{ ((pureSelectedFile()?.size || 0) / 1024 / 1024) | number:'1.2-2' }} MB
+                </p>
+              </div>
+            </div>
+            <action-button 
+              (clicked)="pureSelectedFile.set(null)"
+              [disabled]="isUploadingPureFile()"
+              variant="ghost-danger">
+              <icon icon="NewIcon7" class="w-5 h-5"></icon>
+            </action-button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 border-t border-gray-150 pt-4 mt-2">
+      <action-button 
+        (clicked)="closePureAttachmentModal()"
+        [disabled]="isUploadingPureFile()"
+        variant="ghost">
+        Cancelar
+      </action-button>
+      <action-button 
+        (clicked)="uploadAndAddPureAttachment()"
+        [disabled]="!pureSelectedFile() || isUploadingPureFile()"
+        variant="primary">
+        @if (isUploadingPureFile()) {
+          <span class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-t-transparent border-white mr-1.5 inline-block"></span>
+          Subiendo...
+        } @else {
+          Subir y Anexar
+        }
+      </action-button>
+    </div>
+  </div>
+</app-modal>

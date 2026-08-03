@@ -1,0 +1,39 @@
+<div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-theme-xs space-y-6 animate-fadeIn">
+  <app-title title="Elige el tema de tu preferencia" subtitle="Aplica a colores, fuentes y componentes visuales en tiempo real."></app-title>
+  
+  <general-bubble title="1. Catálogo de Temas Disponibles" orientation="vertical">
+    <div class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mb-4">
+      Selecciona el tema visual que más se adapte a tu entorno de trabajo. El cambio se aplicará instantáneamente sin necesidad de recargar la página.
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      @for (theme of availableThemes; track theme.id) {
+        <div 
+          (click)="setTheme(theme.id)"
+          [class.ring-2]="themeService.activeThemeId() === theme.id"
+          [class.ring-theme-primary]="themeService.activeThemeId() === theme.id"
+          [class.border-theme-primary]="themeService.activeThemeId() === theme.id"
+          [class.bg-theme-primary]="themeService.activeThemeId() === theme.id"
+          [class.text-white]="themeService.activeThemeId() === theme.id"
+          class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 cursor-pointer hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200">
+          
+          <div class="flex items-center justify-between mb-3">
+            <span 
+              [class.text-white]="themeService.activeThemeId() === theme.id"
+              class="font-bold text-gray-800 dark:text-gray-200 transition-colors duration-200">
+              {{ theme.name }}
+            </span>
+            <div *ngIf="themeService.activeThemeId() === theme.id" class="w-3 h-3 rounded-full bg-white"></div>
+          </div>
+          
+          <p 
+            [class.text-white]="themeService.activeThemeId() === theme.id"
+            [class.text-opacity-90]="themeService.activeThemeId() === theme.id"
+            class="text-xs text-gray-500 dark:text-gray-400 transition-colors duration-200">
+            Haz clic para aplicar el tema {{ theme.name | lowercase }} a toda tu sesión.
+          </p>
+        </div>
+      }
+    </div>
+  </general-bubble>
+</div>

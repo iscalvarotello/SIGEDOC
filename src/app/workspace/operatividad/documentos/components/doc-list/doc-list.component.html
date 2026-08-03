@@ -1,0 +1,40 @@
+<div class="bg-theme-primary rounded-t-2xl p-4 border border-b-0 border-theme-primary dark:bg-white/5 dark:border-gray-800">
+  <h3 class="text-sm font-extrabold text-white flex items-center justify-between">
+    <span>DOCUMENTOS DISPONIBLES</span>
+    <span class="bg-theme-secondary text-white px-2.5 py-0.5 rounded-full text-xs">{{ documents.length }}</span>
+  </h3>
+</div>
+
+<div 
+  class="bg-white border border-gray-200 rounded-b-2xl p-4 flex-1 max-h-[680px] overflow-y-auto space-y-4 shadow-sm dark:border-gray-800 dark:bg-white/3">
+  
+  @if (isLoading) {
+    <div class="flex flex-col items-center justify-center py-20">
+      <div class="animate-spin rounded-full h-10 w-10 border-4 border-t-transparent border-theme-primary"></div>
+      <span class="mt-4 text-sm font-semibold text-gray-500">Cargando bandeja...</span>
+    </div>
+  } @else if (documents.length === 0) {
+    <app-title 
+      type="secondary"
+      align="center"
+      icon="ArchivoVacio"
+      iconSize="xl"
+      title="Sin documentos"
+      subtitle="No se encontraron documentos en esta bandeja."
+      customColorClass="text-gray-400"
+      class="py-16 border-2 border-dashed border-gray-100 rounded-2xl block"
+    ></app-title>
+  } @else {
+    @for (doc of documents; track doc.id) {
+      <app-doc-card
+        [doc]="doc"
+        [selectedDocId]="selectedDocId"
+        [bulkSelectionEnabled]="bulkSelectionEnabled"
+        [isSelectedForBulk]="selectedBulkDocIds.includes(doc.id)"
+        (selectDocument)="selectDocument.emit($event)"
+        (openPdf)="openPdf.emit($event)"
+        (toggleBulk)="toggleBulkSelection.emit($event)">
+      </app-doc-card>
+    }
+  }
+</div>

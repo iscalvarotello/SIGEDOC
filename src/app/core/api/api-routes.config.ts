@@ -1,5 +1,15 @@
 import { ApiPackageConfig } from './api.interfaces';
 
+export const BranchFrontendMapping: Record<string, string[]> = {
+  city_id: ['city_id', 'city.id'],
+  state_id: ['state_id', 'state.id', 'city.state.id'],
+  country_id: ['country_id', 'country.id', 'city.state.country.id']
+};
+
+export const InstitutionFrontendMapping: Record<string, string[]> = {
+  main_branch_id: ['main_branch_id', 'main_branch.id']
+};
+
 export const ENDPOINT_KEYS = {
   AREAS: 'areas',
   DOCUMENTS: 'documents',
@@ -32,7 +42,10 @@ export const ENDPOINT_KEYS = {
   PARTIDAS: 'partidas',
   INTERNAL_TEMPLATES: 'internal_templates',
   ATTACHMENTS: 'attachments',
-  NOTIFICATIONS: 'notifications'
+  NOTIFICATIONS: 'notifications',
+  CRON_JOBS: 'cron_jobs',
+  INSTITUTIONS: 'institutions',
+  SUPER_SEED: 'super-seed'
 };
 
 export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
@@ -50,31 +63,33 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
                                           base  : '/organization/areas',
                                           plain : true,
                                           specialRoutes: {
-                                              getTree: { path: '/organization/areas/:id/tree', method: 'GET' },
-                                              updateStatus: { path: '/organization/areas/:id/status', method: 'PATCH' },
-                                              customFields: { path: '/organization/areas/custom_document_fields', method: 'PATCH' },
-                                              getTemas: { path: '/organization/areas/:id/temas', method: 'GET', raw: true },
-                                              addTema: { path: '/organization/areas/:id/temas', method: 'PATCH' }
+                                              getTree      : { path: '/organization/areas/:id/tree', method: 'GET' },
+                                              updateStatus : { path: '/organization/areas/:id/status', method: 'PATCH' },
+                                              customFields : { path: '/organization/areas/custom_document_fields', method: 'PATCH' },
+                                              getTemas     : { path: '/organization/areas/:id/temas', method: 'GET', raw: true },
+                                              addTema      : { path: '/organization/areas/:id/temas', method: 'PATCH' }
                                      }
   },
   [ENDPOINT_KEYS.DOCUMENTS]        : {
                                          base: '/documents/documentos',
                                          specialRoutes: {
-                                              inbox:    { path: '/documents/documentos/inbox', method: 'GET' },
-                                              action:   { path: '/documents/documentos/:id/action', method: 'PATCH' },
-                                              download: { path: '/documents/documentos/:id/pdf', method: 'GET', responseType: 'blob' },
-                                              downloadMerged: { path: '/documents/documentos/:id/pdf-merged', method: 'GET', responseType: 'blob' },
-                                              rechazar: { path: '/documents/documentos/:id/rechazar', method: 'POST' },
-                                              reply:    { path: '/documents/documentos/:id/reply', method: 'POST' },
-                                              followUp: { path: '/documents/documentos/:id/follow-up', method: 'POST' },
-                                              draftAction: { path: '/documents/documentos/:id/draft-action', method: 'GET' },
-                                              testPdf:  { path: '/documents/documentos/:id/view_pdf_temp', method: 'POST' },
-                                              addCcp:   { path: '/documents/documentos/:id/add-ccp', method: 'POST' },
-                                              possibleReviewers: { path: '/documents/documentos/:id/possible-reviewers', method: 'GET' },
-                                              comments: { path: '/documents/documentos/:id/comments', method: 'PATCH' },
-                                              updateAttachments: { path: '/documents/documentos/:id/anexos', method: 'POST' },
-                                              getAttachments: { path: '/documents/documentos/:id/anexos', method: 'GET' },
-                                              uploadAcuse: { path: '/documents/documentos/:id/acuse', method: 'POST' }
+                                              inbox             : { path: '/documents/documentos/inbox'                  , method: 'GET'                       } ,
+                                              action            : { path: '/documents/documentos/:id/action'             , method: 'PATCH'                     } ,
+                                              download          : { path: '/documents/documentos/:id/pdf'                , method: 'GET', responseType: 'blob' } ,
+                                              downloadMerged    : { path: '/documents/documentos/:id/pdf-merged'         , method: 'GET', responseType: 'blob' } ,
+                                              regeneratePdf     : { path: '/documents/documentos/:id/regenerate-pdf'     , method: 'POST'                      } ,
+                                              rechazar          : { path: '/documents/documentos/:id/rechazar'           , method: 'POST'                      } ,
+                                              reply             : { path: '/documents/documentos/:id/reply'              , method: 'POST'                      } ,
+                                              followUp          : { path: '/documents/documentos/:id/follow-up'          , method: 'POST'                      } ,
+                                              draftAction       : { path: '/documents/documentos/:id/draft-action'       , method: 'GET'                       } ,
+                                              testPdf           : { path: '/documents/documentos/:id/view_pdf_temp'      , method: 'POST'                      } ,
+                                              addCcp            : { path: '/documents/documentos/:id/add-ccp'            , method: 'POST'                      } ,
+                                              possibleReviewers : { path: '/documents/documentos/:id/possible-reviewers' , method: 'GET'  , raw: true          } ,
+                                              comments          : { path: '/documents/documentos/:id/comments'           , method: 'PATCH'                     } ,
+                                              updateAttachments : { path: '/documents/documentos/:id/anexos'             , method: 'POST'                      } ,
+                                              getAttachments    : { path: '/documents/documentos/:id/anexos'             , method: 'GET'                       } ,
+                                              uploadAcuse       : { path: '/documents/documentos/:id/acuse'              , method: 'POST'                      } ,
+                                              consolidate       : { path: '/documents/documentos/:id/consolidar'         , method: 'POST'                      }
                                         }
                                       },
   [ENDPOINT_KEYS.COUNTRIES]         : {
@@ -96,7 +111,8 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
                                       },
   [ENDPOINT_KEYS.BRANCHES]         : {
     base: '/organization/branches',
-    plain: true
+    plain: true,
+    frontendMapping: BranchFrontendMapping
   },
   [ENDPOINT_KEYS.AREA_TYPES]: {
     base: '/organization/area-types',
@@ -110,7 +126,7 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
     }
   },
   [ENDPOINT_KEYS.FUEL_STATIONS]: {
-    base: '/organization/fuel-station',
+    base: '/organization/fuel-stations',
     plain: true,
     specialRoutes: {
       byProvider: { path: '/organization/fuel-stations/provider/:id', method: 'GET', plain: true }
@@ -176,6 +192,7 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
     specialRoutes: {
       changePassword: { path: '/users/usuarios/:id/change-password', method: 'PATCH' },
       uploadProfilePhoto: { path: '/users/usuarios/profilephoto', method: 'POST' },
+      getProfilePhoto: { path: '/users/usuarios/profilephoto/:id', method: 'GET', plain: true },
       resetPassword: { path: '/users/usuarios/reset_password/:idUser', method: 'PATCH' }
     }
   },
@@ -208,7 +225,8 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
     base: '/signatures',
     specialRoutes: {
       getSettings: { path: '/signatures/settings', method: 'GET' },
-      updateSettings: { path: '/signatures/settings', method: 'PATCH' }
+      updateSettings: { path: '/signatures/settings', method: 'PATCH' },
+      registerCertificate: { path: '/signatures/certificate', method: 'POST' }
     }
   },
   [ENDPOINT_KEYS.SEED]: {
@@ -240,5 +258,27 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
     specialRoutes: {
       upload: { path: '/attachments/upload', method: 'POST' }
     }
+  },
+  [ENDPOINT_KEYS.CRON_JOBS]: {
+    base: '/settings/cron',
+    plain: true,
+    specialRoutes: {
+      availableTasks: { path: '/settings/cron/available-tasks', method: 'GET', plain: true }
+    }
+  },
+  [ENDPOINT_KEYS.INSTITUTIONS]: {
+    base: '/organization/institutions',
+    plain: true,
+    frontendMapping: InstitutionFrontendMapping,
+    specialRoutes: {
+      getLogo: { path: '/organization/institutions/:id/assets/logo', method: 'GET', plain: true },
+      getEscudo: { path: '/organization/institutions/:id/assets/escudo', method: 'GET', plain: true },
+      getBack: { path: '/organization/institutions/:id/assets/back', method: 'GET', plain: true },
+      uploadAssets: { path: '/organization/institutions/:id/assets', method: 'POST' }
+    }
+  },
+  [ENDPOINT_KEYS.SUPER_SEED]: {
+    base: '/super-seed',
+    plain: true
   }
 };

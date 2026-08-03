@@ -3,8 +3,10 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiRouteConfig } from '../api/api-routes.config';
-import { CacheConfig } from '../../shared/interfaces/dynamic-form.interface';
+import { CacheConfig } from '@interfaces/dynamic-form.interface';
 import { CacheManagerService } from './cache-manager.service';
+import { buildApiUrl } from '../utils/api.utils';
+import { compareStrings } from '../utils/string.utils';
 
 interface CacheEntry {
   data: any[];
@@ -38,13 +40,22 @@ export class GenericApiService {
     }
 
     // 3. Obtener configuración de ruta
-    const configPackage = (ApiRouteConfig as any)[configKey];
+    let configPackage = (ApiRouteConfig as any)[configKey];
+    
+    // Fallback: búsqueda insensible a mayúsculas/minúsculas/acentos
+    if (!configPackage) {
+      const matchingKey = Object.keys(ApiRouteConfig).find(key => compareStrings(key, configKey));
+      if (matchingKey) {
+        configPackage = (ApiRouteConfig as any)[matchingKey];
+      }
+    }
+
     if (!configPackage) {
       throw new Error(`ApiRouteConfig no encontrado para la llave: ${configKey}`);
     }
 
     // 4. Preparar la URL y los Parámetros
-    const url = this.buildUrl(configPackage.base);
+    const url = buildApiUrl(configPackage.base);
     let params = new HttpParams();
     
     // Inyectar 'plain=true' si el paquete lo requiere
@@ -83,9 +94,5 @@ export class GenericApiService {
     }
   }
 
-  private buildUrl(path: string): string {
-    const baseUrl = environment.URL_PATH.replace(/\/$/, '');
-    const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    return `${baseUrl}${cleanPath}`;
-  }
+
 }

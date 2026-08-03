@@ -9,6 +9,7 @@ export interface RouteDef {
 export interface ApiPackageConfig {
   base: string;
   plain?: boolean;
+  frontendMapping?: Record<string, string | string[]>;
   specialRoutes?: Record<string, RouteDef>;
 }
 

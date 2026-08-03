@@ -1,0 +1,39 @@
+@if (doc?.ccps && doc.ccps.length > 0) {
+  <app-section-card
+    title="Con Copia Para (C.C.P.)"
+    icon="UsuariosGrupo"
+    containerClass="!min-h-0"
+    contentClass="!overflow-visible">
+    
+    <div class="space-y-1.5 h-full overflow-y-auto max-h-[300px] pr-1">
+      @for (ccp of doc.ccps; track $index) {
+        @let ccpText = getExistingCcpText(ccp);
+        <div class="bg-theme-secondary/10 dark:bg-theme-secondary/15 border border-theme-secondary/20 dark:border-theme-secondary/30 rounded-lg p-2 text-xs flex flex-col gap-0.5">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-gray-700 dark:text-gray-200">
+              {{ ccp.employee_prefix ? ccp.employee_prefix + ' ' : '' }}{{ ccp.employee_name }} {{ ccp.employee_first_surname }} {{ ccp.employee_second_surname || '' }}
+            </span>
+            <div class="flex items-center gap-1.5">
+              @if (doc.id_drive_acuse) {
+                <action-button 
+                  variant="outline" 
+                  size="xs"
+                  [label]="copiedCcpText() === ccpText ? '¡Copiado!' : 'Copiar Texto'"
+                  (clicked)="copyCcpToClipboard(ccpText)">
+                </action-button>
+              }
+              @if (ccp.motivo) {
+                <app-badge variant="light" color="secondary" size="sm">
+                  {{ ccp.motivo }}
+                </app-badge>
+              }
+            </div>
+          </div>
+          <div class="text-[10px] text-gray-400 dark:text-gray-400 font-semibold">
+            {{ ccp.job_name || 'Colaborador' }}{{ ccp.area_name ? ' en ' + ccp.area_name : '' }}
+          </div>
+        </div>
+      }
+    </div>
+  </app-section-card>
+}
