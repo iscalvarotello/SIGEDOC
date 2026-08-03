@@ -48,4 +48,20 @@ export class EmployeeService extends BaseApiService<EmployeeDTO> {
       data: this.mapData(resultData)
     };
   }
+
+  /**
+   * Sube el archivo de firma electrónica (.p12) para el empleado
+   */
+  async uploadFirma(id: string, file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.executeSpecialRoute<any>('subirFirma', { id }, formData);
+  }
+
+  /**
+   * Asigna o remueve el empleado que da el Visto Bueno (VoBo) a otro empleado
+   */
+  async assignVobo(id: string, voboId: string | null): Promise<any> {
+    return this.executeSpecialRoute<any>('asignarVobo', { id }, { vobo_id: voboId });
+  }
 }

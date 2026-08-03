@@ -125,12 +125,19 @@ export class SearchableSelectComponent {
   }
 
   get filteredOptions() {
-    const term = this.searchTerm().toLowerCase();
+    const normalizeStr = (str: string) => {
+      return (str || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    };
+
+    const term = normalizeStr(this.searchTerm());
     if (!term) return this.options;
     
     return this.options.filter(o => 
-      o.label.toLowerCase().includes(term) || 
-      (o.searchTerms && o.searchTerms.toLowerCase().includes(term))
+      normalizeStr(o.label).includes(term) || 
+      (o.searchTerms && normalizeStr(o.searchTerms).includes(term))
     );
   }
 

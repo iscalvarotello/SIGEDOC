@@ -1,0 +1,138 @@
+@if (!activeAreaId()) {
+  <div class="p-6 text-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-theme-xs animate-fadeIn">
+    <span class="text-3xl block mb-2">⚠️</span>
+    <h4 class="text-md font-bold text-gray-800 dark:text-white/90">Sin Área de Adscripción Activa</h4>
+    <p class="text-sm text-gray-500 mt-1 max-w-md mx-auto">
+      Tu usuario no cuenta con una adscripción administrativa activa asignada para realizar configuraciones.
+    </p>
+  </div>
+} @else {
+  @if (isLoadingArea()) {
+    <div class="p-12 text-center bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-theme-xs animate-fadeIn">
+      <span class="animate-spin rounded-full h-8 w-8 border-2 border-t-transparent border-[#691C32] inline-block mb-3"></span>
+      <p class="text-sm text-gray-500">Cargando configuraciones del área...</p>
+    </div>
+  } @else {
+    <div class="p-6 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl shadow-theme-xs space-y-6 animate-fadeIn">
+      <div class="border-b border-gray-150 dark:border-gray-800 pb-4">
+        <h4 class="text-lg font-bold text-gray-800 dark:text-white/90">
+          Configuraciones del Área: {{ activeAreaName() }}
+        </h4>
+        <p class="text-xs text-gray-500 mt-1">
+          Establezca el cuarto firmante de Visto Bueno y los horarios oficiales de recepción de correspondencia de su bandeja.
+        </p>
+      </div>
+
+      <!-- Bloque 1: Autorizaciones (Visto Bueno Incidencias) -->
+      <div class="space-y-4">
+        <h5 class="text-xs uppercase font-extrabold text-gray-400 dark:text-gray-500 tracking-wider">
+          1. Autorizaciones & visto bueno (VoBo)
+        </h5>
+        <div class="bg-gray-50/50 dark:bg-white/[0.01] border border-gray-150 dark:border-gray-800 rounded-xl p-4 space-y-4">
+          <div class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl">
+            Seleccione qué empleado firmará como <b>Visto Bueno de Incidencias (Cuarto Firmante)</b> en las solicitudes de justificación o incidencias de los miembros de su área. Si no requiere cuarto firmante, deje este campo vacío.
+          </div>
+          
+          <div class="flex flex-col gap-2 relative">
+            <label class="text-[11px] font-bold text-gray-500 uppercase tracking-wider">Seleccionar Empleado Autorizador</label>
+            <app-employee-select
+              [selectedId]="voboEmployeeId"
+              [employeesList]="employeesCatalog()"
+              [showReload]="true"
+              [isLoading]="isLoadingEmployees()"
+              placeholder="Buscar empleado por nombre o RFC..."
+              (onSelect)="onVoboEmployeeSelect($event)"
+              (onClear)="onVoboEmployeeClear()"
+              (onReload)="loadEmployeesCatalog(true)">
+            </app-employee-select>
+          </div>
+
+          @if (selectedVoboEmployee) {
+            <div class="bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-850 rounded-xl p-4 flex items-center gap-3 animate-fadeIn">
+              <div class="w-10 h-10 rounded-full bg-[#BC955C]/15 text-[#BC955C] flex items-center justify-center text-lg shrink-0">👤</div>
+              <div class="min-w-0 flex-1">
+                <h6 class="text-xs font-bold text-gray-900 dark:text-white truncate">
+                  {{ selectedVoboEmployee.fullName || (selectedVoboEmployee.name + ' ' + selectedVoboEmployee.first_surname) }}
+                </h6>
+                <span class="block text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                  Puesto: {{ selectedVoboEmployee.resolvedJobPosition || selectedVoboEmployee.job_name || 'Sin Puesto' }}
+                </span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Bloque 2: Horarios de Recepción -->
+      <div class="space-y-4 pt-2">
+        <h5 class="text-xs uppercase font-extrabold text-gray-400 dark:text-gray-500 tracking-wider">
+          2. Horarios de recepción de correspondencia
+        </h5>
+        <div class="bg-gray-50/50 dark:bg-white/[0.01] border border-gray-150 dark:border-gray-800 rounded-xl p-4">
+          <div class="text-xs text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mb-4">
+            Configure los días de la semana y horarios válidos en los que su área está habilitada para recibir documentación digital externa o interna.
+          </div>
+
+          <div class="space-y-3.5">
+            @for (day of daysOfWeek; track day.key) {
+              @if (scheduleData[day.key]) {
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 bg-white dark:bg-gray-950 border border-gray-150 dark:border-gray-855 rounded-xl">
+                  <div class="flex items-center gap-3">
+                    <label class="relative inline-flex items-center cursor-pointer select-none">
+                      <input 
+                        type="checkbox" 
+                        [(ngModel)]="scheduleData[day.key].recepcion" 
+                        (change)="onScheduleToggle(day.key)"
+                        class="sr-only peer"
+                      />
+                      <div class="w-9 h-5 bg-gray-200 dark:bg-gray-850 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-[#BC955C]"></div>
+                    </label>
+                    <span class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ day.label }}</span>
+                  </div>
+
+                  <div class="flex items-center gap-3" [class.opacity-50]="!scheduleData[day.key].recepcion">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[10px] text-gray-400 font-bold uppercase">De:</span>
+                      <app-time-picker
+                        [id]="day.key + '_start'"
+                        [defaultTime]="scheduleData[day.key].hora_inicio"
+                        [disabled]="!scheduleData[day.key].recepcion"
+                        (timeChange)="scheduleData[day.key].hora_inicio = $event"
+                      />
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[10px] text-gray-400 font-bold uppercase">A:</span>
+                      <app-time-picker
+                        [id]="day.key + '_end'"
+                        [defaultTime]="scheduleData[day.key].hora_fin"
+                        [disabled]="!scheduleData[day.key].recepcion"
+                        (timeChange)="scheduleData[day.key].hora_fin = $event"
+                      />
+                    </div>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón de Guardado -->
+      <div class="flex justify-end pt-4 border-t border-gray-150 dark:border-gray-800">
+        <button
+          (click)="saveAreaConfig()"
+          [disabled]="isSavingArea()"
+          class="px-6 py-2.5 bg-gradient-to-r from-[#BC955C] to-[#8c6c39] hover:from-[#8c6c39] hover:to-[#73572d] text-white rounded-xl text-xs font-bold shadow-md transition-all duration-300 active:scale-95 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          @if (isSavingArea()) {
+            <span class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-t-transparent border-white"></span>
+            Guardando...
+          } @else {
+            Guardar Configuración del Área
+          }
+        </button>
+      </div>
+
+    </div>
+  }
+}

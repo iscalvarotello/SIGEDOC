@@ -248,6 +248,12 @@ export abstract class BaseApiService<T> {
       options.responseType = routeDef.responseType;
     }
 
+    // Si el body es FormData, el navegador se encargará de establecer el Content-Type adecuado con su respectivo boundary
+    if (body instanceof FormData) {
+      // Nos aseguramos que no haya Content-Type manual establecido
+      options.headers = options.headers || {};
+    }
+
     let request$;
     switch (routeDef.method) {
       case 'GET':    request$ = this.http.get(url, options); break;

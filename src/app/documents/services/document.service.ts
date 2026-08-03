@@ -123,8 +123,8 @@ export class DocumentService extends BaseApiService<DocumentInboxDTO> {
    * Obtiene el PDF Borrador del documento (con membrete pero sin sello oficial).
    * Retorna un Blob con el archivo PDF.
    */
-  public async testPdf(id: string): Promise<any> {
-    const res = await this.executeSpecialRoute<any>('testPdf', { id });
+  public async testPdf(id: string, withAcuse: boolean = false): Promise<any> {
+    const res = await this.executeSpecialRoute<any>('testPdf', { id }, undefined, { with_acuse : withAcuse });
     return res && res.data ? res.data : res;
   }
 

@@ -34,7 +34,7 @@
           <div class="flex items-start gap-3 min-w-0 flex-1">
             <!-- Dynamic PNG Icon -->
             <div class="w-10 h-10 bg-gray-50 border border-gray-100 rounded-lg shrink-0 flex items-center justify-center p-1.5">
-              <img [src]="getAttachmentIconPath(an.extension || an.attachment_title || an.attachment_name)" class="w-full h-full object-contain" alt="icon" />
+              <img [src]="attachmentService.getAttachmentIconPath(an.extension || an.attachment_title || an.attachment_name)" class="w-full h-full object-contain" alt="icon" />
             </div>
             <div class="min-w-0 flex-1">
               <span class="block text-xs font-black text-gray-700 truncate" [title]="an.attachment_name">
@@ -80,7 +80,7 @@
               </svg>
             </button>
 
-            @if (isPdf(an.extension || an.attachment_title || an.attachment_name)) {
+            @if (attachmentService.isPdf(an.extension || an.attachment_title || an.attachment_name)) {
               <a 
                 [href]="getAttachmentDownloadUrl(an.id_attachment)"
                 target="_blank"
@@ -244,7 +244,7 @@
           <div class="flex items-center justify-between p-3.5 bg-white border border-gray-200 rounded-2xl animate-fadeIn dark:bg-black/10 dark:border-gray-800">
             <div class="flex items-center gap-2.5 min-w-0">
               <div class="w-10 h-10 bg-gray-50 border border-gray-100 rounded-lg shrink-0 flex items-center justify-center p-1.5">
-                <img [src]="getAttachmentIconPath(pureSelectedFile()?.name || '')" class="w-full h-full object-contain" alt="icon" />
+                <img [src]="attachmentService.getAttachmentIconPath(pureSelectedFile()?.name || '')" class="w-full h-full object-contain" alt="icon" />
               </div>
               <div class="min-w-0">
                 <p class="text-xs font-bold text-gray-805 truncate dark:text-gray-200">{{ pureSelectedFile()?.name }}</p>

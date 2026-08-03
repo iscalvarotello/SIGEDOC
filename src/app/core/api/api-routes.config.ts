@@ -153,7 +153,9 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
     specialRoutes: {
       byArea: { path: '/rh/employees/area/:idArea', method: 'GET', plain: true },
       dismiss: { path: '/rh/employees/:id/dismiss', method: 'POST' },
-      deadlist: { path: '/rh/employees/deadlist', method: 'GET', plain: true }
+      deadlist: { path: '/rh/employees/deadlist', method: 'GET', plain: true },
+      subirFirma: { path: '/rh/employees/:id/firma', method: 'POST' },
+      asignarVobo: { path: '/rh/employees/:id/vobo', method: 'PATCH' }
     }
   },
   [ENDPOINT_KEYS.ADSCRIPTIONS]: {
