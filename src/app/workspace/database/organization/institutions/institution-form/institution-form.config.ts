@@ -56,6 +56,20 @@ export const INSTITUTION_FORM_CONFIG: FormControllerConfig = {
           gridSpan: 2
         }
       ]
+    },
+    {
+      title: 'Configuración Documental',
+      subtitle: 'Defina el pie de página predeterminado para los documentos oficiales.',
+      fields: [
+        {
+          key: 'footer',
+          label: 'Pie de Página de la Institución',
+          type: 'textarea',
+          required: false,
+          placeholder: 'Escriba el texto que aparecerá al pie de todos los documentos institucionales...',
+          gridSpan: 2
+        }
+      ]
     }
   ]
 };

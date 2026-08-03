@@ -72,6 +72,15 @@ export class GeneralesInstitucionTabComponent implements OnInit {
         });
         
         const params = { id: tenant.id };
+        
+        // Actualizamos el tenantService local para que los @if del html pasen
+        this.tenantService.updateTenantData({
+          id: tenant.id,
+          logo: fullTenant.logo || undefined,
+          shield: fullTenant.escudo || undefined,
+          background: fullTenant.back || undefined
+        });
+
         this.logoPreview.set(fullTenant.logo ? this.apiRouteService.getSpecialRoute(ENDPOINT_KEYS.INSTITUTIONS, 'getLogo', params) : null);
         this.escudoPreview.set(fullTenant.escudo ? this.apiRouteService.getSpecialRoute(ENDPOINT_KEYS.INSTITUTIONS, 'getEscudo', params) : null);
         this.backPreview.set(fullTenant.back ? this.apiRouteService.getSpecialRoute(ENDPOINT_KEYS.INSTITUTIONS, 'getBack', params) : null);

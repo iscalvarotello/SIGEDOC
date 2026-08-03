@@ -91,4 +91,11 @@ export class TenantService {
       localStorage.removeItem('tenant_id');
     }
   }
+
+  updateTenantData(partialData: Partial<TenantInfo>) {
+    const current = this.currentTenant();
+    if (current && current.id === partialData.id) {
+      this.currentTenant.set({ ...current, ...partialData });
+    }
+  }
 }

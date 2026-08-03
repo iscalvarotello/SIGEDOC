@@ -79,6 +79,7 @@ export class ServerImageComponent {
     if (p) {
       for (const key of Object.keys(p)) {
         if (p[key] === undefined || p[key] === null || p[key] === '') {
+           console.warn('ServerImageComponent: missing param:', key);
            return undefined;
         }
       }
@@ -90,7 +91,9 @@ export class ServerImageComponent {
       
       if (this.timestamp()) {
         const ts = new Date().getTime();
-        return `${absoluteUrl}?t=${ts}`;
+        const res = `${absoluteUrl}?t=${ts}`;
+        // console.log('ServerImageComponent: generated URL:', res);
+        return res;
       }
       return absoluteUrl;
     } catch (error) {

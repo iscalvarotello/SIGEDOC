@@ -88,10 +88,7 @@ export class NotificationDropdownComponent implements OnInit, OnDestroy {
     }
   }
 
-  async dismissNotification(notification: NotificationDTO, event: Event) {
-    event.stopPropagation();
-    event.preventDefault();
-
+  async dismissNotification(notification: NotificationDTO) {
     // Actualización optimista de la UI: removemos de inmediato
     this.notifications.update(list => list.filter(n => n.id !== notification.id));
 

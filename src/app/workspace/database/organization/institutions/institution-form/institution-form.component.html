@@ -1,0 +1,206 @@
+    <div class="p-6 max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-sm">
+      <div class="mb-6 flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+            {{ isEditMode() ? 'Editar Institución' : 'Nueva Institución' }}
+          </h2>
+          <p class="text-sm text-gray-500 mt-1">
+            Complete el formulario para registrar o actualizar los datos y bienes de la institución.
+          </p>
+        </div>
+      </div>
+
+      @if (globalErrors().length > 0) {
+        <div class="mb-6 p-4 rounded-lg bg-red-50 border border-red-200">
+          <div class="flex gap-3">
+            <icon icon="AlertTriangle" class="w-5 h-5 text-red-500 shrink-0"></icon>
+            <div>
+              <h4 class="text-sm font-semibold text-red-800">No se pudo guardar la información:</h4>
+              <ul class="mt-1 list-disc list-inside text-sm text-red-700">
+                @for (error of globalErrors(); track error) {
+                  <li>{{ error }}</li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (isLoading() || isUploading) {
+        <div class="flex flex-col justify-center items-center py-12 gap-3">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-primary"></div>
+          <p class="text-sm text-gray-500 font-medium">{{ isUploading ? 'Subiendo imágenes...' : 'Cargando datos...' }}</p>
+        </div>
+      } @else {
+        <app-dynamic-form 
+          [config]="formConfig" 
+          [formGroup]="form"
+          [isEditMode]="isEditMode()">
+        </app-dynamic-form>
+
+        <div class="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700">
+          <div class="mb-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b-2 border-theme-primary inline-block pb-1">Bienes Institucionales (Imágenes)</h3>
+            <p class="text-xs text-gray-500 mt-2">Seleccione las imágenes que representarán a esta institución (Logo, Escudo, Fondo). Estas imágenes reemplazarán la vista predeterminada de {{ appSettings.SYSTEM_NAME }}.</p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Logo -->
+            <div class="flex flex-col gap-2">
+              <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Logotipo Institucional</label>
+              @if (form.get('logo')?.value && !pendingLogo) {
+                <div class="relative group rounded-lg overflow-hidden border border-gray-200">
+                  <server-image class="block w-full h-32"
+                    endpointKey="INSTITUTIONS" routeKey="getLogo" [params]="{id: form.get('id')?.value}" 
+                    [timestamp]="true"
+                    imgClass="w-full h-32 object-contain bg-gray-50 p-2" 
+                    css_marco="w-full h-32 relative">
+                  </server-image>
+                  <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button type="button" (click)="clearImage('logo')" class="px-3 py-1 bg-red-600 text-white rounded shadow text-xs font-medium hover:bg-red-700">Cambiar Logo</button>
+                  </div>
+                </div>
+              } @else if (pendingLogo) {
+                <div class="relative group rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center bg-gray-50 h-32 p-4">
+                  <p class="text-sm font-medium text-theme-primary truncate w-full text-center" [title]="pendingLogo.name">{{ pendingLogo.name }}</p>
+                  <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button type="button" (click)="pendingLogo = null" class="px-3 py-1 bg-red-600 text-white rounded shadow text-xs font-medium hover:bg-red-700">Cancelar</button>
+                  </div>
+                </div>
+              } @else {
+                <app-file-uploader
+                  accept="image/*"
+                  iconName="Image"
+                  dragLabel="Logo Institucional"
+                  helpLabel="Recomendado: PNG transparente"
+                  (fileSelected)="onFileSelected('logo', $event)">
+                </app-file-uploader>
+              }
+            </div>
+
+            <!-- Escudo -->
+            <div class="flex flex-col gap-2">
+              <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Escudo / Sello</label>
+              @if (form.get('escudo')?.value && !pendingEscudo) {
+                <div class="relative group rounded-lg overflow-hidden border border-gray-200">
+                  <server-image class="block w-full h-32"
+                    endpointKey="INSTITUTIONS" routeKey="getEscudo" [params]="{id: form.get('id')?.value}" 
+                    [timestamp]="true"
+                    imgClass="w-full h-32 object-contain bg-gray-50 p-2" 
+                    css_marco="w-full h-32 relative">
+                  </server-image>
+                  <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button type="button" (click)="clearImage('escudo')" class="px-3 py-1 bg-red-600 text-white rounded shadow text-xs font-medium hover:bg-red-700">Cambiar Escudo</button>
+                  </div>
+                </div>
+              } @else if (pendingEscudo) {
+                <div class="relative group rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center bg-gray-50 h-32 p-4">
+                  <p class="text-sm font-medium text-theme-primary truncate w-full text-center" [title]="pendingEscudo.name">{{ pendingEscudo.name }}</p>
+                  <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button type="button" (click)="pendingEscudo = null" class="px-3 py-1 bg-red-600 text-white rounded shadow text-xs font-medium hover:bg-red-700">Cancelar</button>
+                  </div>
+                </div>
+              } @else {
+                <app-file-uploader
+                  accept="image/*"
+                  iconName="Shield"
+                  dragLabel="Escudo Oficial"
+                  helpLabel="Recomendado: PNG cuadrado"
+                  (fileSelected)="onFileSelected('escudo', $event)">
+                </app-file-uploader>
+              }
+            </div>
+
+            <!-- Back (Fondo) -->
+            <div class="flex flex-col gap-2">
+              <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">Imagen de Fondo (Opcional)</label>
+              @if (form.get('back')?.value && !pendingBack) {
+                <div class="relative group rounded-lg overflow-hidden border border-gray-200">
+                  <server-image class="block w-full h-32"
+                    endpointKey="INSTITUTIONS" routeKey="getBack" [params]="{id: form.get('id')?.value}" 
+                    [timestamp]="true"
+                    imgClass="w-full h-32 object-cover bg-gray-50" 
+                    css_marco="w-full h-32 relative">
+                  </server-image>
+                  <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button type="button" (click)="clearImage('back')" class="px-3 py-1 bg-red-600 text-white rounded shadow text-xs font-medium hover:bg-red-700">Cambiar Fondo</button>
+                  </div>
+                </div>
+              } @else if (pendingBack) {
+                <div class="relative group rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center bg-gray-50 h-32 p-4">
+                  <p class="text-sm font-medium text-theme-primary truncate w-full text-center" [title]="pendingBack.name">{{ pendingBack.name }}</p>
+                  <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <button type="button" (click)="pendingBack = null" class="px-3 py-1 bg-red-600 text-white rounded shadow text-xs font-medium hover:bg-red-700">Cancelar</button>
+                  </div>
+                </div>
+              } @else {
+                <app-file-uploader
+                  accept="image/*"
+                  iconName="Image"
+                  dragLabel="Fondo / Textura"
+                  helpLabel="Recomendado: JPG o WebP"
+                  (fileSelected)="onFileSelected('back', $event)">
+                </app-file-uploader>
+              }
+            </div>
+          </div>
+        </div>
+
+        @if (isEditMode()) {
+          <div class="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700">
+            <div class="mb-6 flex justify-between items-center">
+              <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b-2 border-theme-primary inline-block pb-1">Sedes Físicas (Sucursales)</h3>
+                <p class="text-xs text-gray-500 mt-2">Seleccione las sedes físicas que operan bajo la jurisdicción de esta Institución.</p>
+              </div>
+              <button 
+                type="button" 
+                (click)="saveBranches()"
+                [disabled]="isSavingBranches"
+                class="px-4 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700  rounded shadow-sm transition-all flex items-center gap-2">
+                @if (isSavingBranches) {
+                  <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                } @else {
+                  <icon icon="SaveDisk" class="w-4 h-4"></icon>
+                }
+                Guardar Sedes
+              </button>
+            </div>
+            
+            <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 max-h-64 overflow-y-auto">
+              @if (allBranches.length === 0) {
+                <p class="text-sm text-gray-500 text-center py-4">No hay sedes físicas registradas en el sistema global.</p>
+              } @else {
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  @for (branch of allBranches; track branch.id) {
+                    <label class="flex items-start gap-3 p-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-sm cursor-pointer hover:border-theme-primary transition-colors">
+                      <input 
+                        type="checkbox" 
+                        class="mt-0.5 rounded text-theme-primary focus:ring-theme-primary"
+                        [checked]="isBranchAssigned(branch.id)"
+                        (change)="toggleBranch(branch.id, $event)">
+                      <div class="flex flex-col">
+                        <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ branch.name }}</span>
+                        <span class="text-xs text-gray-500">{{ $any(branch.city)?.name }}, {{ $any(branch.city)?.state?.name }}</span>
+                      </div>
+                    </label>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-700">
+          <cancel-button (clicked)="onCancel()" label="Cancelar"></cancel-button>
+          <button 
+            type="button" 
+            (click)="onSaveCustom()"
+            
+            class="px-5 py-2.5 text-sm font-medium text-white bg-theme-primary hover:bg-[#5a1528]   rounded-lg shadow-sm transition-all flex items-center gap-2">
+            <icon icon="SaveDisk" class="w-4 h-4"></icon>
+            Guardar Institución
+          </button>
+        </div>
+      }
+    </div>

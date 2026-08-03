@@ -66,7 +66,7 @@ import { ServerImageComponent } from '@system-shared/images/server-image/server-
                     @if (item[col.key]) {
                       <div class="h-10 w-10 p-1 bg-white border border-gray-200 rounded-md shadow-sm">
                         @if (col.imageEndpointKey && col.imageRouteKey) {
-                          <server-image [endpointKey]="col.imageEndpointKey" [routeKey]="col.imageRouteKey" [params]="{id: item.id}" [timestamp]="true" imgClass="h-full w-full object-contain" css_marco="h-full w-full flex items-center justify-center relative"></server-image>
+                          <server-image class="block w-full h-full" [endpointKey]="col.imageEndpointKey" [routeKey]="col.imageRouteKey" [params]="{id: item.id}" [timestamp]="true" imgClass="h-full w-full object-contain"></server-image>
                         } @else {
                           <img [src]="item[col.key]" class="h-full w-full object-contain" alt="Imagen">
                         }

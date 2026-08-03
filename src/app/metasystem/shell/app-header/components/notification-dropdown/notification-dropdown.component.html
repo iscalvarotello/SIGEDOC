@@ -24,7 +24,7 @@
         </div>
       } @else {
         @for (notif of notifications(); track notif.id) {
-          <notification-item [notification]="notif" (clicked)="handleNotificationClick($event)" (dismissed)="dismissNotification($event, $any($event))"></notification-item>
+          <notification-item [notification]="notif" (clicked)="handleNotificationClick($event)" (dismissed)="dismissNotification($event)"></notification-item>
         }
       }
     </ul>

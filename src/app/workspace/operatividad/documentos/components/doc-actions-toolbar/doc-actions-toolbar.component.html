@@ -99,10 +99,14 @@
       <action-button variant="secondary" size="sm" label="Dar seguimiento" (clicked)="followUp.emit()"></action-button>
       <action-button variant="warning"   size="sm" label="Atender" (clicked)="showForm.emit('atender')"></action-button>
     } @else {
-      <action-button variant="success" icon="Lock" size="sm" label="Consolidar Documento Maestro" (clicked)="consolidate.emit()" [loading]="isActionLoading" [disabled]="isActionLoading"></action-button>
-    }
-    @if (doc?.id_drive_acuse === 'local' && !doc?.is_final_render) {
-      <action-button variant="warning" size="sm" label="Reemplazar acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
+      @if (doc?.metodo_firma === 'autografa' && doc?.id_drive_acuse !== 'local') {
+        <action-button variant="secondary" size="sm" label="Subir acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
+      } @else {
+        <action-button variant="success" icon="Lock" size="sm" label="Consolidar Documento Maestro" (clicked)="consolidate.emit()" [loading]="isActionLoading" [disabled]="isActionLoading"></action-button>
+        @if (doc?.id_drive_acuse === 'local') {
+          <action-button variant="warning" size="sm" label="Reemplazar acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
+        }
+      }
     }
   }
 

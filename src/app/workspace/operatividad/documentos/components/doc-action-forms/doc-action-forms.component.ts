@@ -63,7 +63,7 @@ export class DocActionFormsComponent implements OnInit {
   actionTurnadoAId = signal<string>('');
   actionAreaAtencionId = signal<string>('');
   actionDestinatarioAtencionId = signal<string>('');
-  actionMedioEnvio = signal<string>('sistema');
+  actionMedioEnvio = signal<string>('directo');
   isActionLoading = signal<boolean>(false);
   actionSuccess = signal<string | null>(null);
   actionError = signal<string | null>(null);

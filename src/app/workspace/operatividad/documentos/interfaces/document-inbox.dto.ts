@@ -28,6 +28,7 @@ export class DocumentInboxDTO extends BaseDto<DocumentInboxDTO> implements IBase
   instruccion!: string | null;
   comentarios!: string | null;
   medio_envio!: string;
+  metodo_firma?: string;
   id_area_emisora!: string | number;
   id_area_remitente!: string | number;
   id_area_receptora!: string | number | null;
