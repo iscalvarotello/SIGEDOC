@@ -30,6 +30,7 @@ export class DatePickerComponent implements ControlValueAccessor {
   @Input() placeholder?: string;
   @Input() disabled = false;
   @Input() size: 'sm' | 'md' = 'md';
+  @Input() enableTime = false;
   @Output() dateChange = new EventEmitter<any>();
 
   @ViewChild('dateInput', { static: false }) dateInput!: ElementRef<HTMLInputElement>;
@@ -45,7 +46,8 @@ export class DatePickerComponent implements ControlValueAccessor {
       mode: this.mode,
       static: false,
       monthSelectorType: 'static',
-      dateFormat: 'Y-m-d',
+      enableTime: this.enableTime,
+      dateFormat: this.enableTime ? 'Y-m-d\\TH:i' : 'Y-m-d',
       defaultDate: this.value || this.defaultDate,
       locale: Spanish,
       onChange: (selectedDates, dateStr, instance) => {

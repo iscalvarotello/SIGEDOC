@@ -104,6 +104,25 @@ export const DATABASE_ROUTES: Routes = [
   },
 
   // ============================================
+  // ORGANIZACIÓN: CONTACTOS EXTERNOS
+  // ============================================
+  {
+    path: 'organization/external-contacts',
+    loadComponent: () => import('./organization/external-contacts/external-contacts-page.component').then(m => m.ExternalContactsPageComponent),
+    data: { title: 'Contactos Externos' }
+  },
+  {
+    path: 'organization/external-contacts/new',
+    loadComponent: () => import('./organization/external-contacts/external-contact-form.component').then(m => m.ExternalContactFormComponent),
+    data: { title: 'Nuevo Contacto Externo' }
+  },
+  {
+    path: 'organization/external-contacts/:id',
+    loadComponent: () => import('./organization/external-contacts/external-contact-form.component').then(m => m.ExternalContactFormComponent),
+    data: { title: 'Editar Contacto Externo' }
+  },
+
+  // ============================================
   // ORGANIZACIÓN: PROVEEDORES (SUPPLIERS)
   // ============================================
   {

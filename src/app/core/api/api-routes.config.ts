@@ -21,6 +21,7 @@ export const ENDPOINT_KEYS = {
   AREA_TYPES: 'area_types',
   SUPPLIERS: 'suppliers',
   FUEL_STATIONS: 'fuel_stations',
+  EXTERNAL_CONTACTS: 'external_contacts',
   TOLL_BOOTHS: 'toll_booths',
   TARIFFS: 'tariffs',
   CARS: 'cars',
@@ -131,6 +132,10 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
     specialRoutes: {
       byProvider: { path: '/organization/fuel-stations/provider/:id', method: 'GET', plain: true }
     }
+  },
+  [ENDPOINT_KEYS.EXTERNAL_CONTACTS]: {
+    base: '/organization/external-contacts',
+    plain: true
   },
   [ENDPOINT_KEYS.TOLL_BOOTHS]: {
     base: '/logistic/toll-booths',

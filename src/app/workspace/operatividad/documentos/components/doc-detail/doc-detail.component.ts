@@ -166,7 +166,7 @@ export class DocDetailComponent implements OnDestroy {
     }
   }
 
-  @Input() selectedTipo: 'directo' | 'gestionado' = 'directo';
+  @Input() selectedTipo: 'directo' | 'gestionado' | 'recibido_externo' = 'directo';
   @Input() claseDocumentoId: ClaseDocumentoId = 'memo';
 
   @Output() actionCompleted = new EventEmitter<void>();

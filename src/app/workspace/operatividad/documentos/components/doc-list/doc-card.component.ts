@@ -5,11 +5,12 @@ import { GoogleDriveViewerLinkComponent } from '@system-shared/media/google-driv
 import { OpenPdfButtonComponent } from '@system-shared/buttons/open-pdf-button/open-pdf-button.component';
 import { PreviewPdfButtonComponent } from '@system-shared/buttons/preview-pdf-button/preview-pdf-button.component';
 import { BadgeComponent } from '@system-shared/ui/badge/badge.component';
+import { IconComponent } from '@system-shared/common/icon/icon.component';
 
 @Component({
   selector: 'app-doc-card',
   standalone: true,
-  imports: [CommonModule, GoogleDriveViewerLinkComponent, OpenPdfButtonComponent, PreviewPdfButtonComponent, BadgeComponent],
+  imports: [CommonModule, GoogleDriveViewerLinkComponent, OpenPdfButtonComponent, PreviewPdfButtonComponent, BadgeComponent, IconComponent],
   templateUrl: './doc-card.component.html',
 })
 export class DocCardComponent {

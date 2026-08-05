@@ -17,5 +17,10 @@ export const OPERATIVIDAD_ROUTES: Routes = [
     path: 'form-new-document/:claseDocumentoId',
     component: FormNewPageComponent,
     title: 'Nuevo documento - Memorandums, Oficios, Tarjetas Informativas y Circulares'
+  },
+  {
+    path: 'recepcion-externa',
+    loadComponent: () => import('./documentos/pages/form-external-page/form-external-page.component').then(m => m.FormExternalPageComponent),
+    title: 'Recepción de Documentos Externos - Oficialía de Partes'
   }
 ];

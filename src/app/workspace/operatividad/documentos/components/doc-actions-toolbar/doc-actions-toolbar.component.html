@@ -116,4 +116,15 @@
     <action-button variant="success" size="sm" label="Dar por atendido" (clicked)="showForm.emit('atender')"></action-button>
   }
 
+  <!-- EXTERNA - RECIBIDOS -->
+  @if (doc?.bandeja === '📥 Externa - Recibidos') {
+    <action-button variant="outline" size="sm" label="Turnar documento" (clicked)="showForm.emit('turnar')"></action-button>
+    <action-button variant="warning" size="sm" label="Atender" (clicked)="showForm.emit('atender')"></action-button>
+  }
+
+  <!-- EXTERNA - TURNADOS -->
+  @if (doc?.bandeja === '🎯 Externa - Turnados') {
+    <action-button variant="success" size="sm" label="Dar por atendido" (clicked)="showForm.emit('atender')"></action-button>
+  }
+
 </div>

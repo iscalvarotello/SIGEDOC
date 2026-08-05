@@ -1,0 +1,109 @@
+<app-page-breadcrumb pageTitle="Registro de Documento Externo (Oficialía de Partes)" />
+
+<div class="max-w-8xl mx-auto">
+  <div class="bg-white border border-gray-200 rounded-2xl shadow-sm dark:border-gray-800 dark:bg-white/3 overflow-hidden">
+    
+    <!-- Encabezado del Formulario -->
+    <div class="bg-theme-secondary text-white p-6">
+      <h3 class="text-lg font-black tracking-tight uppercase">
+        DATOS DEL DOCUMENTO EXTERNO
+      </h3>
+      <p class="text-xs text-white/70 font-medium mt-1">
+        Registre un documento recibido desde fuera de la institución (Oficios, Circulares, etc.).
+      </p>
+    </div>
+
+    <!-- Cuerpo del Formulario -->
+    <form (submit)="onSubmit(); $event.preventDefault()" class="p-6 space-y-6">
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <div class="flex flex-col gap-1.5 md:col-span-3">
+          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Documento PDF Escaneado *</label>
+          <app-file-input accept="application/pdf" (change)="onFileSelected($event)"></app-file-input>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Clase de Documento *</label>
+          <app-select [options]="claseDocumentoOptions" [value]="form.controls.clase_documento.value || ''"  (valueChange)="form.controls.clase_documento.setValue($event)" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 hover:bg-gray-100/70 focus:bg-white focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-bold dark:bg-gray-800/50 dark:border-gray-700 dark:text-gray-200"></app-select>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <control type="text" label="Número/Referencia Externa *" [formControl]="form.controls.external_reference" placeholder="Ej. SRE/001/2026"></control>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <control type="text" label="Contestación a (Opcional)" [formControl]="form.controls.contestacion_a" placeholder="Ej. SEYT/067/2026"></control>
+        </div>
+
+        <!-- Remitente (Contacto Externo) -->
+        <div class="flex flex-col gap-4 md:col-span-3 bg-gray-50/50 p-4 rounded-2xl border border-gray-100 dark:bg-white/5 dark:border-white/10">
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Remitente</label>
+            <div class="flex bg-gray-200/50 p-1 rounded-lg dark:bg-black/20">
+              <action-button (clicked)="remitenteMode = 'oficiales'" [variant]="remitenteMode === 'oficiales' ? 'secondary' : 'ghost'">Oficiales</action-button>
+              <action-button (clicked)="remitenteMode = 'libre'" [variant]="remitenteMode === 'libre' ? 'secondary' : 'ghost'">Texto libre</action-button>
+            </div>
+          </div>
+          
+          @if (remitenteMode === 'oficiales') {
+            <app-external-contact-select (onSelect)="onContactSelected($event)" class="w-full"></app-external-contact-select>
+            @if (selectedContactData) {
+              <div class="flex flex-col sm:flex-row gap-4 mt-2">
+                <div class="flex flex-col gap-1.5 flex-1">
+                  <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Nombre</label>
+                  <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ selectedContactData.nombre }}</p>
+                </div>
+                <div class="flex flex-col gap-1.5 flex-1">
+                  <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Puesto y Dependencia</label>
+                  <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ selectedContactData.empresa_dependencia || 'N/A' }}</p>
+                </div>
+              </div>
+            }
+          } @else {
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <control type="text" label="Nombre" [formControl]="form.controls.remitente_texto_libre" placeholder="Nombre completo..."></control>
+              <control type="text" label="Puesto y Dependencia" [formControl]="form.controls.dependencia" placeholder="Nombre de la dependencia o puesto..."></control>
+            </div>
+          }
+        </div>
+
+        <!-- Área Receptora -->
+        <div class="flex flex-col gap-1.5 md:col-span-3">
+          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">El documento viene dirigido a: *</label>
+          <app-area-select [selectedId]="form.value.id_area_receptora || ''" (onSelect)="onAreaSelected($event)"></app-area-select>
+        </div>
+
+        <div class="md:col-span-3">
+          <control type="text" label="Asunto *" [formControl]="form.controls.asunto"></control>
+        </div>
+
+        <div class="md:col-span-1">
+          <app-date-picker label="Fecha del Documento (Impresa)" [formControl]="form.controls.fecha_doc"></app-date-picker>
+        </div>
+
+        <div class="flex flex-col gap-1.5 md:col-span-1">
+          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Fecha de Recepción *</label>
+          <input type="datetime-local" [formControl]="form.controls.fecha_recepcion" required class="form-input w-full px-4 py-2.5 bg-gray-50 border border-gray-200 hover:bg-gray-100/70 focus:bg-white focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-bold dark:bg-gray-800/50 dark:border-gray-700 dark:text-gray-200">
+        </div>
+
+        <div class="flex flex-col gap-1.5 md:col-span-1">
+          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Método de Firma *</label>
+          <app-select [options]="metodoFirmaOptions" [value]="form.controls.metodo_firma.value || ''" (valueChange)="form.controls.metodo_firma.setValue($event)" className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 hover:bg-gray-100/70 focus:bg-white focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-bold dark:bg-gray-800/50 dark:border-gray-700 dark:text-gray-200"></app-select>
+        </div>
+
+      </div>
+
+      <!-- Actions -->
+      <div class="mt-8 flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-gray-800">
+        <action-button variant="default" type="button" (clicked)="cancel()">
+          Cancelar
+        </action-button>
+        <action-button variant="primary" type="submit" [disabled]="form.invalid || !selectedFile || isLoading" [icon]="'SaveDisk'">
+          Registrar Documento
+        </action-button>
+      </div>
+
+    </form>
+  </div>
+</div>

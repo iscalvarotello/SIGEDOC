@@ -9,6 +9,7 @@
   [selectedTipo]="selectedTipo()"
   [countDirecto]="countDirecto()"
   [countGestionado]="countGestionado()"
+  [countExterno]="countExterno()"
   [isLoading]="isLoading()"
   (tipoChange)="selectedTipo.set($event); closeActionForm()"
   (refresh)="loadInbox()">
@@ -40,9 +41,18 @@
   (applyFilter)="applyDateFilter()"
   (clearFilter)="clearDateFilter()">
   
-  <!-- Botón Nuevo Documento -->
-  <action-button variant="primary" type="button" (clicked)="navigateToNewDocument()"><icon icon="NewIcon2" class="w-4 h-4"></icon>
-    Nuevo {{ claseDocumentoId() | claseDocument:'singular' }}</action-button>
+  <!-- Botones de Acción -->
+  <div class="flex gap-2 items-center">
+    <!-- Botón Nuevo Documento -->
+    <action-button variant="primary" type="button" (clicked)="navigateToNewDocument()"><icon icon="NewIcon2" class="w-4 h-4"></icon>
+      Nuevo {{ claseDocumentoId() | claseDocument:'singular' }}</action-button>
+    
+    <!-- Botón Registro Externo (Oficialía de Partes) -->
+    <action-button variant="secondary" type="button" (clicked)="navigateToExternalRecepcion()">
+      <icon icon="DocumentImport" class="w-4 h-4"></icon>
+      Recibir un {{ claseDocumentoId() | claseDocument:'singular' }}
+    </action-button>
+  </div>
   
   <!-- Botón Copiar Link de Firma Remota -->
   @if (selectedBulkDocIds().length > 0) {

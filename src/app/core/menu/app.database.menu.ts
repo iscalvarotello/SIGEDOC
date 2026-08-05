@@ -19,7 +19,8 @@ export const DATABASE_ITEMS = [
       { name: "Áreas Administrativas", path: "/database/organization/areas", pro: false },
       { name: "Proveedores", path: "/database/organization/suppliers", pro: false },
       { name: "Gasolinerías (Sucursales)", path: "/database/organization/fuel-stations", pro: false },
-      { name: "Destinatarios Oficiales", path: "/database/organization/official-recipients", pro: false }],
+      { name: "Destinatarios Oficiales", path: "/database/organization/official-recipients", pro: false },
+      { name: "Contactos Externos", path: "/database/organization/external-contacts", pro: false }],
   },
   {
     name: "Logística",

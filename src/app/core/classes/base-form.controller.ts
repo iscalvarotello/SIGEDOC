@@ -126,6 +126,7 @@ export abstract class BaseFormController<T> implements OnInit {
   public async onSave() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      alert('Por favor complete todos los campos obligatorios o corrija los errores marcados en el formulario.');
       return;
     }
 
@@ -134,8 +135,8 @@ export abstract class BaseFormController<T> implements OnInit {
     // Sanitizar valores: convertir cadenas vacías en null antes de enviar al backend
     const formValue = { ...this.form.value };
     Object.keys(formValue).forEach(key => {
-      if (formValue[key] === '') {
-        formValue[key] = null;
+      if (formValue[key] === '' || formValue[key] === null) {
+        delete formValue[key];
       }
     });
 

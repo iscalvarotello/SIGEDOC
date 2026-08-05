@@ -27,6 +27,19 @@
       </span>
     </action-button>
 
+    <action-button 
+      (clicked)="tipoChange.emit('recibido_externo')"
+      [variant]="selectedTipo === 'recibido_externo' ? 'primary' : 'ghost'"
+      class="flex items-center gap-2 whitespace-nowrap">
+      <icon icon="DocumentImport" class="w-3.5 h-3.5"></icon>
+      <span>Externa</span>
+      <span 
+        [class]="selectedTipo === 'recibido_externo' ? 'bg-white/20 text-white dark:bg-white/10' : 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400'"
+        class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold transition-all duration-300">
+        {{ countExterno }}
+      </span>
+    </action-button>
+
   </div>
 
   <action-button 

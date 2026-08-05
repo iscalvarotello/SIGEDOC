@@ -36,7 +36,7 @@ import { GovSignatureModalComponent } from '@workspace-shared/components/gov-sig
 })
 export class DocActionFormsComponent implements OnInit {
   @Input() doc: any | null = null;
-  @Input() selectedTipo: 'directo' | 'gestionado' = 'directo';
+  @Input() selectedTipo: 'directo' | 'gestionado' | 'recibido_externo' = 'directo';
   @Input() claseDocumentoId: ClaseDocumentoId = 'memo';
 
   // Two-way bindings
@@ -170,6 +170,9 @@ export class DocActionFormsComponent implements OnInit {
       if (defaultArea) {
         this.loadAcuseReceptionists(defaultArea);
       }
+    }
+    if (action === 'despachar' && doc?.metodo_firma === 'autografa') {
+      this.actionMedioEnvio.set('directo');
     }
   }
 

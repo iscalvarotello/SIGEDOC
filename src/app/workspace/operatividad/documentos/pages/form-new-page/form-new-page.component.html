@@ -160,33 +160,26 @@
           @if (tipoDestinatarioOficio() === 'oficial') {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fadeIn">
               <div class="flex flex-col gap-1.5 md:col-span-2">
-                <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Seleccionar Destinatario Oficial</label>
-                <select 
-                  [value]="idDestinatarioOficial()"
-                  (change)="onOfficialRecipientChange($event)"
-                  class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold outline-none text-gray-700 shadow-sm focus:ring-2 focus:ring-theme-primary/30 focus:border-theme-primary">
-                  <option value="">Seleccione Destinatario Oficial...</option>
-                  @for (rec of officialRecipientsList(); track rec.id) {
-                    <option [value]="rec.id">
-                      {{ rec.nombre }} - {{ rec.puesto }} ({{ rec.empresa_dependencia }})
-                    </option>
-                  }
-                </select>
+                <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Seleccionar Contacto Externo</label>
+                <app-external-contact-select
+                  [selectedId]="idContactoExterno()"
+                  (onSelect)="onExternalContactSelect($event)">
+                </app-external-contact-select>
               </div>
               
               <div class="flex flex-col justify-center bg-white rounded-xl p-4 border border-gray-150 space-y-1 md:col-span-2">
-                <span class="text-[9px] font-black text-theme-secondary uppercase tracking-wider block">Detalles del Destinatario Oficial</span>
-                @if (selectedOfficialRecipient()) {
-                  <span class="text-sm font-extrabold text-gray-800 block mt-0.5">{{ selectedOfficialRecipient().nombre }}</span>
-                  <span class="text-xs font-semibold text-gray-650 block">👉½╝ {{ selectedOfficialRecipient().puesto || 'Sin Puesto' }}</span>
-                  <span class="text-xs font-semibold text-gray-550 block">👉 {{ selectedOfficialRecipient().empresa_dependencia || 'Sin Dependencia' }}</span>
-                  @if (selectedOfficialRecipient().telefono || selectedOfficialRecipient().email) {
+                <span class="text-[9px] font-black text-theme-secondary uppercase tracking-wider block">Detalles del Contacto Externo</span>
+                @if (selectedExternalContact()) {
+                  <span class="text-sm font-extrabold text-gray-800 block mt-0.5">{{ selectedExternalContact().nombre }}</span>
+                  <span class="text-xs font-semibold text-gray-650 block">👉½╝ {{ selectedExternalContact().puesto || 'Sin Puesto' }}</span>
+                  <span class="text-xs font-semibold text-gray-550 block">👉 {{ selectedExternalContact().empresa_dependencia || 'Sin Dependencia' }}</span>
+                  @if (selectedExternalContact().telefono || selectedExternalContact().email) {
                     <span class="text-[11px] text-gray-400 block pt-1 border-t border-gray-100 mt-1">
-                      👉 {{ selectedOfficialRecipient().telefono || 'N/A' }} &nbsp;뿯뿯½&nbsp; 뿯뿯뿯 {{ selectedOfficialRecipient().email || 'N/A' }}
+                      👉 {{ selectedExternalContact().telefono || 'N/A' }} &nbsp;뿯뿯½&nbsp; 뿯뿯뿯 {{ selectedExternalContact().email || 'N/A' }}
                     </span>
                   }
                 } @else {
-                  <span class="text-xs text-gray-400 italic">Seleccione un destinatario oficial de la lista para mostrar sus detalles</span>
+                  <span class="text-xs text-gray-400 italic">Seleccione un contacto externo de la lista para mostrar sus detalles</span>
                 }
               </div>
             </div>

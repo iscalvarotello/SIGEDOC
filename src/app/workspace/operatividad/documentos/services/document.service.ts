@@ -33,6 +33,13 @@ export class DocumentService extends BaseApiService<DocumentInboxDTO> {
     cancelados: '❌ Cancelados'
   };
 
+  // Bandejas de correspondencia externa (Oficialía de Partes -> Institución)
+  public readonly bandejasExternas = {
+    recibidos: '📥 Externa - Recibidos',
+    turnados: '🎯 Externa - Turnados',
+    atendidos: '✅ Externa - Atendidos'
+  };
+
   // Listas agrupadas para filtrado masivo
   public readonly listRecibidas = [
     this.bandejasRecibidas.porRecibir,
@@ -54,6 +61,12 @@ export class DocumentService extends BaseApiService<DocumentInboxDTO> {
     this.bandejasEnviadas.despachados,
     this.bandejasEnviadas.entregados,
     this.bandejasEnviadas.cancelados
+  ];
+
+  public readonly listExternas = [
+    this.bandejasExternas.recibidos,
+    this.bandejasExternas.turnados,
+    this.bandejasExternas.atendidos
   ];
 
   constructor() {

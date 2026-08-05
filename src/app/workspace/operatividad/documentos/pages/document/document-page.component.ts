@@ -64,7 +64,7 @@ export class DocumentPageComponent implements OnInit {
   });
 
   // Filtros
-  selectedTipo = signal<'directo' | 'gestionado'>('directo');
+  selectedTipo = signal<'directo' | 'gestionado' | 'recibido_externo'>('directo');
   searchQuery = signal<string>('');
   startDateInput = signal<string>('');
   endDateInput = signal<string>('');
@@ -178,13 +178,16 @@ export class DocumentPageComponent implements OnInit {
       const isTurnedToMe = currentEmployeeId && d.id_turnado_a && String(d.id_turnado_a) === String(currentEmployeeId);
 
       if (isTurnedToMe) {
-        effectiveType = 'directo';
+        // Para internos, si me lo turnan, lo veo como directo. Para externos, se queda como externo.
+        if (effectiveType !== 'recibido_externo') {
+          effectiveType = 'directo';
+        }
       } else if (isRemitente) {
-        effectiveType = 'directo';
+        if (effectiveType !== 'recibido_externo') effectiveType = 'directo';
       } else if (isEmisora && String(d.id_area_emisora) !== String(d.id_area_remitente)) {
-        effectiveType = 'gestionado';
+        if (effectiveType !== 'recibido_externo') effectiveType = 'gestionado';
       } else if (!isEmisora && isReceptora && d.tipo_documento === 'gestionado') {
-        effectiveType = 'directo';
+        if (effectiveType !== 'recibido_externo') effectiveType = 'directo';
       }
 
       return {
@@ -205,6 +208,13 @@ export class DocumentPageComponent implements OnInit {
     this.allDocuments().filter((d: any) => 
       d.clase_documento === this.claseDocumentoId() && 
       d.tipo_documento === 'gestionado'
+    ).length
+  );
+
+  countExterno = computed<number>(() => 
+    this.allDocuments().filter((d: any) => 
+      d.clase_documento === this.claseDocumentoId() && 
+      d.tipo_documento === 'recibido_externo'
     ).length
   );
   
@@ -346,5 +356,9 @@ export class DocumentPageComponent implements OnInit {
 
   navigateToNewDocument() {
     this._router.navigate(['/operatividad/form-new-document', this.claseDocumentoId()]);
+  }
+
+  navigateToExternalRecepcion() {
+    this._router.navigate(['/operatividad/recepcion-externa'], { queryParams: { clase: this.claseDocumentoId() } });
   }
 }

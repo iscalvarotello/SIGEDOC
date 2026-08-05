@@ -61,6 +61,7 @@ export const SIDEBAR_MENU: MenuSection[] = [
           { module_id: 7, name: "Proveedores", path: "/database/organization/suppliers", pro: false },
           { module_id: 8, name: "Gasolinerías (Sucursales)", path: "/database/organization/fuel-stations", pro: false },
           { module_id: 35, name: "Destinatarios Oficiales", path: "/database/organization/official-recipients", pro: false },
+          { module_id: 41, name: "Contactos Externos", path: "/database/organization/external-contacts", pro: false },
           { module_id: 36, name: "Proyectos", path: "/database/organization/projects", pro: false },
           { module_id: 37, name: "Partidas Presupuestales", path: "/database/organization/partidas", pro: false }
         ],

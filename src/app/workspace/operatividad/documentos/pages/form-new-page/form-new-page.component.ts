@@ -36,6 +36,7 @@ import { CancelButtonComponent        } from '@system-shared/buttons/cancel-butt
 import { LocalRouteService            } from '@core/routing/local-route.service';
 import { LocalRoutePipe               } from '@core/routing/local-route.pipe';
 import { LOCAL_ROUTE_KEYS             } from '@core/routing/local-routes.config';
+import { ExternalContactSelectComponent } from '@workspace-shared/components/selects/external-contact-select/external-contact-select.component';
 
 @Component({
   selector: 'app-form-new-page',
@@ -43,8 +44,7 @@ import { LOCAL_ROUTE_KEYS             } from '@core/routing/local-routes.config'
   imports: [ CommonModule, FormsModule, RouterLink, ClaseDocumentPipe, PageBreadcrumbComponent, AreaSelectComponent,
     EmployeeSelectComponent, ProjectSelectComponent, PartidaSelectComponent, SupplierSelectComponent, CarSelectComponent,
     DocumentTypeSelectComponent, DocumentAttachmentsComponent, DatePickerComponent, SubmitButtonComponent, CancelButtonComponent,
-    JobPositionSelectComponent, LocalRoutePipe
-  , IconComponent, ActionButtonComponent],
+    JobPositionSelectComponent, LocalRoutePipe, ExternalContactSelectComponent, IconComponent, ActionButtonComponent],
   templateUrl: './form-new-page.component.html',
 })
 export class FormNewPageComponent implements OnInit {
@@ -86,11 +86,8 @@ export class FormNewPageComponent implements OnInit {
   destinatarioNombre = signal<string>('');
   destinatarioPuesto = signal<string>('');
   destinatarioTextoLibre = signal<string>('');
-  idDestinatarioOficial = signal<string>('');
-  officialRecipientsList = signal<any[]>([]);
-  selectedOfficialRecipient = computed(() => {
-    return this.officialRecipientsList().find(r => r.id === this.idDestinatarioOficial()) || null;
-  });
+  idContactoExterno = signal<string>('');
+  selectedExternalContact = signal<any | null>(null);
 
   // Puestos para Circulares
   allJobPositions = signal<any[]>([]);
@@ -377,7 +374,6 @@ export class FormNewPageComponent implements OnInit {
 
     // Cargar catálogos iniciales
     this.loadAreas();
-    this.loadOfficialRecipients();
     this.loadJobPositions();
     this.loadDynamicFieldsCatalogs();
     
@@ -416,17 +412,6 @@ export class FormNewPageComponent implements OnInit {
     }
   }
 
-  /**
-   * Carga todos los destinatarios oficiales externos
-   */
-  async loadOfficialRecipients() {
-    try {
-      const res = await this._genericService.getDropdownOptions(ENDPOINT_KEYS.OFFICIAL_RECIPIENTS);
-      this.officialRecipientsList.set(res || []);
-    } catch (err) {
-      console.error('Error al cargar catálogo de destinatarios oficiales:', err);
-    }
-  }
 
   /**
    * Carga todos los puestos de la base de datos
@@ -590,11 +575,16 @@ export class FormNewPageComponent implements OnInit {
   }
 
   /**
-   * Actualiza el destinatario oficial seleccionado
+   * Actualiza el contacto externo seleccionado
    */
-  onOfficialRecipientChange(event: Event) {
-    const val = (event.target as HTMLSelectElement).value;
-    this.idDestinatarioOficial.set(val);
+  onExternalContactSelect(contact: any | null) {
+    if (contact) {
+      this.idContactoExterno.set(contact.id);
+      this.selectedExternalContact.set(contact);
+    } else {
+      this.idContactoExterno.set('');
+      this.selectedExternalContact.set(null);
+    }
   }
 
   isCcpEmployeesLoading = signal<boolean>(false);
@@ -900,11 +890,11 @@ export class FormNewPageComponent implements OnInit {
     } 
     else if (clase === 'oficio') {
       if (this.tipoDestinatarioOficio() === 'oficial') {
-        if (!this.idDestinatarioOficial()) {
-          alert('Debe seleccionar el destinatario oficial.');
+        if (!this.idContactoExterno()) {
+          alert('Debe seleccionar el contacto externo.');
           return;
         }
-        payload.id_destinatario_oficial = this.idDestinatarioOficial();
+        payload.id_contacto_externo = this.idContactoExterno();
       } else {
         if (!this.destinatarioTextoLibre().trim()) {
           alert('Escriba el nombre y detalles del destinatario externo.');
@@ -984,10 +974,10 @@ export class FormNewPageComponent implements OnInit {
 
     // 5. Destinatario Oficial Externo (Oficios con destinatario registrado)
     if (clase === 'oficio' && this.tipoDestinatarioOficio() === 'oficial') {
-      const destOficial = this.selectedOfficialRecipient();
+      const destOficial = this.selectedExternalContact();
       if (destOficial) {
-        metadatos.destinatario_oficial_nombre = destOficial.fullName || destOficial.name || destOficial.nombre || '';
-        metadatos.destinatario_oficial_puesto = destOficial.job_position || destOficial.puesto || '';
+        metadatos.destinatario_oficial_nombre = destOficial.nombre || destOficial.name || '';
+        metadatos.destinatario_oficial_puesto = destOficial.puesto || destOficial.job_position || '';
         metadatos.destinatario_oficial_curp = destOficial.curp || '';
         metadatos.destinatario_oficial_dependencia = destOficial.empresa_dependencia || '';
       }

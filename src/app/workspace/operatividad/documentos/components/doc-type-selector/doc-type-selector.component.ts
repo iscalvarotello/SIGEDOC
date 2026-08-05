@@ -10,11 +10,12 @@ import { CommonModule } from '@angular/common';
   templateUrl: './doc-type-selector.component.html',
 })
 export class DocTypeSelectorComponent {
-  @Input() selectedTipo: 'directo' | 'gestionado' = 'directo';
+  @Input() selectedTipo: 'directo' | 'gestionado' | 'recibido_externo' = 'directo';
   @Input() countDirecto: number = 0;
   @Input() countGestionado: number = 0;
+  @Input() countExterno: number = 0;
   @Input() isLoading: boolean = false;
 
-  @Output() tipoChange = new EventEmitter<'directo' | 'gestionado'>();
+  @Output() tipoChange = new EventEmitter<'directo' | 'gestionado' | 'recibido_externo'>();
   @Output() refresh = new EventEmitter<void>();
 }
