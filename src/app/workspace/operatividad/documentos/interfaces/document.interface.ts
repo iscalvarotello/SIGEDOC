@@ -31,7 +31,7 @@ export interface DocumentItem {
    folio                   : number           , // 98
    num_doc                 : string           , // P Ej: SEYT/SC/098/2026
    fecha                   : Date             , // Es la que el usuario le puso como fecha al documento. Puede ser diferente de la fecha de creación porque hay documentos post-fechados
-   tema                    : string           , // 
+   temas                   : string           , // 
    asunto                  : string           , //
    link_edit               : string           , // Es la url para editar el documento en google drive
    link_acuse              : string           , // Es la url para descargar el acuse de recibido.

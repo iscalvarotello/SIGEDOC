@@ -20,6 +20,7 @@ import { FileUploaderComponent } from '@system-shared/media/file-uploader/file-u
 import { ClaseDocumentoId } from '../../interfaces/document.interface';
 import { CCP_PHRASES } from '@core/config/app.ccp-phrases.config';
 import { GovSignatureModalComponent } from '@workspace-shared/components/gov-signature-modal/gov-signature-modal.component';
+import { copyToClipboard } from '@core/utils/clipboard.util';
 
 @Component({
   selector: 'doc-action-forms',
@@ -490,15 +491,15 @@ export class DocActionFormsComponent implements OnInit {
 
   copyNewCcpToClipboard(text: string) {
     if (!text) return;
-    navigator.clipboard.writeText(text).then(() => {
-      this.copiedNewCcpText.set(text);
-      setTimeout(() => {
-        if (this.copiedNewCcpText() === text) {
-          this.copiedNewCcpText.set(null);
-        }
-      }, 2000);
-    }).catch(err => {
-      console.error('Error al copiar al portapapeles:', err);
+    copyToClipboard(text).then((success: boolean) => {
+      if (success) {
+        this.copiedNewCcpText.set(text);
+        setTimeout(() => {
+          if (this.copiedNewCcpText() === text) {
+            this.copiedNewCcpText.set(null);
+          }
+        }, 2000);
+      }
     });
   }
 

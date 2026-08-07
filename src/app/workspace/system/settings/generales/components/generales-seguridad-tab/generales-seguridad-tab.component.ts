@@ -92,7 +92,14 @@ export class GeneralesSeguridadTabComponent implements OnInit {
     }
   }
 
-  openMaintenanceModal() {
+  openMaintenanceModal(event?: Event) {
+    if (event) {
+      event.preventDefault();
+      const target = event.target as HTMLInputElement;
+      if (target) {
+        target.checked = this.maintenanceModeActive();
+      }
+    }
     this.isMaintenanceModalOpen.set(true);
   }
 

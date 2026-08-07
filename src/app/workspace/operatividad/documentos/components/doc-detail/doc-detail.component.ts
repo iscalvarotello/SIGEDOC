@@ -1,7 +1,8 @@
-import { Component, OnDestroy, inject, signal, computed, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnDestroy, inject, signal, computed, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { CommonModule                   } from '@angular/common';
 import { Router                         } from '@angular/router';
 import { FormsModule                    } from '@angular/forms';
+import { SesionService                  } from '@core/services/sesion.service';
 
 import { ActionButtonComponent          } from '@system-shared/buttons/action-button/action-button.component';
 import { ButtonOkComponent              } from '@system-shared/buttons/button-ok/button-ok.component';
@@ -32,14 +33,17 @@ import { MetaDataDocComponent           } from '../meta-data-doc/meta-data-doc.c
 import { DocumentService                } from '../../services/document.service';
 import { DocHistoryLinksComponent       } from '../doc-history-links/doc-history-links.component';
 
+import { TopicComponent                 } from '@system-shared/form/topic/topic.component';
+
 
 @Component({
   selector: 'doc-detail',
   standalone: true,
-  imports: [ActionButtonComponent, IconComponent, 
+  imports: [ActionButtonComponent,
     CommonModule,
     FormsModule,
     PdfViewerComponent,
+    TopicComponent,
     DocActionsToolbarComponent,
     DocCcpListComponent,
     DocAttachmentsListComponent,
@@ -54,37 +58,70 @@ import { DocHistoryLinksComponent       } from '../doc-history-links/doc-history
     MetaDataDocComponent,
     GlobeComponent,
     BadgeComponent,
+    IconComponent,
     TitleComponent],
   templateUrl: './doc-detail.component.html',
 })
 export class DocDetailComponent implements OnDestroy {
+  @ViewChild('actionForms') actionForms!: DocActionFormsComponent;
+
   // Input con Setter para limpiar formularios y recargar anexos
+  private previousStatus: string | null = null;
+  
   @Input() set doc(val: any | null) {
+    const prev = this.previousStatus;
+    if (val) {
+      this.previousStatus = val.estatus;
+    }
+    
     this._doc.set(val);
     this.closeActionForm();
     this.isEditingDetails.set(false);
+    
+    if (val && prev && val.estatus === 'En revisión' && prev !== 'En revisión') {
+      this._router.navigate(['/workspace/documentos/bandeja/en-revision']);
+    }
+
     if (val && val.id) {
       this.loadSelectedDocAttachments(val.id);
-      if (val.id_area_emisora) {
-        this.loadTemas(val.id_area_emisora);
-      } else {
-        this.temasList.set([]);
-      }
+      this.loadDocLogs(val.id);
     } else {
       this.selectedDocAttachments.set([]);
-      this.temasList.set([]);
+      this.docLogs.set([]);
     }
   }
   get doc() { return this._doc(); }
   private _doc = signal<any | null>(null);
 
-  private _areaService = inject(AreaService);
+  docLogs = signal<any[]>([]);
+  isLoadingLogs = signal<boolean>(false);
+  selectedTab = signal<'detalles' | 'historial'>('detalles');
 
-  editTema = '';
+  async loadDocLogs(id: string) {
+    this.isLoadingLogs.set(true);
+    try {
+      const res = await this._documentService.getLogs(id);
+      this.docLogs.set(res);
+    } catch(e) {
+      console.error(e);
+      this.docLogs.set([]);
+    } finally {
+      this.isLoadingLogs.set(false);
+    }
+  }
+
+  private _areaService = inject(AreaService);
+  private _session = inject(SesionService);
+  
+  isReviewer = computed(() => {
+    const docVal = this._doc();
+    return docVal ? (docVal.id_revisor == this._session.currentUserData()?.id_empleado || docVal.id_revisor == this._session.dataUser.idUser) : false;
+  });
+
+  editTemas = '';
   editAsunto = '';
   isEditingDetails = signal<boolean>(false);
   isSavingDetails = signal<boolean>(false);
-  temasList = signal<string[]>([]);
 
   canEditDetails = computed(() => {
     const docVal = this._doc();
@@ -107,20 +144,10 @@ export class DocDetailComponent implements OnDestroy {
 
   isConsolidating = signal<boolean>(false);
 
-  async loadTemas(areaId: string) {
-    try {
-      const list = await this._areaService.getTemas(areaId);
-      this.temasList.set(list || []);
-    } catch (e) {
-      console.warn('GET /organization/areas/:id/temas not implemented or failed:', e);
-      this.temasList.set([]);
-    }
-  }
-
   startEditingDetails() {
     const docVal = this._doc();
     if (!docVal) return;
-    this.editTema = docVal.tema || '';
+    this.editTemas = docVal.temas || '';
     this.editAsunto = docVal.asunto || '';
     this.isEditingDetails.set(true);
   }
@@ -137,23 +164,12 @@ export class DocDetailComponent implements OnDestroy {
     try {
       const updated = await this._documentService.update(docVal.id, {
         asunto: this.editAsunto.trim(),
-        tema: this.editTema.trim()
+        temas: this.editTemas.trim()
       });
-
-      // Guardar el tema si es nuevo
-      const newTema = this.editTema.trim();
-      if (newTema && docVal.id_area_emisora && !this.temasList().includes(newTema)) {
-        try {
-          const updatedList = await this._areaService.addTema(docVal.id_area_emisora, newTema);
-          this.temasList.set(updatedList);
-        } catch (e) {
-          console.warn('Failed to save new theme to area list:', e);
-        }
-      }
 
       // Actualizar el documento localmente
       docVal.asunto = updated.asunto;
-      docVal.tema = updated.tema;
+      docVal.temas = updated.temas;
       this._doc.set({ ...docVal });
 
       this.isEditingDetails.set(false);
@@ -352,7 +368,10 @@ export class DocDetailComponent implements OnDestroy {
 
   // PDF Viewer Methods
   async openPdf(type: 'draft' | 'final', docToOpen?: any) {
-    const activeDoc = docToOpen || this.doc;
+    if (docToOpen) {
+      this._doc.set(docToOpen);
+    }
+    const activeDoc = this.doc;
     if (!activeDoc) return;
 
     this.closePdfViewer();
@@ -407,16 +426,16 @@ export class DocDetailComponent implements OnDestroy {
         let blob: Blob;
 
         if (isDraft) {
-          await this._documentService.testPdf(activeDoc.id);
-          blob = await this._documentService.downloadPdf(activeDoc.id);
+          await this._documentService.testPdf(option.id);
+          blob = await this._documentService.downloadPdf(option.id);
         } else {
-          const cachedUrl = this._documentService.getCachedPdf(activeDoc.id);
+          const cachedUrl = this._documentService.getCachedPdf(option.id);
           if (cachedUrl) {
             this.pdfViewerUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(cachedUrl));
             this.isLoadingPdf.set(false);
             return;
           }
-          blob = await this._documentService.downloadPdf(activeDoc.id);
+          blob = await this._documentService.downloadPdf(option.id);
         }
 
         const fileURL = URL.createObjectURL(blob);
@@ -424,21 +443,21 @@ export class DocDetailComponent implements OnDestroy {
         this.pdfViewerUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(fileURL));
 
         if (!isDraft) {
-          this._documentService.setCachedPdf(activeDoc.id, blob, fileURL);
+          this._documentService.setCachedPdf(option.id, blob, fileURL);
         }
       } else if (option.type === 'merged') {
-        const cachedUrl = this._documentService.getCachedMergedPdf(activeDoc.id);
+        const cachedUrl = this._documentService.getCachedMergedPdf(option.id);
         if (cachedUrl) {
           this.pdfViewerUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(cachedUrl));
           this.isLoadingPdf.set(false);
           return;
         }
 
-        const blob = await this._documentService.downloadMergedPdf(activeDoc.id);
+        const blob = await this._documentService.downloadMergedPdf(option.id);
         const fileURL = URL.createObjectURL(blob);
         this.rawPdfUrl.set(fileURL);
         this.pdfViewerUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(fileURL));
-        this._documentService.setCachedMergedPdf(activeDoc.id, blob, fileURL);
+        this._documentService.setCachedMergedPdf(option.id, blob, fileURL);
       } else {
         const url = this._attachmentService.getDownloadUrl(option.id);
         this.pdfViewerUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));

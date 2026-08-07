@@ -40,6 +40,17 @@ export class DocumentService extends BaseApiService<DocumentInboxDTO> {
     atendidos: '✅ Externa - Atendidos'
   };
 
+  // ── Historial / Trazabilidad ──────────────────────────────────────────
+  public async getLogs(id: string): Promise<any[]> {
+    try {
+      const response = await firstValueFrom(this.http.get<any[]>(this.apiRouteService.getAbsoluteUrl(`documents/documentos/${id}/logs`)));
+      return response;
+    } catch (error) {
+      console.error('Error in getLogs:', error);
+      throw error;
+    }
+  }
+
   // Listas agrupadas para filtrado masivo
   public readonly listRecibidas = [
     this.bandejasRecibidas.porRecibir,

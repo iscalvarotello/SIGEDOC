@@ -6,7 +6,7 @@ export class DocumentInboxDTO extends BaseDto<DocumentInboxDTO> implements IBase
   id!: string;
   num_doc!: string;
   asunto!: string;
-  tema?: string | null;
+  temas?: string | null;
   estatus_emisor!: string;
   estatus_receptor!: string | null;
   bandeja!: string;

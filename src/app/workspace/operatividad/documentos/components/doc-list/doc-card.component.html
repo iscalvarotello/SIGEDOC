@@ -49,10 +49,10 @@
 
     <!-- Datos Asunto / Tema -->
     <div class="space-y-1">
-        @if (doc().tema) {
-            <div class="mb-1">
-                <app-badge variant="light" color="secondary" size="sm">Tema: {{ doc().tema }}</app-badge>
-            </div>
+        @if (doc().temas) {
+          <div class="flex">
+                <app-badge variant="light" color="secondary" size="sm">Temas: {{ doc().temas }}</app-badge>
+          </div>
         }
         <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200 line-clamp-2 leading-snug">
             {{ doc().asunto }}
@@ -88,7 +88,7 @@
             (clicked)="openPdf.emit({type: 'final', doc: doc()}); $event.stopPropagation()">
             </open-pdf-button>
         } @else {
-            @if (doc().url_drive_edition) {
+            @if (doc().url_drive_edition && (doc().estatus_emisor === 'en_edicion' || doc().estatus_emisor === 'en_correccion' || doc().estatus_emisor === 'en_revision')) {
             <app-google-drive-viewer-link 
                 displayMode="link" 
                 [url]="doc().url_drive_edition" 

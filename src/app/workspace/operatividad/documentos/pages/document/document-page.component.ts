@@ -15,6 +15,7 @@ import { DocListComponent } from '../../components/doc-list/doc-list.component';
 import { DocDetailComponent } from '../../components/doc-detail/doc-detail.component';
 import { GovSignatureService } from '@core/services/gov-signature.service';
 import { firstValueFrom } from 'rxjs';
+import { copyToClipboard } from '@core/utils/clipboard.util';
 import { ActionButtonComponent } from '@system-shared/buttons/action-button/action-button.component';
 
 function getLocalDateString(dateVal: any): string {
@@ -253,7 +254,7 @@ export class DocumentPageComponent implements OnInit {
     if (query) {
       list = list.filter((d: any) => 
         (d.asunto && d.asunto.toLowerCase().includes(query)) ||
-        (d.tema && d.tema.toLowerCase().includes(query)) ||
+        (d.temas && d.temas.toLowerCase().includes(query)) ||
         (d.num_doc && d.num_doc.toLowerCase().includes(query)) ||
         (d.remitente_nombre && d.remitente_nombre.toLowerCase().includes(query)) ||
         (d.destinatario_nombre && d.destinatario_nombre.toLowerCase().includes(query))
@@ -319,8 +320,10 @@ export class DocumentPageComponent implements OnInit {
       };
       const res = await firstValueFrom(this._govSignature.generateBulkSignatureUrl(payload));
       if (res && res.url) {
-        await navigator.clipboard.writeText(res.url);
-        alert('Enlace copiado al portapapeles:\n' + res.url);
+        const success = await copyToClipboard(res.url);
+        if (success) {
+          alert('Enlace copiado al portapapeles:\n' + res.url);
+        }
         this.selectedBulkDocIds.set([]); // limpiar
       }
     } catch (e) {

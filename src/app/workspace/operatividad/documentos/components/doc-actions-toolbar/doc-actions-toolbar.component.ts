@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, inject, signal } from '@angular
 import { ActionButtonComponent } from '@system-shared/buttons/action-button/action-button.component';
 import { SesionService } from '@services/sesion.service';
 import { GovSignatureService } from '@core/services/gov-signature.service';
+import { copyToClipboard } from '@core/utils/clipboard.util';
 
 import { CommonModule } from '@angular/common';
 
@@ -51,12 +52,13 @@ export class DocActionsToolbarComponent {
     this._govSignatureService.generateBulkSignatureUrl(payload).subscribe({
       next: (res: any) => {
         if (res?.url) {
-          navigator.clipboard.writeText(res.url).then(() => {
+          const successCallback = () => {
             this.copiedLink.set(true);
             setTimeout(() => this.copiedLink.set(false), 3000);
-          }).catch(err => {
-            console.error('Error al copiar al portapapeles:', err);
-            alert('No se pudo copiar el enlace. URL: ' + res.url);
+          };
+
+          copyToClipboard(res.url).then(success => {
+            if (success) successCallback();
           });
         }
         this.isLoadingLink.set(false);

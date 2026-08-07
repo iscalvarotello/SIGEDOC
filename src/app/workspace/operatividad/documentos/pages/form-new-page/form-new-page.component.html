@@ -17,14 +17,11 @@
     <form (submit)="onSubmit(); $event.preventDefault()" class="p-6 space-y-6">
 
       <!-- Fila 1: Tipo de Documento, Plantilla y Fecha -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-[150]">
         <!-- Tipo de Documento -->
         <div class="flex flex-col gap-1.5">
           <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Tipo de Documento</label>
-          <app-document-type-select
-            [value]="claseDocumentoId()"
-            (valueChange)="onClaseDocumentoChange($event)">
-          </app-document-type-select>
+          <app-document-type-select [value]="claseDocumentoId()" (valueChange)="onClaseDocumentoChange($event)"></app-document-type-select>
         </div>
 
         <!-- Plantilla -->
@@ -58,22 +55,14 @@
       </div>
 
       <!-- Fila 2: SECTOR DE REMITENTE (Quién Firma) -->
-      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4">
+      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4 relative z-[140]">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-200 pb-3">
           <h4 class="text-xs font-black text-theme-primary uppercase tracking-wider">Remitente (Firma el Documento)</h4>
           
           <!-- Toggle Directo / Gestionado -->
           <div class="inline-flex p-0.5 bg-gray-250 rounded-xl shadow-inner shrink-0">
-            <action-button 
-  (clicked)="changeTipoRemitente('directo')" [variant]="tipoRemitente() === 'directo' ? 'secondary' : 'ghost'">
-
-              Titular Directo
-            </action-button>
-            <action-button 
-  (clicked)="changeTipoRemitente('gestionado')" [variant]="tipoRemitente() === 'gestionado' ? 'secondary' : 'ghost'">
-
-              Bajo Gestión (Acronimo)
-            </action-button>
+            <action-button (clicked)="changeTipoRemitente('directo')" [variant]="tipoRemitente() === 'directo' ? 'secondary' : 'ghost'"> Titular Directo </action-button>
+            <action-button (clicked)="changeTipoRemitente('gestionado')" [variant]="tipoRemitente() === 'gestionado' ? 'secondary' : 'ghost'"> Bajo Gestión (Acronimo) </action-button>
           </div>
         </div>
 
@@ -90,10 +79,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="flex flex-col gap-1.5 md:col-span-2">
               <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Seleccionar Área Remitente</label>
-              <app-area-select
-                [selectedId]="idAreaEmisora()"
-                (onSelect)="onGestionadoAreaChange($event)">
-              </app-area-select>
+              <app-area-select [selectedId]="idAreaEmisora()" (onSelect)="onGestionadoAreaChange($event)"></app-area-select>
             </div>
             
             <div class="flex flex-col justify-center bg-white rounded-xl p-3 border border-gray-150">
@@ -110,7 +96,7 @@
       </div>
 
       <!-- Fila 3: SECTOR DE DESTINATARIO (Quién Recibe) -->
-      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4">
+      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4 relative z-[130]">
         
         <!-- MEMO / TARJETA INFORMATIVA -->
         @if (claseDocumentoId() === 'memo' || claseDocumentoId() === 'ti') {
@@ -171,11 +157,11 @@
                 <span class="text-[9px] font-black text-theme-secondary uppercase tracking-wider block">Detalles del Contacto Externo</span>
                 @if (selectedExternalContact()) {
                   <span class="text-sm font-extrabold text-gray-800 block mt-0.5">{{ selectedExternalContact().nombre }}</span>
-                  <span class="text-xs font-semibold text-gray-650 block">👉½╝ {{ selectedExternalContact().puesto || 'Sin Puesto' }}</span>
+                  <span class="text-xs font-semibold text-gray-650 block">👉 {{ selectedExternalContact().puesto || 'Sin Puesto' }}</span>
                   <span class="text-xs font-semibold text-gray-550 block">👉 {{ selectedExternalContact().empresa_dependencia || 'Sin Dependencia' }}</span>
                   @if (selectedExternalContact().telefono || selectedExternalContact().email) {
                     <span class="text-[11px] text-gray-400 block pt-1 border-t border-gray-100 mt-1">
-                      👉 {{ selectedExternalContact().telefono || 'N/A' }} &nbsp;뿯뿯½&nbsp; 뿯뿯뿯 {{ selectedExternalContact().email || 'N/A' }}
+                      👉 {{ selectedExternalContact().telefono || 'N/A' }} &nbsp;|&nbsp; 👉 {{ selectedExternalContact().email || 'N/A' }}
                     </span>
                   }
                 } @else {
@@ -239,31 +225,15 @@
       </div>
 
       <!-- Fila 4: Tema y Asunto -->
-      <div class="space-y-4">
+      <div class="space-y-4 relative z-[120]">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="flex flex-col gap-1.5 md:col-span-1">
+          <div class="flex flex-col gap-1.5 md:col-span-1 relative z-[120]">
             <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Tema del Documento</label>
-            <div class="relative w-full">
-              <input 
-                #temaInput
-                type="text" 
-                list="newDocumentTemasList"
-                [ngModel]="tema()"
-                (ngModelChange)="tema.set($event)"
-                [ngModelOptions]="{standalone: true}"
-                (click)="temaInput.showPicker()"
-                placeholder="Ej. Solicitud de Viáticos"
-                class="w-full pl-4 pr-10 py-2.5 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-semibold cursor-pointer" />
-              <div 
-                class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-gray-400">
-                <icon icon="FlechaAbajo" class="h-4.5 w-4.5"></icon>
-              </div>
-            </div>
-            <datalist id="newDocumentTemasList">
-              @for (t of temasList(); track t) {
-                <option [value]="t"></option>
-              }
-            </datalist>
+            <app-topic
+              [ngModel]="temas()"
+              (ngModelChange)="temas.set($event)"
+              [ngModelOptions]="{standalone: true}"
+            ></app-topic>
           </div>
 
           <div class="flex flex-col gap-1.5 md:col-span-2">
@@ -288,6 +258,7 @@
           
           <!-- Encabezado del Editor: Lista de Plantillas y Guardar -->
           <div class="flex flex-wrap items-center justify-between gap-3 bg-gray-50 dark:bg-white/3 p-3.5 rounded-2xl border border-gray-200 dark:border-gray-800">
+
             <div class="flex items-center gap-2 flex-1 min-w-[200px]">
               <span class="text-xs font-black text-gray-500 uppercase tracking-wider whitespace-nowrap">Plantillas:</span>
               <select 
@@ -295,14 +266,18 @@
                 (ngModelChange)="loadInternalTemplate($event)"
                 [ngModelOptions]="{standalone: true}"
                 class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-bold outline-none text-gray-750 dark:text-gray-200 shadow-sm focus:ring-2 focus:ring-theme-secondary/30 focus:border-theme-secondary">
-                <option value="">-- Plantillas --</option>
+                <option value="">-- Seleccionar plantilla --</option>
                 @for (temp of internalTemplatesList(); track temp.id) {
                   <option [value]="temp.id">{{ temp.name }}</option>
                 }
               </select>
             </div>
-            
-            <div class="relative shrink-0">
+
+            <div class="flex gap-2 relative z-[100]">
+                <action-button (clicked)="showTemplateManager.set(true)" variant="ghost">
+                  <icon icon="DocumentText" class="w-4 h-4"></icon>
+                  Revisar y Actualizar plantillas
+                </action-button>
               @if (!showSaveTemplatePopover()) {
                 <action-button 
   (clicked)="showSaveTemplatePopover.set(true)" variant="secondary">
@@ -373,9 +348,12 @@
               Vehículo
             </action-button>
             <action-button 
-  (clicked)="activeFieldsTab.set('libre')" [variant]="activeFieldsTab() === 'libre' ? 'primary' : 'ghost'">
-
-              Libre
+  (clicked)="activeFieldsTab.set('evento')" [variant]="activeFieldsTab() === 'evento' ? 'primary' : 'ghost'">
+              Evento
+            </action-button>
+            <action-button 
+  (clicked)="activeFieldsTab.set('general')" [variant]="activeFieldsTab() === 'general' ? 'primary' : 'ghost'">
+              General
             </action-button>
             <action-button 
   (clicked)="activeFieldsTab.set('personalizados')" [variant]="activeFieldsTab() === 'personalizados' ? 'primary' : 'ghost'">
@@ -391,7 +369,7 @@
               <div class="flex flex-col gap-1.5 relative">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Seleccionar Proyecto:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <app-project-select
                       [selectedId]="selectedProjectId()"
                       [showReload]="true"
@@ -399,9 +377,7 @@
                       (onClear)="selectedProjectObj.set(null)">
                     </app-project-select>
                   </div>
-                  <action-button 
-  (clicked)="showProjectFields.set(!showProjectFields())" [variant]="showProjectFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
-
+                  <action-button (clicked)="showProjectFields.set(!showProjectFields())" [variant]="showProjectFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
                     <icon icon="NewIcon5" class="w-4 h-4"></icon>
                   </action-button>
                 </div>
@@ -412,21 +388,9 @@
                 <div class="space-y-2 animate-fadeIn">
                   <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Proyecto:</label>
                   <div class="flex flex-wrap gap-2">
-                    <action-button 
-  (clicked)="insertTag('{{__project_name__}}')" variant="ghost">
-
-                      👉 Nombre
-                    </action-button>
-                    <action-button 
-  (clicked)="insertTag('{{__project_code__}}')" variant="ghost">
-
-                      👉 Clave
-                    </action-button>
-                    <action-button 
-  (clicked)="insertTag('{{__project_type__}}')" variant="ghost">
-
-                      👉뿯뿯½ Tipo
-                    </action-button>
+                    <action-button (clicked)="insertTag('{{__project_name__}}')" variant="ghost"> 👉 Nombre </action-button>
+                    <action-button (clicked)="insertTag('{{__project_code__}}')" variant="ghost"> 👉 Clave  </action-button>
+                    <action-button (clicked)="insertTag('{{__project_type__}}')" variant="ghost"> 👉 Tipo   </action-button>
                   </div>
                 </div>
                 <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
@@ -436,7 +400,7 @@
               <div class="flex flex-col gap-1.5 relative z-20">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Seleccionar Partida:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <app-partida-select
                       [selectedId]="selectedPartidaId()"
                       [showReload]="true"
@@ -471,7 +435,7 @@
               <div class="flex flex-col gap-1.5 relative z-10">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Mes de Ministración:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <select 
                       [ngModel]="selectedMonth()"
                       (ngModelChange)="selectedMonth.set($event)"
@@ -518,7 +482,7 @@
               <div class="flex flex-col gap-1.5 relative z-0">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Fecha del Proyecto:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <app-date-picker
                       id="fecha_proyecto"
                       [defaultDate]="selectedProjectDate()"
@@ -567,7 +531,7 @@
               <div class="flex flex-col gap-1.5 relative z-20">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Seleccionar Proveedor:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <app-supplier-select
                       [selectedId]="selectedSupplierId()"
                       [showReload]="true"
@@ -607,7 +571,7 @@
               <div class="flex flex-col gap-1.5 relative z-10">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Dirección del Proveedor:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <input 
                       type="text" 
                       [ngModel]="customSupplierAddress()"
@@ -647,7 +611,7 @@
               <div class="flex flex-col gap-1.5">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Seleccionar Vehículo:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <app-car-select
                       [selectedId]="selectedCarId()"
                       [showReload]="true"
@@ -676,7 +640,7 @@
                     <action-button 
   (clicked)="insertTag('{{__vehicle_model__}}')" variant="ghost">
 
-                      👉뿯뿯½ Modelo
+                      👉 Modelo
                     </action-button>
                     <action-button 
   (clicked)="insertTag('{{__vehicle_plates__}}')" variant="ghost">
@@ -689,14 +653,14 @@
             </div>
           }
 
-          <!-- Contenido de Pestaña: Libre -->
-          @if (activeFieldsTab() === 'libre') {
+          <!-- Contenido de Pestaña: Evento -->
+          @if (activeFieldsTab() === 'evento') {
             <div class="space-y-4 animate-fadeIn">
               <!-- Nombre evento -->
               <div class="flex flex-col gap-1.5">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Nombre del Evento:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <input 
                       type="text"
                       [ngModel]="customEventName()"
@@ -732,7 +696,7 @@
               <div class="flex flex-col gap-1.5">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Lugar del Evento:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <input 
                       type="text"
                       [ngModel]="customEventPlace()"
@@ -768,7 +732,7 @@
               <div class="flex flex-col gap-1.5">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Folio Factura:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <input 
                       type="text"
                       [ngModel]="customInvoice()"
@@ -800,11 +764,53 @@
                 <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
               }
 
+            </div>
+          }
+          <!-- Contenido de Pestaña: General -->
+          @if (activeFieldsTab() === 'general') {
+            <div class="space-y-4 animate-fadeIn">
+              <!-- Fecha -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Fecha:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 min-w-0">
+                    <input 
+                      type="date"
+                      [ngModel]="customFecha()"
+                      (ngModelChange)="customFecha.set($event)"
+                      [ngModelOptions]="{standalone: true}"
+                      class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
+                  </div>
+                  <action-button 
+  (clicked)="showFechaFields.set(!showFechaFields())" [variant]="showFechaFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <!-- Botones de Variables de Fecha -->
+              @if (showFechaFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de Fecha:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button 
+  (clicked)="insertTag('{{__fecha_larga__}}')" variant="ghost">
+                      📅 Larga
+                    </action-button>
+                    <action-button 
+  (clicked)="insertTag('{{__fecha_corta__}}')" variant="ghost">
+                      📅 Corta
+                    </action-button>
+                  </div>
+                </div>
+                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
+              }
+
               <!-- Monto -->
               <div class="flex flex-col gap-1.5">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Monto:</label>
                 <div class="flex items-center gap-2">
-                  <div class="flex-1">
+                  <div class="flex-1 min-w-0">
                     <input 
                       type="text"
                       [ngModel]="customMonto()"
@@ -815,7 +821,6 @@
                   </div>
                   <action-button 
   (clicked)="showMontoFields.set(!showMontoFields())" [variant]="showMontoFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
-
                     <icon icon="NewIcon5" class="w-4 h-4"></icon>
                   </action-button>
                 </div>
@@ -828,13 +833,11 @@
                   <div class="flex flex-wrap gap-2">
                     <action-button 
   (clicked)="insertTag('{{__monto_moneda__}}')" variant="ghost">
-
                       👉 $ Moneda
                     </action-button>
                     <action-button 
   (clicked)="insertTag('{{__monto_letra__}}')" variant="ghost">
-
-                      뿯뿯뿯 Letra
+                      뿯뿯 Letra
                     </action-button>
                   </div>
                 </div>
@@ -851,7 +854,7 @@
                 <div class="flex flex-col gap-1.5">
                   <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">{{ field }}:</label>
                   <div class="flex items-center gap-2">
-                    <div class="flex-1">
+                    <div class="flex-1 min-w-0">
                       <input 
                         type="text"
                         [ngModel]="personalFieldValues()[field] || ''"
@@ -935,6 +938,7 @@
             <select 
               [ngModel]="selectedCcpPhrase()"
               (ngModelChange)="onCcpPhraseChange($event)"
+              [ngModelOptions]="{standalone: true}"
               class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold outline-none text-gray-700 shadow-sm focus:ring-2 focus:ring-theme-primary/30 focus:border-theme-primary">
               @for (phrase of ccpPhrases; track phrase) {
                 <option [value]="phrase">{{ phrase }}</option>
@@ -950,6 +954,7 @@
                 type="text" 
                 [ngModel]="customCcpPhrase()"
                 (ngModelChange)="customCcpPhrase.set($event)"
+                [ngModelOptions]="{standalone: true}"
                 placeholder="Escriba el motivo personalizado..."
                 class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold outline-none text-gray-700 shadow-sm focus:ring-2 focus:ring-theme-primary/30 focus:border-theme-primary">
             </div>
@@ -998,3 +1003,10 @@
 
   </div>
 </div>
+
+<template-manager
+  [isOpen]="showTemplateManager()"
+  [claseDocumentoId]="claseDocumentoId() || ''"
+  (close)="showTemplateManager.set(false); loadTemplates()"
+  (useTemplate)="onUseTemplate($event)">
+</template-manager>

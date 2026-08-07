@@ -41,7 +41,7 @@
         </div>
         
         <div class="flex items-center gap-2">
-          @if (doc.url_drive_edition && (doc.estatus_emisor === 'en_edicion' || doc.estatus_emisor === 'en_correccion' || doc.estatus_receptor === 'rechazado')) {
+          @if (doc.url_drive_edition && (doc.estatus_emisor === 'en_edicion' || doc.estatus_emisor === 'en_correccion' || (doc.estatus_emisor === 'en_revision' && isReviewer()))) {
             <app-google-drive-viewer-link [url]="doc.url_drive_edition"></app-google-drive-viewer-link>
           }
           @if (doc.estatus_emisor === 'despachado' || doc.estatus_emisor === 'entregado' || doc.estatus_emisor === 'cancelado') {
@@ -57,9 +57,9 @@
       @if (!activeActionForm()) {
         <doc-actions-toolbar
           [doc]="doc"
-          [isActionLoading]="actionForms.isActionLoading() || isConsolidating()"
+          [isActionLoading]="actionForms?.isActionLoading() || isConsolidating()"
           (showForm)="showActionForm($event)"
-          (submitAction)="actionForms.submitAction($event)"
+          (submitAction)="actionForms?.submitAction($event)"
           (reply)="replyDocument()"
           (followUp)="followUpDocument()"
           (makeFollowUp)="makeFollowUpDocument()"
@@ -69,155 +69,147 @@
       }
     </div>
 
-    <div class="p-6 space-y-6 flex-1 overflow-y-auto">
-      
-      <!-- Metadatos del documento -->
-      <meta-data-doc [doc]="doc"></meta-data-doc>
-
-      <!-- 2 COLUMNAS: Izquierda (Asunto + CCP), Derecha (Anexos) -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
-        
-        <!-- COLUMNA IZQUIERDA: Asunto y CCP -->
-        <div class="space-y-6">
-          <!-- Asunto y Tema ampliado -->
-          <div class="space-y-2 bg-white dark:bg-gray-900 shadow-sm p-4 rounded-xl border border-gray-150 dark:border-gray-800 relative group">
-            
-            <!-- Botón del lapicito azul para editar -->
-            @if (canEditDetails() && !isEditingDetails()) {
-              <action-button 
-                variant="outline"
-                size="sm"
-                [iconOnly]="true"
-                icon="LapizSolid"
-                title="Editar Tema y Asunto"
-                class="absolute top-2 right-2 shadow-theme-xs !border-transparent hover:!border-blue-100"
-                (clicked)="startEditingDetails()">
-              </action-button>
-            }
-
-            @if (!isEditingDetails()) {
-              @if (doc.tema) { 
-                <div class="flex">
-                  <app-badge variant="light" color="secondary" size="sm">Tema: {{ doc.tema }}</app-badge>
-                </div>
-              }
-              <div class="space-y-1">
-                <span class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Asunto</span>
-                <p class="text-base font-extrabold text-gray-800 leading-snug"> {{ doc.asunto }} </p>
-              </div>
-            } @else {
-              <!-- Formulario de Edición Directa -->
-              <div class="space-y-3 pt-1">
-                <div class="flex flex-col gap-1.5">
-                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Tema del Documento</label>
-                  <div class="relative w-full">
-                    <input 
-                      #detailTemaInput
-                      type="text" 
-                      list="detailTemasList"
-                      [(ngModel)]="editTema"
-                      [ngModelOptions]="{standalone: true}"
-                      (click)="detailTemaInput.showPicker()"
-                      placeholder="Escribe o selecciona un tema"
-                      class="w-full pl-3 pr-8 py-2 bg-white hover:bg-gray-50 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-lg text-xs font-semibold text-gray-700 outline-none transition-all cursor-pointer" />
-                    <div 
-                      class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-gray-400">
-                      <icon icon="FlechaAbajo" class="h-3.5 w-3.5"></icon>
-                    </div>
-                  </div>
-                  <datalist id="detailTemasList">
-                    @for (t of temasList(); track t) {
-                      <option [value]="t"></option>
-                    }
-                  </datalist>
-                </div>
-
-                <div class="flex flex-col gap-1.5">
-                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Asunto del Documento</label>
-                  <textarea 
-                    rows="3"
-                    [(ngModel)]="editAsunto"
-                    [ngModelOptions]="{standalone: true}"
-                    placeholder="Escribe el asunto"
-                    class="w-full px-3 py-2 bg-white hover:bg-gray-50 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-lg text-xs font-semibold text-gray-700 outline-none transition-all resize-y"></textarea>
-                </div>
-
-                <div class="flex justify-end gap-2 pt-1">
-                  <action-button 
-                    variant="outline" 
-                    size="sm" 
-                    label="Cancelar"
-                    [disabled]="isSavingDetails()"
-                    (clicked)="cancelEditingDetails()">
-                  </action-button>
-                  <action-button 
-                    variant="info" 
-                    size="sm" 
-                    [label]="isSavingDetails() ? 'Guardando...' : 'Guardar'"
-                    [disabled]="isSavingDetails() || !editAsunto.trim()"
-                    (clicked)="saveDetails()">
-                  </action-button>
-                </div>
-              </div>
-            }
-          </div>
-
-          <!-- SECCIÓN DE C.C.P. (Con Copia Para) REGISTRADOS -->
-          <doc-ccp-list [doc]="doc"></doc-ccp-list>
-        </div>
-
-        <!-- COLUMNA DERECHA: Anexos -->
-        <div class="h-full">
-          <!-- SECCIÓN DE ANEXOS / EVIDENCIAS REGISTRADOS -->
-          <doc-attachments-list
-            [(attachments)]="selectedDocAttachments"
-            [isLoading]="isLoadingSelectedDocAttachments()"
-            [isConsolidated]="doc?.is_final_render"
-            (onView)="handleAttachmentView($event)"
-            (onDelete)="handleAttachmentDelete($event)"
-            (onReorder)="handleAttachmentReorder($event)"
-            (onDownload)="handleAttachmentDownload($event)">
-          </doc-attachments-list>
-        </div>
-      </div>
+    <!-- Tabs Navigation -->
+    <div class="flex border-b border-gray-200 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
+      <button type="button" 
+              (click)="selectedTab.set('detalles')" 
+              [class.border-theme-primary]="selectedTab() === 'detalles'" 
+              [class.text-theme-primary]="selectedTab() === 'detalles'" 
+              [class.dark:text-white]="selectedTab() === 'detalles'" 
+              class="py-3 px-5 font-bold text-sm border-b-2 transition-colors border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        Detalles
+      </button>
+      <button type="button" 
+              (click)="selectedTab.set('historial')" 
+              [class.border-theme-primary]="selectedTab() === 'historial'" 
+              [class.text-theme-primary]="selectedTab() === 'historial'" 
+              [class.dark:text-white]="selectedTab() === 'historial'" 
+              class="py-3 px-5 font-bold text-sm border-b-2 transition-colors border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        Historial de Trazabilidad
+      </button>
     </div>
 
-    <!-- Comentarios de Observaciones / Correcciones -->
-    @if (doc.comentarios) {
-      <hr class="border-gray-150 my-4" />
-      <globe type="warning" title="OBSERVACIONES / MOTIVOS DE CORRECCIÓN">
-        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 italic whitespace-pre-line leading-relaxed">"{{ doc.comentarios }}"</p>
+    @if (selectedTab() === 'detalles') {
+      <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+        
+        <!-- Metadatos del documento -->
+        <meta-data-doc [doc]="doc"></meta-data-doc>
 
-        <!-- Botones de Acción sobre Comentarios (OK y X) -->
-        <div actions class="flex items-center gap-1.5">
-          <button-ok [loading]="isCommentsLoading()" (clicked)="deleteComments('ok')"></button-ok>
-          <button-x [loading]="isCommentsLoading()" (clicked)="deleteComments('x')"></button-x>
+        <!-- 2 COLUMNAS: Izquierda (Asunto + CCP), Derecha (Anexos) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
+          
+          <!-- COLUMNA IZQUIERDA: Asunto y CCP -->
+          <div class="space-y-6">
+            <!-- Asunto y Tema ampliado -->
+            <div class="space-y-2 bg-white dark:bg-gray-900 shadow-sm p-4 rounded-xl border border-gray-150 dark:border-gray-800 relative group">
+              
+              <!-- Botón del lapicito azul para editar -->
+              @if (canEditDetails() && !isEditingDetails()) {
+                <action-button 
+                  variant="outline"
+                  size="sm"
+                  [iconOnly]="true"
+                  icon="LapizSolid"
+                  title="Editar Tema y Asunto"
+                  class="absolute top-2 right-2 shadow-theme-xs !border-transparent hover:!border-blue-100"
+                  (clicked)="startEditingDetails()">
+                </action-button>
+              }
+
+              @if (!isEditingDetails()) {
+                @if (doc.temas) { 
+                  <div class="flex">
+                    <app-badge variant="light" color="secondary" size="sm" icon="Etiqueta" text="Tema"></app-badge>
+                    <span class="ml-2 mt-0.5 text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">{{ doc.temas }}</span>
+                  </div>
+                }
+                
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white leading-relaxed">
+                  {{ doc.asunto }}
+                </h4>
+              } @else {
+                <div class="flex flex-col gap-3 pt-2">
+                  <app-topic [(ngModel)]="editTemas" [ngModelOptions]="{standalone: true}"></app-topic>
+                  
+                  <div class="space-y-1">
+                    <label class="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">Asunto</label>
+                    <textarea 
+                      [(ngModel)]="editAsunto" 
+                      rows="3" 
+                      class="w-full text-sm font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg p-2.5 focus:ring-2 focus:ring-theme-primary focus:border-theme-primary outline-none transition-all">
+                    </textarea>
+                  </div>
+
+                  <div class="flex justify-end gap-2 mt-1">
+                    <action-button variant="ghost" size="sm" (clicked)="cancelEditingDetails()">Cancelar</action-button>
+                    <action-button variant="primary" size="sm" [loading]="isSavingDetails()" (clicked)="saveDetails()">Guardar Cambios</action-button>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- CCP Component -->
+            <doc-ccp-list [doc]="doc"></doc-ccp-list>
+          </div>
+
+          <!-- COLUMNA DERECHA: Anexos -->
+          <div class="h-full">
+            <!-- SECCIÓN DE ANEXOS / EVIDENCIAS REGISTRADOS -->
+            <doc-attachments-list
+              [(attachments)]="selectedDocAttachments"
+              [isLoading]="isLoadingSelectedDocAttachments()"
+              [isConsolidated]="doc?.is_final_render"
+              (onView)="handleAttachmentView($event)"
+              (onDelete)="handleAttachmentDelete($event)"
+              (onReorder)="handleAttachmentReorder($event)"
+              (onDownload)="handleAttachmentDownload($event)">
+            </doc-attachments-list>
+          </div>
         </div>
-      </globe>
+      </div>
+
+      <!-- Comentarios de Observaciones / Correcciones -->
+      @if (doc.comentarios) {
+        <div class="px-6 pb-6">
+          <hr class="border-gray-150 my-4" />
+          <globe type="warning" title="OBSERVACIONES / MOTIVOS DE CORRECCIÓN">
+            <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 italic whitespace-pre-line leading-relaxed">"{{ doc.comentarios }}"</p>
+
+            <!-- Botones de Acción sobre Comentarios (OK y X) -->
+            <div actions class="flex items-center gap-1.5">
+              <button-ok [loading]="isCommentsLoading()" (clicked)="deleteComments('ok')"></button-ok>
+              <button-x [loading]="isCommentsLoading()" (clicked)="deleteComments('x')"></button-x>
+            </div>
+          </globe>
+        </div>
+      }
+
+      <!-- Instrucciones de Asignación / Derivación (Turnado) -->
+      @if (doc.instruccion) {
+        <div class="px-6 pb-6">
+          <hr class="border-gray-150 my-4" />
+          <globe type="info" title="INSTRUCCIONES DE ASIGNACIÓN / TAREA">
+            @if (doc.turnado_a_nombre) {
+              <span class="text-[10px] font-bold text-indigo-700/80 dark:text-indigo-300 block mb-1">
+                Asignado a: {{ doc.turnado_a_nombre }}
+              </span>
+            }
+            <p class="text-sm font-semibold text-gray-750 dark:text-gray-300 italic whitespace-pre-line leading-relaxed">
+              "{{ doc.instruccion }}"
+            </p>
+          </globe>
+        </div>
+      }
+
+      <!-- Trazabilidad / Enlaces del Historial ("Elefantitos") -->
+      <div class="px-6 pb-6">
+        <doc-history-links [doc]="doc"></doc-history-links>
+      </div>
+
     }
-
-    <!-- Instrucciones de Asignación / Derivación (Turnado) -->
-    @if (doc.instruccion) {
-      <hr class="border-gray-150 my-4" />
-      <globe type="info" title="INSTRUCCIONES DE ASIGNACIÓN / TAREA">
-        @if (doc.turnado_a_nombre) {
-          <span class="text-[10px] font-bold text-indigo-700/80 dark:text-indigo-300 block mb-1">
-            Asignado a: {{ doc.turnado_a_nombre }}
-          </span>
-        }
-        <p class="text-sm font-semibold text-gray-750 dark:text-gray-300 italic whitespace-pre-line leading-relaxed">
-          "{{ doc.instruccion }}"
-        </p>
-      </globe>
-    }
-
-
-    <!-- Trazabilidad / Enlaces del Historial ("Elefantitos") -->
-    <doc-history-links [doc]="doc"></doc-history-links>
 
     <!-- SECCIÓN DE ACCIONES OFICIALES -->
-    <div class="space-y-4">
-
+    <div class="space-y-4 px-6 pb-6 mt-4">
       <!-- FORMULARIOS EXPANDIBLES PARA CAPTURA DE DTO -->
       <doc-action-forms #actionForms
         [doc]="doc"
@@ -227,8 +219,67 @@
         [(selectedDocAttachments)]="selectedDocAttachments"
         (actionCompleted)="actionCompleted.emit()">
       </doc-action-forms>
-
     </div>
+
+    @if (selectedTab() === 'historial') {
+      <div class="p-6 flex-1 overflow-y-auto">
+        <div class="max-w-3xl mx-auto">
+          <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Historial de Trazabilidad</h3>
+          
+          @if (isLoadingLogs()) {
+            <div class="flex justify-center p-8">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-theme-primary"></div>
+            </div>
+          } @else if (docLogs().length === 0) {
+            <div class="text-center p-8 text-gray-500 dark:text-gray-400">
+              <icon icon="Reloj" class="w-12 h-12 mx-auto mb-3 opacity-20"></icon>
+              <p>No hay historial de acciones registrado para este documento.</p>
+            </div>
+          } @else {
+            <!-- Timeline -->
+            <div class="relative border-l-2 border-gray-200 dark:border-gray-700 ml-4 space-y-8">
+              @for (log of docLogs(); track log.id) {
+                <div class="relative pl-8">
+                  <!-- Timeline point -->
+                  <div class="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-theme-primary ring-4 ring-white dark:ring-gray-900"></div>
+                  
+                  <!-- Content -->
+                  <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                      <span class="font-bold text-sm text-gray-900 dark:text-white">
+                        {{ log.action }}
+                      </span>
+                      <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 sm:mt-0 font-medium">
+                        {{ log.created_at | date:'dd/MMM/yyyy HH:mm' }}
+                      </span>
+                    </div>
+                    
+                    @if (log.details) {
+                      <p class="text-sm text-gray-600 dark:text-gray-300 mt-1 whitespace-pre-line">{{ log.details }}</p>
+                    }
+
+                    @if (log.user?.employee?.person) {
+                      <div class="mt-3 flex items-center gap-2 pt-3 border-t border-gray-50 dark:border-gray-700">
+                        <div class="w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[10px] font-bold text-gray-600 dark:text-gray-300">
+                          {{ log.user.employee.person.name.charAt(0) }}
+                        </div>
+                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">
+                          {{ log.user.employee.person.name }} {{ log.user.employee.person.first_surname }} {{ log.user.employee.person.second_surname || '' }}
+                        </span>
+                      </div>
+                    } @else if (log.user) {
+                      <div class="mt-3 text-xs text-gray-500 border-t border-gray-50 dark:border-gray-700 pt-2">
+                        Usuario ID: {{ log.user_id }}
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
 
   </div>
 }

@@ -1,4 +1,5 @@
 import { Component, OnInit, inject, signal, computed, effect, input } from '@angular/core';
+import { BehaviorSubject, combineLatest, firstValueFrom } from 'rxjs';
 import { ActionButtonComponent } from '@metasystem/components/buttons/action-button/action-button.component';
 import { IconComponent } from '@system-shared/common/icon/icon.component';
 import { ListboxOption } from '@system-shared/form/listbox/base-listbox.directive';
@@ -8,8 +9,9 @@ import { FormsModule                  } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { DocumentService              } from '../../services/document.service';
-import { AreaService                  } from '@organization/areas/area.service';
-import { AreaDTO                      } from '@organization/areas/area.dto';
+import { AreaService } from '@organization/areas/area.service';
+import { AreaDTO } from '@organization/areas/area.dto';
+import { InternalTemplatesService, InternalTemplateDTO } from '../../../../database/templates/internal-templates.service';
 import { AdscriptionService           } from '@rh/adscriptions/adscription.service';
 import { DocumentTemplateService      } from '@security/templates/document-template.service';
 import { EmployeeService              } from '@rh/employees/employee.service';
@@ -38,13 +40,17 @@ import { LocalRoutePipe               } from '@core/routing/local-route.pipe';
 import { LOCAL_ROUTE_KEYS             } from '@core/routing/local-routes.config';
 import { ExternalContactSelectComponent } from '@workspace-shared/components/selects/external-contact-select/external-contact-select.component';
 
+import { TopicComponent } from '@system-shared/form/topic/topic.component';
+import { TemplateManagerComponent } from '@workspace-shared/components/template-manager/template-manager.component';
+
 @Component({
   selector: 'app-form-new-page',
   standalone: true,
   imports: [ CommonModule, FormsModule, RouterLink, ClaseDocumentPipe, PageBreadcrumbComponent, AreaSelectComponent,
     EmployeeSelectComponent, ProjectSelectComponent, PartidaSelectComponent, SupplierSelectComponent, CarSelectComponent,
     DocumentTypeSelectComponent, DocumentAttachmentsComponent, DatePickerComponent, SubmitButtonComponent, CancelButtonComponent,
-    JobPositionSelectComponent, LocalRoutePipe, ExternalContactSelectComponent, IconComponent, ActionButtonComponent],
+    JobPositionSelectComponent, LocalRoutePipe, ExternalContactSelectComponent, IconComponent, ActionButtonComponent, TopicComponent, TemplateManagerComponent
+  ],
   templateUrl: './form-new-page.component.html',
 })
 export class FormNewPageComponent implements OnInit {
@@ -96,15 +102,16 @@ export class FormNewPageComponent implements OnInit {
 
   // Plantilla & Textos
   idTemplate = signal<string>('');
-  tema = signal<string>('');
+  temas = signal<string>('');
   temasList = signal<string[]>([]);
   asunto = signal<string>('');
   cuerpo = signal<string>('');
 
-  // Listas de catálogos para campos dinámicos (proyectos, partidas, proveedores, vehículos cargan internamente)
-  internalTemplatesList = signal<any[]>([]);
+  // Listas de catálogos para campos dinámicos
+  internalTemplatesList = signal<InternalTemplateDTO[]>([]);
+  selectedInternalTemplateId = signal<string>('');
 
-  // Objetos y selecciones activas para campos dinámicos
+  // Objetos y selecciones activas para campos dinÃ¡micos
   selectedProjectObj = signal<any>(null);
   selectedPartidaObj = signal<any>(null);
   selectedSupplierObj = signal<any>(null);
@@ -117,16 +124,17 @@ export class FormNewPageComponent implements OnInit {
 
   selectedMonth = signal<string>('Enero');
   customSupplierAddress = signal<string>('');
-  selectedInternalTemplateId = signal<string>('');
+
   selectedProjectDate = signal<string>(new Date().toISOString().substring(0, 10));
 
-  // Campos libres de la pestaña 'libre'
+  // Campos libres de la pestaÃ±a 'libre'
   customEventName = signal<string>('');
   customEventPlace = signal<string>('');
   customInvoice = signal<string>('');
   customMonto = signal<string>('');
+  customFecha = signal<string>(new Date().toISOString().substring(0, 10));
 
-  // Visibilidad de bloques de campos dinámicos
+  // Visibilidad de bloques de campos dinÃ¡micos
   showProjectFields = signal<boolean>(false);
   showPartidaFields = signal<boolean>(false);
   showMonthFields = signal<boolean>(false);
@@ -138,12 +146,16 @@ export class FormNewPageComponent implements OnInit {
   showEventPlaceFields = signal<boolean>(false);
   showInvoiceFields = signal<boolean>(false);
   showMontoFields = signal<boolean>(false);
+  showFechaFields = signal<boolean>(false);
 
-  // Pestaña activa del panel lateral
-  activeFieldsTab = signal<'proyecto' | 'proveedor' | 'vehiculo' | 'libre' | 'personalizados'>('proyecto');
+  private internalTemplateService = inject(InternalTemplatesService);
+
+  // PestaÃ±a activa del panel lateral
+  activeFieldsTab = signal<'proyecto' | 'proveedor' | 'vehiculo' | 'evento' | 'personalizados' | 'general'>('proyecto');
 
   // Control para guardar plantilla
   showSaveTemplatePopover = signal<boolean>(false);
+  showTemplateManager = signal<boolean>(false);
   newTemplateName = signal<string>('');
   isSavingTemplate = signal<boolean>(false);
 
@@ -189,7 +201,7 @@ export class FormNewPageComponent implements OnInit {
     dict['__partida_clave__'] = part ? part.partida : '';
     dict['__partida_desc__'] = part ? part.descripcion : '';
     
-    // Mes de ministración
+    // Mes de ministraciÃ³n
     dict['__mes_ministracion__'] = this.selectedMonth();
     
     // Proveedor seleccionado
@@ -198,7 +210,7 @@ export class FormNewPageComponent implements OnInit {
     dict['__provider_rfc__'] = sup ? sup.rfc : '';
     dict['__provider_address__'] = this.customSupplierAddress();
     
-    // Vehículo seleccionado
+    // VehÃ­culo seleccionado
     const car = this.selectedCarObj();
     dict['__vehicle_brand__'] = car ? car.marca : '';
     dict['__vehicle_model__'] = car ? car.modelo : '';
@@ -225,14 +237,14 @@ export class FormNewPageComponent implements OnInit {
   });
 
   /**
-   * Helper para formatear fechas de proyecto en español
+   * Helper para formatear fechas de proyecto en espaÃ±ol
    */
   formatProjectDate(dateStr: string, type: 'with_day' | 'full' | 'compact'): string {
     if (!dateStr) return '';
     const date = new Date(dateStr + 'T12:00:00'); // Evitar desfase de zona horaria
     if (isNaN(date.getTime())) return '';
 
-    const days = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+    const days = ['domingo', 'lunes', 'martes', 'miÃ©rcoles', 'jueves', 'viernes', 'sÃ¡bado'];
     const months = [
       'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
       'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
@@ -259,7 +271,7 @@ export class FormNewPageComponent implements OnInit {
   }
 
   /**
-   * Formatea un número en formato moneda ($12,345.67)
+   * Formatea un nÃºmero en formato moneda ($12,345.67)
    */
   formatCurrency(valStr: string): string {
     const val = parseFloat(valStr);
@@ -270,7 +282,7 @@ export class FormNewPageComponent implements OnInit {
   }
 
   /**
-   * Convierte un número en letras (español) para importes en pesos
+   * Convierte un nÃºmero en letras (espaÃ±ol) para importes en pesos
    */
   numeroALetras(num: number): string {
     return numeroALetras(num);
@@ -303,12 +315,7 @@ export class FormNewPageComponent implements OnInit {
     }));
   });
 
-  internalTemplatesListboxOptions = computed<ListboxOption[]>(() => {
-    return this.internalTemplatesList().map((t: any) => ({
-      value: t.id,
-      label: t.name
-    }));
-  });
+
 
   constructor() {
     effect(() => {
@@ -316,11 +323,14 @@ export class FormNewPageComponent implements OnInit {
       const clase = this.claseDocumentoId();
       const adscription = this._session.activeAdscription();
       this.loadDynamicFieldsCatalogs();
+      if (clase && adscription?.id_area) {
+        this.loadInternalTemplatesList(clase, adscription.id_area);
+      }
     });
 
     effect(() => {
       const areaId = this.idAreaEmisora();
-      console.log('🔍 [DEBUG] Effect idAreaEmisora changed to:', areaId);
+      console.log('ðŸ”  [DEBUG] Effect idAreaEmisora changed to:', areaId);
       if (areaId) {
         this.loadTemas(areaId);
       } else {
@@ -330,13 +340,13 @@ export class FormNewPageComponent implements OnInit {
   }
 
   async loadTemas(areaId: string) {
-    console.log('🔍 [DEBUG] loadTemas started for areaId:', areaId);
+    console.log('ðŸ” [DEBUG] loadTemas started for areaId:', areaId);
     try {
       const list = await this._areaService.getTemas(areaId);
-      console.log('🔍 [DEBUG] loadTemas fetched list:', list);
+      console.log('ðŸ” [DEBUG] loadTemas fetched list:', list);
       this.temasList.set(list || []);
     } catch (e) {
-      console.warn('🔍 [DEBUG] GET /organization/areas/:id/temas not implemented or failed:', e);
+      console.warn('ðŸ” [DEBUG] GET /organization/areas/:id/temas not implemented or failed:', e);
       this.temasList.set([]);
     }
   }
@@ -364,7 +374,7 @@ export class FormNewPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Suscribirse a parámetros de ruta para la clase de documento
+    // Suscribirse a parÃ¡metros de ruta para la clase de documento
     this._route.params.subscribe(params => {
       if (params['claseDocumentoId']) {
         this.claseDocumentoId.set(params['claseDocumentoId']);
@@ -372,7 +382,7 @@ export class FormNewPageComponent implements OnInit {
       this.loadTemplates();
     });
 
-    // Cargar catálogos iniciales
+    // Cargar catÃ¡logos iniciales
     this.loadAreas();
     this.loadJobPositions();
     this.loadDynamicFieldsCatalogs();
@@ -388,27 +398,40 @@ export class FormNewPageComponent implements OnInit {
   }
 
   /**
-   * Carga catálogos dinámicos
+   * Carga catÃ¡logos dinÃ¡micos
    */
   async loadDynamicFieldsCatalogs() {
     // Ya no se usan plantillas internas
   }
 
+  async loadInternalTemplatesList(clase: string, areaId: string) {
+    try {
+      const res = await this.internalTemplateService.getAll({
+        tipo_documento: clase, area_id: areaId
+      });
+      this.internalTemplatesList.set(res.data || []);
+      this.selectedInternalTemplateId.set(''); // reset selection
+    } catch (e) {
+      console.error('Error cargando plantillas internas:', e);
+      this.internalTemplatesList.set([]);
+    }
+  }
+
   /**
-   * Carga todas las áreas organizacionales
+   * Carga todas las Ã¡reas organizacionales
    */
   async loadAreas() {
     try {
       const res = await this._areaService.getAll();
       this.allAreas.set(res.data || []);
     } catch (err) {
-      console.error('Error al cargar catálogo de áreas:', err);
+      console.error('Error al cargar catÃ¡logo de Ã¡reas:', err);
     }
     try {
       const res = await this._employeeService.getAll({ plain: true });
       this.allEmployees.set(res.data || []);
     } catch (err) {
-      console.error('Error al cargar catálogo de empleados:', err);
+      console.error('Error al cargar catÃ¡logo de empleados:', err);
     }
   }
 
@@ -429,7 +452,7 @@ export class FormNewPageComponent implements OnInit {
       );
       this.allJobPositions.set(res || []);
     } catch (err) {
-      console.error('Error al cargar catálogo de puestos:', err);
+      console.error('Error al cargar catÃ¡logo de puestos:', err);
     } finally {
       this.isJobPositionsLoading.set(false);
     }
@@ -445,7 +468,7 @@ export class FormNewPageComponent implements OnInit {
       // Si se selecciona "Todo el personal", limpia cualquier otro puesto
       this.circularDestinatariosPuestos.set([jp]);
     } else {
-      // Si se selecciona un puesto específico, quita "Todo el personal" si estuviera seleccionado
+      // Si se selecciona un puesto especÃ­fico, quita "Todo el personal" si estuviera seleccionado
       this.circularDestinatariosPuestos.update(list => {
         const filtered = list.filter(item => item.id !== 'ALL_EMPLOYES');
         if (!filtered.some(item => item.id === jp.id)) {
@@ -479,26 +502,26 @@ export class FormNewPageComponent implements OnInit {
         }
       }, 300);
     } catch (err) {
-      console.error('Error al cargar catálogo de plantillas:', err);
+      console.error('Error al cargar catÃ¡logo de plantillas:', err);
     }
   }
 
   /**
-   * Carga los datos del titular del área base activa
+   * Carga los datos del titular del Ã¡rea base activa
    */
   async loadDirectoRemitente() {
     const activeAds = this._session.activeAdscription();
-    console.log('🔍 [DEBUG] activeAdscription from session:', activeAds);
+    console.log('ðŸ” [DEBUG] activeAdscription from session:', activeAds);
     const areaBaseId = activeAds?.id_area_base || activeAds?.id_area;
-    console.log('🔍 [DEBUG] resolved areaBaseId:', areaBaseId);
+    console.log('ðŸ” [DEBUG] resolved areaBaseId:', areaBaseId);
     if (!areaBaseId) return;
 
     try {
       const res = await this._adscriptionService.getByArea(areaBaseId);
       const adscriptions = res.data || [];
-      console.log('🔍 [DEBUG] adscriptions resolved:', adscriptions);
+      console.log('ðŸ” [DEBUG] adscriptions resolved:', adscriptions);
       const head = adscriptions.find((a: any) => a.is_head || a.is_in_charge) || adscriptions[0];
-      console.log('🔍 [DEBUG] selected head:', head);
+      console.log('ðŸ” [DEBUG] selected head:', head);
       if (head) {
         this.idAreaEmisora.set(areaBaseId);
         this.idRemitente.set(head.employee_id);
@@ -512,7 +535,7 @@ export class FormNewPageComponent implements OnInit {
   }
 
   /**
-   * Carga los datos del titular del área seleccionada (Bajo gestión)
+   * Carga los datos del titular del Ã¡rea seleccionada (Bajo gestiÃ³n)
    */
   async onGestionadoAreaChange(area: AreaDTO | string, targetEmployeeId?: string) {
     const areaId = typeof area === 'string' ? area : (area?.id || '');
@@ -545,7 +568,7 @@ export class FormNewPageComponent implements OnInit {
   }
 
   /**
-   * Carga los datos del destinatario al seleccionar un área interna (Memo / TI / Oficio Oficial)
+   * Carga los datos del destinatario al seleccionar un Ã¡rea interna (Memo / TI / Oficio Oficial)
    */
   async onDestinatarioAreaChange(area: AreaDTO | string, targetEmployeeId?: string) {
     const areaId = typeof area === 'string' ? area : (area?.id || '');
@@ -570,7 +593,7 @@ export class FormNewPageComponent implements OnInit {
         this.destinatarioPuesto.set(match.resolvedJobPosition);
       }
     } catch (err) {
-      console.error('Error cargando destinatario de área:', err);
+      console.error('Error cargando destinatario de Ã¡rea:', err);
     }
   }
 
@@ -590,7 +613,7 @@ export class FormNewPageComponent implements OnInit {
   isCcpEmployeesLoading = signal<boolean>(false);
 
   /**
-   * Carga los empleados de un área para los selectores de C.C.P.
+   * Carga los empleados de un Ã¡rea para los selectores de C.C.P.
    */
   async onCcpAreaChange(area: AreaDTO | string, forceRefresh = false) {
     const areaId = typeof area === 'string' ? area : (area?.id || '');
@@ -721,7 +744,7 @@ export class FormNewPageComponent implements OnInit {
     if (draftId && actionType) {
       this.isLoading.set(true);
       try {
-        // Asegurar que las áreas globales estén cargadas antes de procesar CCP
+        // Asegurar que las Ã¡reas globales estÃ©n cargadas antes de procesar CCP
         if (this.allAreas().length === 0) {
           const res = await this._areaService.getAll();
           this.allAreas.set(res.data || []);
@@ -736,7 +759,7 @@ export class FormNewPageComponent implements OnInit {
         if (draft) {
           this.asunto.set(draft.asunto || '');
           this.cuerpo.set(draft.cuerpo || '');
-          this.tema.set(draft.tema || '');
+          this.temas.set(draft.temas || '');
           
           if (draft.id_area_emisora) {
             const activeAdscription = this._session.activeAdscription();
@@ -784,12 +807,12 @@ export class FormNewPageComponent implements OnInit {
         }
       } catch (error) {
         console.error('Error al cargar el borrador del documento original:', error);
-        alert('Ocurrió un error al precargar el borrador del documento original.');
+        alert('OcurriÃ³ un error al precargar el borrador del documento original.');
       } finally {
         this.isLoading.set(false);
       }
     } else {
-      // Inicialización regular si no es respuesta/seguimiento
+      // InicializaciÃ³n regular si no es respuesta/seguimiento
       if (this.claseDocumentoId() === 'circular') {
         this.destinatarioTextoLibre.set('Directores, Subsecretarios y Jefes de Departamento');
       }
@@ -797,7 +820,7 @@ export class FormNewPageComponent implements OnInit {
   }
 
   /**
-   * Estandariza el nombre formateado de un área
+   * Estandariza el nombre formateado de un Ã¡rea
    */
   getAreaFormattedName(area: any): string {
     if (!area) return '';
@@ -812,7 +835,7 @@ export class FormNewPageComponent implements OnInit {
   }
 
   /**
-   * Obtiene la descripción formal del puesto con sensibilidad de género si aplica
+   * Obtiene la descripciÃ³n formal del puesto con sensibilidad de gÃ©nero si aplica
    */
   getResolvedJobPosition(ads: any, sex = ''): string {
     if (!ads) return 'Colaborador';
@@ -826,12 +849,12 @@ export class FormNewPageComponent implements OnInit {
   }
 
   /**
-   * Envía el formulario para crear el documento en base de datos y generar Drive
+   * EnvÃ­a el formulario para crear el documento en base de datos y generar Drive
    */
   async onSubmit() {
     const solicitanteId = this._session.currentUserData()?.id_empleado;
     if (!solicitanteId) {
-      alert('Sesión inválida. Debe estar autenticado.');
+      alert('SesiÃ³n invÃ¡lida. Debe estar autenticado.');
       return;
     }
 
@@ -860,7 +883,7 @@ export class FormNewPageComponent implements OnInit {
       id_area_emisora: this._session.activeAdscription()?.id_area || this.idAreaEmisora(),
       id_area_remitente: this.idAreaEmisora(),
       asunto: this.asunto().trim(),
-      tema: this.tema().trim(),
+      temas: this.temas().trim(),
       cuerpo: this.cuerpo().trim(),
       body_dictionary: this.bodyDictionary(),
       ccp: this.ccps().map(c => ({
@@ -878,11 +901,11 @@ export class FormNewPageComponent implements OnInit {
 
     // Relaciones de seguimiento y respuestas se gestionan mediante endpoints especializados y UUIDs
 
-    // Validación y empaquetado del Destinatario según la clase
+    // ValidaciÃ³n y empaquetado del Destinatario segÃºn la clase
     const clase = this.claseDocumentoId();
     if (clase === 'memo' || clase === 'ti') {
       if (!this.idAreaReceptora()) {
-        alert('Debe seleccionar el área destinataria.');
+        alert('Debe seleccionar el Ã¡rea destinataria.');
         return;
       }
       payload.id_area_receptora = this.idAreaReceptora();
@@ -912,10 +935,10 @@ export class FormNewPageComponent implements OnInit {
       payload.destinatarios_circular = ids;
     }
 
-    // Inyección de metadatos desnormalizados para optimizar lecturas del Inbox
+    // InyecciÃ³n de metadatos desnormalizados para optimizar lecturas del Inbox
     const metadatos: any = {};
 
-    // 1. Solicitante (usuario logueado en sesión)
+    // 1. Solicitante (usuario logueado en sesiÃ³n)
     const user = this._session.currentUserData();
     const pers = user?.datos_personales;
     const ads = this._session.activeAdscription();
@@ -936,7 +959,7 @@ export class FormNewPageComponent implements OnInit {
       }
     }
 
-    // 3. Áreas emisora y remitente
+    // 3. Ãreas emisora y remitente
     if (this.idAreaEmisora()) {
       const emisoraObj = this.allAreas().find(a => a.id === this.idAreaEmisora());
       if (emisoraObj) {
@@ -946,7 +969,7 @@ export class FormNewPageComponent implements OnInit {
       }
     }
 
-    // 4. Área receptora y destinatario interno (Memos, Tarjetas Informativas u Oficio Oficial si aplica)
+    // 4. Ãrea receptora y destinatario interno (Memos, Tarjetas Informativas u Oficio Oficial si aplica)
     if (clase === 'memo' || clase === 'ti' || (clase === 'oficio' && this.tipoDestinatarioOficio() === 'oficial')) {
       if (this.idAreaReceptora()) {
         const receptoraObj = this.allAreas().find(a => a.id === this.idAreaReceptora());
@@ -964,7 +987,7 @@ export class FormNewPageComponent implements OnInit {
       }
     }
 
-    // 4.1. Circular: Nombres de los puestos a los que se les envió la circular
+    // 4.1. Circular: Nombres de los puestos a los que se les enviÃ³ la circular
     if (clase === 'circular') {
       const postsNames = this.circularDestinatariosPuestos().map(jp => 
         jp.id === 'ALL_EMPLOYES' ? 'Todo el personal' : (jp.name_plural || jp.name)
@@ -997,8 +1020,8 @@ export class FormNewPageComponent implements OnInit {
         await this._documentService.create(payload);
       }
 
-      // Guardar el tema si es nuevo
-      const newTema = this.tema().trim();
+      // Guardar el temas si es nuevo
+      const newTema = this.temas().trim();
       const areaId = this.idAreaEmisora();
       if (newTema && areaId && !this.temasList().includes(newTema)) {
         try {
@@ -1008,13 +1031,18 @@ export class FormNewPageComponent implements OnInit {
         }
       }
 
-      this._localRoute.go(this.ROUTES.DOCUMENT_DETAIL, { id: this.claseDocumentoId() }, { bandeja: '✏️ En edición' });
+      this._router.navigate([`/operatividad/documento/${this.claseDocumentoId()}`], {
+        queryParams: {
+          tipo: this.tipoRemitente(),
+          bandeja: '✏️ En edición'
+        }
+      });
     } catch (error: any) {
       console.error('Error al guardar documento:', error);
       alert(
         error?.error?.message || 
         error?.message || 
-        'Ocurrió un error al intentar crear el documento y clonarlo en Drive.'
+        'OcurriÃ³ un error al intentar crear el documento y clonarlo en Drive.'
       );
     } finally {
       this.isLoading.set(false);
@@ -1022,7 +1050,7 @@ export class FormNewPageComponent implements OnInit {
   }
 
   /**
-   * Inserta una etiqueta en la posición actual del cursor dentro del cuerpo
+   * Inserta una etiqueta en la posiciÃ³n actual del cursor dentro del cuerpo
    */
   insertTag(tag: string) {
     const textarea = document.getElementById('document-body-textarea') as HTMLTextAreaElement;
@@ -1044,15 +1072,14 @@ export class FormNewPageComponent implements OnInit {
     });
   }
 
-  /**
-   * Carga una plantilla interna seleccionada en el cuerpo
-   */
+
+
   loadInternalTemplate(templateId: string) {
     this.selectedInternalTemplateId.set(templateId);
     if (!templateId) return;
     const temp = this.internalTemplatesList().find(t => t.id === templateId);
     if (temp) {
-      this.cuerpo.set(temp.body);
+      this.cuerpo.set(temp.content || '');
     }
   }
 
@@ -1060,7 +1087,30 @@ export class FormNewPageComponent implements OnInit {
    * (Deprecado) Guarda el cuerpo actual como plantilla interna
    */
   async saveAsInternalTemplate() {
-    alert('Esta función ha sido desactivada.');
+    if (!this.newTemplateName().trim()) return;
+    this.isSavingTemplate.set(true);
+    try {
+      const templateData = {
+        name: this.newTemplateName(),
+        content: this.cuerpo() || '',
+        document_class: this.claseDocumentoId(),
+        area_id: this._session.activeAdscription()?.id_area,
+        active: true
+      };
+      
+      await this.internalTemplateService.create(templateData);
+      
+      this.showSaveTemplatePopover.set(false);
+      this.newTemplateName.set('');
+    } catch (e) {
+      console.error('Failed to save template', e);
+    } finally {
+      this.isSavingTemplate.set(false);
+    }
+  }
+
+  onUseTemplate(tpl: any) {
+    this.cuerpo.set(tpl.content || '');
   }
 
   onPersonalFieldValueChange(fieldName: string, value: string) {
@@ -1085,11 +1135,11 @@ export class FormNewPageComponent implements OnInit {
     if (!fieldName) return;
     const activeAreaId = this._session.activeAdscription()?.id_area;
     if (!activeAreaId) {
-      alert('No se pudo determinar el área activa.');
+      alert('No se pudo determinar el Ã¡rea activa.');
       return;
     }
     if (this.activeAreaCustomFields().includes(fieldName)) {
-      alert('Este campo ya está registrado.');
+      alert('Este campo ya estÃ¡ registrado.');
       return;
     }
     try {
@@ -1102,3 +1152,4 @@ export class FormNewPageComponent implements OnInit {
     }
   }
 }
+

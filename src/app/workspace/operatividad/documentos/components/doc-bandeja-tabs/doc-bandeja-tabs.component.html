@@ -15,8 +15,7 @@
     @for (bandeja of bandejas; track $index) {
       <action-button 
         (clicked)="bandejaChange.emit(bandeja.name)"
-        [variant]="selectedBandeja === bandeja.name ? 'primary' : 'default'"
-        class="flex items-center gap-2 whitespace-nowrap shadow-sm">
+        [variant]="selectedBandeja === bandeja.name ? 'primary' : 'default'">
         <span>{{ bandeja.name }}</span>
         <span 
           [class]="selectedBandeja === bandeja.name ? 'bg-white/20 text-white dark:bg-white/10' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'"

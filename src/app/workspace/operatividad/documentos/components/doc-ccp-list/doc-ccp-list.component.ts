@@ -4,6 +4,7 @@ import { ActionButtonComponent } from '@system-shared/buttons/action-button/acti
 import { IconComponent } from '@system-shared/common/icon/icon.component';
 import { SectionCardComponent } from '@system-shared/ui/section-card/section-card.component';
 import { BadgeComponent } from '@system-shared/ui/badge/badge.component';
+import { copyToClipboard } from '@core/utils/clipboard.util';
 
 @Component({
   selector: 'doc-ccp-list',
@@ -31,15 +32,15 @@ export class DocCcpListComponent {
 
   copyCcpToClipboard(text: string) {
     if (!text) return;
-    navigator.clipboard.writeText(text).then(() => {
-      this.copiedCcpText.set(text);
-      setTimeout(() => {
-        if (this.copiedCcpText() === text) {
-          this.copiedCcpText.set(null);
-        }
-      }, 2000);
-    }).catch(err => {
-      console.error('Error al copiar al portapapeles:', err);
+    copyToClipboard(text).then((success: boolean) => {
+      if (success) {
+        this.copiedCcpText.set(text);
+        setTimeout(() => {
+          if (this.copiedCcpText() === text) {
+            this.copiedCcpText.set(null);
+          }
+        }, 2000);
+      }
     });
   }
 }

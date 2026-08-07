@@ -3,8 +3,7 @@
     
     <action-button 
       (clicked)="tipoChange.emit('directo')"
-      [variant]="selectedTipo === 'directo' ? 'primary' : 'ghost'"
-      class="flex items-center gap-2 whitespace-nowrap">
+      [variant]="selectedTipo === 'directo' ? 'primary' : 'ghost'">
       <icon icon="UsuarioUnico" class="w-3.5 h-3.5"></icon>
       <span>Directo</span>
       <span 
@@ -16,8 +15,7 @@
 
     <action-button 
       (clicked)="tipoChange.emit('gestionado')"
-      [variant]="selectedTipo === 'gestionado' ? 'primary' : 'ghost'"
-      class="flex items-center gap-2 whitespace-nowrap">
+      [variant]="selectedTipo === 'gestionado' ? 'primary' : 'ghost'">
       <icon icon="UsuariosGrupo" class="w-3.5 h-3.5"></icon>
       <span>Gestionado</span>
       <span 
@@ -29,8 +27,7 @@
 
     <action-button 
       (clicked)="tipoChange.emit('recibido_externo')"
-      [variant]="selectedTipo === 'recibido_externo' ? 'primary' : 'ghost'"
-      class="flex items-center gap-2 whitespace-nowrap">
+      [variant]="selectedTipo === 'recibido_externo' ? 'primary' : 'ghost'">
       <icon icon="DocumentImport" class="w-3.5 h-3.5"></icon>
       <span>Externa</span>
       <span 

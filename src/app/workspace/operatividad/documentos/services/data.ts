@@ -1,4 +1,4 @@
-import { DocumentItem, ClaseDocumentoId, TipoDocumento, Estatus, MedioEnvio, ClaseDocumento } from '../interfaces/document.interface';
+﻿import { DocumentItem, ClaseDocumentoId, TipoDocumento, Estatus, MedioEnvio, ClaseDocumento } from '../interfaces/document.interface';
 
 
 
@@ -11,31 +11,31 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
 
     clase_documento     : 'memo'                         , // Memo
     tipo_documento      : 'directo'                 ,
-    id_area_emisora     : 30                        , // Dirección de Atención y Servicios Empresariales
-    area_emisora        : 'DAYSE'                   , // Es la abreviatura del área que emite el documento
+    id_area_emisora     : 30                        , // DirecciÃ³n de AtenciÃ³n y Servicios Empresariales
+    area_emisora        : 'DAYSE'                   , // Es la abreviatura del Ã¡rea que emite el documento
 
     id_solicitante      : 100                       , //
     solicitante         : 'Tello'                   , // Nickname del empleado que esta elaborando el memorandum  
 
     id_area_remitente   : 30                        , // En este caso coincide el id_area_emisora con el id_area_remitente, porque es directo
     id_remitente        : 112                       , // Es el id de la persona que firma el documeto. En este caso el director de DAYSE 
-    remitente           : 'DAYSE'                   , // Nombre corto del área base que emite el documento
-    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de Atención y Servicios Empresariales' ,
+    remitente           : 'DAYSE'                   , // Nombre corto del Ã¡rea base que emite el documento
+    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de AtenciÃ³n y Servicios Empresariales' ,
  
     id_destinatario     : 200                       , // ID EMPLEADO LIC. CONRADO DELA CRUZ - SUBSECRETARIO DE COMERCIO
     id_destinarario_externo : 0                     , // Es cero porque es un memo, no un oficio
     destinatario        : 'SUBCOM'                  , // 
     destinatario_detail : 'Lic. Conrado de la Cruz Selvas|Subsecretario de Comercio' ,
 
-    folio               : 1                         , // El pipe en el HTML lo pondrá como 001
+    folio               : 1                         , // El pipe en el HTML lo pondrÃ¡ como 001
     num_doc             : 'SEYT/SC/DAYSE/001/2026'  ,
     fecha               : new Date ( '2026-03-19' ) ,
-    tema                : 'Licitacion 001'          ,
+    temas                : 'Licitacion 001'          ,
     asunto              : 'Solicitud de licitacion restringida',
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En edición'               ,
+    estatus             : 'En ediciÃ³n'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -46,31 +46,31 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
 
     clase_documento     : 'memo'                         , // Memo
     tipo_documento      : 'directo'                 ,
-    id_area_emisora     : 30                        , // Dirección de Atención y Servicios Empresariales
-    area_emisora        : 'DAYSE'                   , // Es la abreviatura del área que emite el documento
+    id_area_emisora     : 30                        , // DirecciÃ³n de AtenciÃ³n y Servicios Empresariales
+    area_emisora        : 'DAYSE'                   , // Es la abreviatura del Ã¡rea que emite el documento
 
     id_solicitante      : 100                       , //
     solicitante         : 'Tello'                   , // Nickname del empleado que esta elaborando el memorandum  
 
     id_area_remitente   : 30                        , // En este caso coincide el id_area_emisora con el id_area_remitente, porque es directo
     id_remitente        : 112                       , // Es el id de la persona que firma el documeto. En este caso el director de DAYSE 
-    remitente           : 'DAYSE'                   , // Nombre corto del área base que emite el documento
-    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de Atención y Servicios Empresariales' ,
+    remitente           : 'DAYSE'                   , // Nombre corto del Ã¡rea base que emite el documento
+    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de AtenciÃ³n y Servicios Empresariales' ,
  
     id_destinatario     : 200                       , // ID EMPLEADO LIC. CONRADO DELA CRUZ - SUBSECRETARIO DE COMERCIO
     id_destinarario_externo : 0                     , // Es cero porque es un memo, no un oficio
     destinatario        : 'SUBCOM'                  , // 
     destinatario_detail : 'Lic. Conrado de la Cruz Selvas|Subsecretario de Comercio' ,
 
-    folio               : 2                         , // El pipe en el HTML lo pondrá como 001
+    folio               : 2                         , // El pipe en el HTML lo pondrÃ¡ como 001
     num_doc             : 'SEYT/SC/DAYSE/002/2026'  ,
     fecha               : new Date ( '2026-03-19' ) ,
-    tema                : 'Licitacion 001'          ,
-    asunto              : 'Solicitud de contratación de proveedor',
+    temas                : 'Licitacion 001'          ,
+    asunto              : 'Solicitud de contrataciÃ³n de proveedor',
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En edición'               ,
+    estatus             : 'En ediciÃ³n'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -81,15 +81,15 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
 
     clase_documento     : 'memo'                    , // Memo
     tipo_documento      : 'gestionado'              ,
-    id_area_emisora     : 30                        , // Dirección de Atención y Servicios Empresariales
-    area_emisora        : 'DAYSE'                   , // Es la abreviatura del área que emite el documento
+    id_area_emisora     : 30                        , // DirecciÃ³n de AtenciÃ³n y Servicios Empresariales
+    area_emisora        : 'DAYSE'                   , // Es la abreviatura del Ã¡rea que emite el documento
 
     id_solicitante      : 100                       , //
     solicitante         : 'Tello'                   , // Nickname del empleado que esta elaborando el memorandum  
 
     id_area_remitente   : 35                        , // Aqui el id_area_emisora != id_area_remitente porque es gestionado. 
     id_remitente        : 200                       , // Es el id de la persona que firma el documeto. En este caso el subsecretario de comercio
-    remitente           : 'SUBCOM'                  , // Nombre corto del área base que emite el documento
+    remitente           : 'SUBCOM'                  , // Nombre corto del Ã¡rea base que emite el documento
     remitente_detail    : 'Lic. Conrado de la Cruz Selvas|Subsecretario de Comercio' ,
  
     id_destinatario     : 220                       ,
@@ -97,15 +97,15 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
     destinatario        : 'UAA'                     ,
     destinatario_detail : 'Lic. Gemma|Jefa de la Unidad de Apoyo Aministrativo' ,
 
-    folio               : 45                         , // El pipe en el HTML lo pondrá como 045 
+    folio               : 45                         , // El pipe en el HTML lo pondrÃ¡ como 045 
     num_doc             : 'SEYT/SC/0/2026'           ,
     fecha               : new Date ( '2026-03-19' )  ,
-    tema                : 'Licitacion 001'           ,
+    temas                : 'Licitacion 001'           ,
     asunto              : 'Solicitud de licitacion restringida',
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En edición'               ,
+    estatus             : 'En ediciÃ³n'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -116,31 +116,31 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
 
     clase_documento     : 'memo'                    , // Memo
     tipo_documento      : 'directo'                 ,
-    id_area_emisora     : 30                        , // Dirección de Atención y Servicios Empresariales
-    area_emisora        : 'DAYSE'                   , // Es la abreviatura del área que emite el documento
+    id_area_emisora     : 30                        , // DirecciÃ³n de AtenciÃ³n y Servicios Empresariales
+    area_emisora        : 'DAYSE'                   , // Es la abreviatura del Ã¡rea que emite el documento
 
     id_solicitante      : 100                       , //
     solicitante         : 'Tello'                   , // Nickname del empleado que esta elaborando el memorandum  
 
     id_area_remitente   : 30                        , // En este caso coincide el id_area_emisora con el id_area_remitente, porque es directo
     id_remitente        : 112                       , // Es el id de la persona que firma el documeto. En este caso el director de DAYSE 
-    remitente           : 'DAYSE'                   , // Nombre corto del área base que emite el documento
-    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de Atención y Servicios Empresariales' ,
+    remitente           : 'DAYSE'                   , // Nombre corto del Ã¡rea base que emite el documento
+    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de AtenciÃ³n y Servicios Empresariales' ,
  
     id_destinatario     : 200                       , // ID EMPLEADO LIC. CONRADO DELA CRUZ - SUBSECRETARIO DE COMERCIO
     id_destinarario_externo : 0                     , // Es cero porque es un memo, no un oficio
     destinatario        : 'SUBCOM'                  , // 
     destinatario_detail : 'Lic. Conrado de la Cruz Selvas|Subsecretario de Comercio' ,
 
-    folio               : 3                         , // El pipe en el HTML lo pondrá como 001
+    folio               : 3                         , // El pipe en el HTML lo pondrÃ¡ como 001
     num_doc             : 'SEYT/SC/DAYSE/003/2026'  ,
     fecha               : new Date ( '2026-03-19' ) ,
-    tema                : 'Licitacion 001'          ,
+    temas                : 'Licitacion 001'          ,
     asunto              : 'Solicitud de pago de factura',
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En edición'               ,
+    estatus             : 'En ediciÃ³n'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -151,31 +151,31 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
 
     clase_documento     : 'memo'                    , // Memo
     tipo_documento      : 'directo'                 ,
-    id_area_emisora     : 30                        , // Dirección de Atención y Servicios Empresariales
-    area_emisora        : 'DAYSE'                   , // Es la abreviatura del área que emite el documento
+    id_area_emisora     : 30                        , // DirecciÃ³n de AtenciÃ³n y Servicios Empresariales
+    area_emisora        : 'DAYSE'                   , // Es la abreviatura del Ã¡rea que emite el documento
 
     id_solicitante      : 110                       , //
     solicitante         : 'Iseleng'                 , // Nickname del empleado que esta elaborando el memorandum  
 
-    id_area_remitente   : 30                        , // En este caso Iseleng es la Jefa de departamento, pero pertenece a la Direccitón de Atención, por eso su id_area_remitente es  30 DAYSE
+    id_area_remitente   : 30                        , // En este caso Iseleng es la Jefa de departamento, pero pertenece a la DireccitÃ³n de AtenciÃ³n, por eso su id_area_remitente es  30 DAYSE
     id_remitente        : 112                       , // Es el id de la persona que firma el documeto. En este caso el director de DAYSE 
-    remitente           : 'DAYSE'                   , // Nombre corto del área base que emite el documento
-    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de Atención y Servicios Empresariales' ,
+    remitente           : 'DAYSE'                   , // Nombre corto del Ã¡rea base que emite el documento
+    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de AtenciÃ³n y Servicios Empresariales' ,
  
     id_destinatario     : 220                       ,
     id_destinarario_externo : 0                     ,
     destinatario        : 'UAA'                     ,
     destinatario_detail : 'Lic. Gemma|Jefa de la Unidad de Apoyo Aministrativo' ,
 
-    folio               : 4                         , // El pipe en el HTML lo pondrá como 001
+    folio               : 4                         , // El pipe en el HTML lo pondrÃ¡ como 001
     num_doc             : 'SEYT/SC/DAYSE/004/2026'  ,
     fecha               : new Date ( '2026-03-19' ) ,
-    tema                : 'Licitacion 001'          ,
+    temas                : 'Licitacion 001'          ,
     asunto              : 'Solicitud de pago de factura',
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En edición'               ,
+    estatus             : 'En ediciÃ³n'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -186,31 +186,31 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
 
     clase_documento     : 'memo'                    , // Memo
     tipo_documento      : 'directo'                 ,
-    id_area_emisora     : 30                        , // Dirección de Atención y Servicios Empresariales
-    area_emisora        : 'DAYSE'                   , // Es la abreviatura del área que emite el documento
+    id_area_emisora     : 30                        , // DirecciÃ³n de AtenciÃ³n y Servicios Empresariales
+    area_emisora        : 'DAYSE'                   , // Es la abreviatura del Ã¡rea que emite el documento
 
     id_solicitante      : 110                       , //
     solicitante         : 'Iseleng'                 , // Nickname del empleado que esta elaborando el memorandum  
 
-    id_area_remitente   : 30                        , // En este caso Iseleng es la Jefa de departamento, pero pertenece a la Direccitón de Atención, por eso su id_area_remitente es  30 DAYSE
+    id_area_remitente   : 30                        , // En este caso Iseleng es la Jefa de departamento, pero pertenece a la DireccitÃ³n de AtenciÃ³n, por eso su id_area_remitente es  30 DAYSE
     id_remitente        : 112                       , // Es el id de la persona que firma el documeto. En este caso el director de DAYSE 
-    remitente           : 'DAYSE'                   , // Nombre corto del área base que emite el documento
-    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de Atención y Servicios Empresariales' ,
+    remitente           : 'DAYSE'                   , // Nombre corto del Ã¡rea base que emite el documento
+    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de AtenciÃ³n y Servicios Empresariales' ,
  
     id_destinatario     : 220                       ,
     id_destinarario_externo : 0                     ,
     destinatario        : 'UAA'                     ,
     destinatario_detail : 'Lic. Gemma|Jefa de la Unidad de Apoyo Aministrativo' ,
 
-    folio               : 5                         , // El pipe en el HTML lo pondrá como 001
+    folio               : 5                         , // El pipe en el HTML lo pondrÃ¡ como 001
     num_doc             : 'SEYT/SC/DAYSE/005/2026'  ,
     fecha               : new Date ( '2026-03-19' ) ,
-    tema                : 'Licitacion 001'          ,
+    temas                : 'Licitacion 001'          ,
     asunto              : 'Alcance al memo SEYT/SC/DAYSE/005/2026, cambio de domicilio del proveedor',
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En edición'               ,
+    estatus             : 'En ediciÃ³n'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -221,27 +221,27 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
 
     clase_documento     : 'oficio'                  , // OfiCIO
     tipo_documento      : 'directo'                 ,
-    id_area_emisora     : 30                        , // Dirección de Atención y Servicios Empresariales
-    area_emisora        : 'DAYSE'                   , // Es la abreviatura del área que emite el documento
+    id_area_emisora     : 30                        , // DirecciÃ³n de AtenciÃ³n y Servicios Empresariales
+    area_emisora        : 'DAYSE'                   , // Es la abreviatura del Ã¡rea que emite el documento
 
     id_solicitante      : 110                       , //
     solicitante         : 'Iseleng'                 , // Nickname del empleado que esta elaborando el memorandum  
 
-    id_area_remitente   : 30                        , // En este caso Iseleng es la Jefa de departamento, pero pertenece a la Direccitón de Atención, por eso su id_area_remitente es  30 DAYSE
+    id_area_remitente   : 30                        , // En este caso Iseleng es la Jefa de departamento, pero pertenece a la DireccitÃ³n de AtenciÃ³n, por eso su id_area_remitente es  30 DAYSE
     id_remitente        : 112                       , // Es el id de la persona que firma el documeto. En este caso el director de DAYSE 
-    remitente           : 'DAYSE'                   , // Nombre corto del área base que emite el documento
-    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de Atención y Servicios Empresariales' ,
+    remitente           : 'DAYSE'                   , // Nombre corto del Ã¡rea base que emite el documento
+    remitente_detail    : 'Arturo de Jesus Rosales Morales|Director de AtenciÃ³n y Servicios Empresariales' ,
  
     id_destinatario     : 0                         ,
     id_destinarario_externo : 1                     ,
     destinatario        : 'PUNTOS AUDIOVISUALES'    ,
-    destinatario_detail : 'Lic. Luis Pérez|Gerente General de Puntos Audiovisuales S.A. de C.V.' ,
+    destinatario_detail : 'Lic. Luis PÃ©rez|Gerente General de Puntos Audiovisuales S.A. de C.V.' ,
 
-    folio               : 1                         , // El pipe en el HTML lo pondrá como 001
+    folio               : 1                         , // El pipe en el HTML lo pondrÃ¡ como 001
     num_doc             : 'SEYT/SC/DAYSE/001/2026'  ,
     fecha               : new Date ( '2026-03-19' ) ,
-    tema                : 'Dialogos Empresariales'  ,
-    asunto              : 'Detalles de la realización del evento Dialogos Empresariales en San Cristóbal',
+    temas                : 'Dialogos Empresariales'  ,
+    asunto              : 'Detalles de la realizaciÃ³n del evento Dialogos Empresariales en San CristÃ³bal',
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',

@@ -30,7 +30,6 @@ import { SelectComponent } from '@system-shared/form/select/select.component';
     ExternalContactSelectComponent,
     PageBreadcrumbComponent,
     ActionButtonComponent,
-    IconComponent,
     ControlComponent,
     DatePickerComponent,
     FileInputComponent,

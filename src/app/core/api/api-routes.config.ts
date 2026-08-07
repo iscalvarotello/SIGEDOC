@@ -246,6 +246,9 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
   [ENDPOINT_KEYS.DOCUMENT_TEMPLATES]: {
     base: '/templates/document_templates'
   },
+  [ENDPOINT_KEYS.INTERNAL_TEMPLATES]: {
+    base: '/documents/internal_templates'
+  },
   [ENDPOINT_KEYS.PROJECTS]: {
     base: '/organization/projects',
     plain: true
@@ -255,7 +258,7 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
     plain: true
   },
   [ENDPOINT_KEYS.INTERNAL_TEMPLATES]: {
-    base: '/templates/internal_templates',
+    base: '/documents/internal_templates',
     plain: true
   },
   [ENDPOINT_KEYS.ATTACHMENTS]: {
