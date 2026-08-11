@@ -364,4 +364,8 @@ export class DocumentPageComponent implements OnInit {
   navigateToExternalRecepcion() {
     this._router.navigate(['/operatividad/recepcion-externa'], { queryParams: { clase: this.claseDocumentoId() } });
   }
+
+  navigateToTemplateManager() {
+    this._router.navigate(['/operatividad/documento', this.claseDocumentoId(), 'templates']);
+  }
 }

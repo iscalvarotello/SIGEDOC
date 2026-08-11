@@ -273,11 +273,11 @@
               </select>
             </div>
 
-            <div class="flex gap-2 relative z-[100]">
-                <action-button (clicked)="showTemplateManager.set(true)" variant="ghost">
-                  <icon icon="DocumentText" class="w-4 h-4"></icon>
-                  Revisar y Actualizar plantillas
-                </action-button>
+              <div class="flex gap-2 relative z-[100]">
+                  <action-button (clicked)="navigateToTemplateManager()" variant="ghost">
+                    <icon icon="DocumentText" class="w-4 h-4"></icon>
+                    Revisar y Actualizar plantillas
+                  </action-button>
               @if (!showSaveTemplatePopover()) {
                 <action-button 
   (clicked)="showSaveTemplatePopover.set(true)" variant="secondary">
@@ -310,24 +310,29 @@
             </div>
           </div>
 
-          <!-- Textarea Principal del Cuerpo -->
+          <!-- Editor de Texto Enriquecido del Cuerpo -->
           <div class="flex flex-col gap-1.5">
-            <textarea 
+            <app-rich-editor
               id="document-body-textarea"
               [ngModel]="cuerpo()"
               (ngModelChange)="cuerpo.set($event)"
               [ngModelOptions]="{standalone: true}"
-              rows="12"
-              placeholder="Escriba los párrafos iniciales o contenido base aquí. Puede inyectar variables haciendo clic en los botones del panel derecho en su cursor..."
-              class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-2xl text-sm transition-all outline-none text-gray-700 font-semibold"></textarea>
+              placeholder="Escriba el cuerpo del documento aquí. Puede usar formato y botones de inyección..."
+            ></app-rich-editor>
           </div>
         </div>
 
         <!-- Columna Derecha: Panel de Campos Dinámicos / Variables -->
         <div class="lg:col-span-6 bg-gray-50/50 dark:bg-white/2 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col gap-4 shadow-inner">
-          <div class="border-b border-gray-200 dark:border-gray-800 pb-2.5">
-            <h5 class="text-xs font-black text-theme-primary dark:text-theme-secondary uppercase tracking-wider">Campos Dinámicos</h5>
-            <p class="text-[10px] text-gray-400 dark:text-gray-500 font-semibold mt-0.5">Seleccione un registro y haga clic en un campo para inyectar su etiqueta en el editor.</p>
+          <div class="border-b border-gray-200 dark:border-gray-800 pb-2.5 flex flex-wrap justify-between items-end gap-2">
+            <div>
+              <h5 class="text-xs font-black text-theme-primary dark:text-theme-secondary uppercase tracking-wider">Campos Dinámicos</h5>
+              <p class="text-[10px] text-gray-400 dark:text-gray-500 font-semibold mt-0.5">Seleccione un registro y haga clic en un campo para inyectar su etiqueta en el editor.</p>
+            </div>
+            <action-button variant="outline" (clicked)="replaceTagsInBody()" title="Reemplazar permanentemente etiquetas por texto">
+              <icon icon="Sincronizar" class="w-4 h-4 mr-1"></icon>
+              Reemplazar Etiquetas
+            </action-button>
           </div>
 
           <!-- Navegación de Pestañas (Tabs) -->
@@ -408,28 +413,11 @@
                       (onClear)="selectedPartidaObj.set(null)">
                     </app-partida-select>
                   </div>
-                  <action-button 
-  (clicked)="showPartidaFields.set(!showPartidaFields())" [variant]="showPartidaFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
-
+                  <action-button (clicked)="insertTag('{{__partida__}}')" variant="ghost" title="Inyectar Partida Completa">
                     <icon icon="NewIcon5" class="w-4 h-4"></icon>
                   </action-button>
                 </div>
               </div>
-
-              <!-- Botones de Variables de Partida -->
-              @if (showPartidaFields()) {
-                <div class="space-y-2 animate-fadeIn">
-                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de la Partida:</label>
-                  <div class="flex flex-wrap gap-2">
-                    <action-button 
-  (clicked)="insertTag('{{__partida__}}')" variant="ghost">
-
-                      👉 Partida Completa
-                    </action-button>
-                  </div>
-                </div>
-                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
-              }
 
               <!-- Selector de Mes de Ministración -->
               <div class="flex flex-col gap-1.5 relative z-10">
@@ -455,28 +443,11 @@
                       <option value="Diciembre">Diciembre</option>
                     </select>
                   </div>
-                  <action-button 
-  (clicked)="showMonthFields.set(!showMonthFields())" [variant]="showMonthFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
-
+                  <action-button (clicked)="insertTag('{{__mes_ministracion__}}')" variant="ghost" title="Inyectar Mes Ministrado">
                     <icon icon="NewIcon5" class="w-4 h-4"></icon>
                   </action-button>
                 </div>
               </div>
-
-              <!-- Botones de Variables de Ministración -->
-              @if (showMonthFields()) {
-                <div class="space-y-2 animate-fadeIn">
-                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de Ministración:</label>
-                  <div class="flex flex-wrap gap-2">
-                    <action-button 
-  (clicked)="insertTag('{{__mes_ministracion__}}')" variant="ghost">
-
-                      👉 Mes Ministrado
-                    </action-button>
-                  </div>
-                </div>
-                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
-              }
 
               <!-- Selector de Fecha de Proyecto -->
               <div class="flex flex-col gap-1.5 relative z-0">
@@ -554,18 +525,41 @@
                   <div class="flex flex-wrap gap-2">
                     <action-button 
   (clicked)="insertTag('{{__provider_name__}}')" variant="ghost">
-
                       👉 Nombre/Razón Social
                     </action-button>
                     <action-button 
   (clicked)="insertTag('{{__provider_rfc__}}')" variant="ghost">
-
                       👉 RFC
                     </action-button>
                   </div>
                 </div>
                 <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
               }
+
+              <!-- Contrato y Licitación -->
+              <div class="flex flex-col gap-1.5 relative z-10">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Núm. de Contrato:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 min-w-0">
+                    <input type="text" [ngModel]="customContractNumber()" (ngModelChange)="customContractNumber.set($event)" [ngModelOptions]="{standalone: true}" placeholder="Escriba el número de contrato..." class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 focus:ring-2 focus:ring-theme-primary/30" />
+                  </div>
+                  <action-button (clicked)="insertTag('{{__contract_number__}}')" variant="ghost" title="Inyectar Variable">
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1.5 relative z-10">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Núm. de Licitación:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 min-w-0">
+                    <input type="text" [ngModel]="customLicitacionNumber()" (ngModelChange)="customLicitacionNumber.set($event)" [ngModelOptions]="{standalone: true}" placeholder="Escriba el número de licitación..." class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 focus:ring-2 focus:ring-theme-primary/30" />
+                  </div>
+                  <action-button (clicked)="insertTag('{{__licitacion_number__}}')" variant="ghost" title="Inyectar Variable">
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
 
               <!-- Campo de Dirección (Manual) -->
               <div class="flex flex-col gap-1.5 relative z-10">
@@ -669,28 +663,55 @@
                       placeholder="Escriba el nombre del evento..."
                       class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
                   </div>
-                  <action-button 
-  (clicked)="showEventNameFields.set(!showEventNameFields())" [variant]="showEventNameFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
-
+                  <action-button (clicked)="insertTag('{{__event_name__}}')" variant="ghost" title="Inyectar Nombre del Evento">
                     <icon icon="NewIcon5" class="w-4 h-4"></icon>
                   </action-button>
                 </div>
               </div>
 
-              <!-- Botones de Variables de Evento -->
-              @if (showEventNameFields()) {
-                <div class="space-y-2 animate-fadeIn">
-                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Evento:</label>
-                  <div class="flex flex-wrap gap-2">
-                    <action-button 
-  (clicked)="insertTag('{{__event_name__}}')" variant="ghost">
+              <!-- Fecha Evento -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Fecha del Evento:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 min-w-0">
+                    <app-date-picker
+                      id="fecha_evento"
+                      [defaultDate]="customEventDate()"
+                      (dateChange)="customEventDate.set($event.dateStr)"
+                      placeholder="Seleccione fecha del evento...">
+                    </app-date-picker>
+                  </div>
+                  <action-button (clicked)="showEventDateFields.set(!showEventDateFields())" [variant]="showEventDateFields() ? 'primary' : 'ghost'" title="Mostrar opciones de fecha">
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
 
-                      👉 Nombre Evento
-                    </action-button>
+              <!-- Botones de Variables de Fecha Evento -->
+              @if (showEventDateFields()) {
+                <div class="space-y-2 animate-fadeIn">
+                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de Fecha Evento:</label>
+                  <div class="flex flex-wrap gap-2">
+                    <action-button (clicked)="insertTag('{{__event_date_short__}}')" variant="ghost">📅 Corta</action-button>
+                    <action-button (clicked)="insertTag('{{__event_date_long__}}')" variant="ghost">📅 Larga</action-button>
+                    <action-button (clicked)="insertTag('{{__event_date_with_day__}}')" variant="ghost">📅 Con Día</action-button>
                   </div>
                 </div>
                 <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
               }
+
+              <!-- Costo Evento -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Costo del Evento:</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 min-w-0">
+                    <input type="text" [ngModel]="customEventCost()" (ngModelChange)="customEventCost.set($event)" [ngModelOptions]="{standalone: true}" placeholder="Escriba el costo..." class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 focus:ring-2 focus:ring-theme-primary/30" />
+                  </div>
+                  <action-button (clicked)="insertTag('{{__event_cost__}} ({{__event_cost_letra__}})')" variant="ghost" title="Inyectar Costo y Letra">
+                    <icon icon="NewIcon5" class="w-4 h-4"></icon>
+                  </action-button>
+                </div>
+              </div>
 
               <!-- Lugar evento -->
               <div class="flex flex-col gap-1.5">
@@ -705,28 +726,11 @@
                       placeholder="Escriba el lugar del evento..."
                       class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
                   </div>
-                  <action-button 
-  (clicked)="showEventPlaceFields.set(!showEventPlaceFields())" [variant]="showEventPlaceFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
-
+                  <action-button (clicked)="insertTag('{{__lugar_evento__}}')" variant="ghost" title="Inyectar Lugar Evento">
                     <icon icon="NewIcon5" class="w-4 h-4"></icon>
                   </action-button>
                 </div>
               </div>
-
-              <!-- Botones de Variables de Lugar -->
-              @if (showEventPlaceFields()) {
-                <div class="space-y-2 animate-fadeIn">
-                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Lugar:</label>
-                  <div class="flex flex-wrap gap-2">
-                    <action-button 
-  (clicked)="insertTag('{{__lugar_evento__}}')" variant="ghost">
-
-                      👉 Lugar Evento
-                    </action-button>
-                  </div>
-                </div>
-                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
-              }
 
               <!-- Folio Factura -->
               <div class="flex flex-col gap-1.5">
@@ -741,45 +745,60 @@
                       placeholder="Escriba el folio de la factura..."
                       class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
                   </div>
-                  <action-button 
-  (clicked)="showInvoiceFields.set(!showInvoiceFields())" [variant]="showInvoiceFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
-
+                  <action-button (clicked)="insertTag('{{__invoice__}}')" variant="ghost" title="Inyectar Folio Factura">
                     <icon icon="NewIcon5" class="w-4 h-4"></icon>
                   </action-button>
                 </div>
               </div>
-
-              <!-- Botones de Variables de Factura -->
-              @if (showInvoiceFields()) {
-                <div class="space-y-2 animate-fadeIn">
-                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de Factura:</label>
-                  <div class="flex flex-wrap gap-2">
-                    <action-button 
-  (clicked)="insertTag('{{__invoice__}}')" variant="ghost">
-
-                      👉 Folio Factura
-                    </action-button>
-                  </div>
-                </div>
-                <hr class="border-gray-200 dark:border-gray-800 animate-fadeIn" />
-              }
 
             </div>
           }
           <!-- Contenido de Pestaña: General -->
           @if (activeFieldsTab() === 'general') {
             <div class="space-y-4 animate-fadeIn">
+
+              <!-- Rango de Fechas -->
+              <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Rango de Fechas:</label>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-[9px] text-gray-400 font-semibold">Inicio</span>
+                    <app-date-picker
+                      id="fecha_inicio"
+                      [defaultDate]="customStartDate()"
+                      (dateChange)="customStartDate.set($event.dateStr)"
+                      placeholder="Inicio...">
+                    </app-date-picker>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <span class="text-[9px] text-gray-400 font-semibold">Fin</span>
+                    <app-date-picker
+                      id="fecha_fin"
+                      [defaultDate]="customEndDate()"
+                      (dateChange)="customEndDate.set($event.dateStr)"
+                      placeholder="Fin...">
+                    </app-date-picker>
+                  </div>
+                </div>
+                <div class="flex justify-end mt-1">
+                  <action-button (clicked)="insertTag('{{__range_date__}}')" variant="ghost" title="Inyectar Rango de Fechas">
+                    <icon icon="NewIcon5" class="w-4 h-4 mr-1"></icon> Inyectar Rango
+                  </action-button>
+                </div>
+              </div>
+              <hr class="border-gray-200 dark:border-gray-800" />
+
               <!-- Fecha -->
               <div class="flex flex-col gap-1.5">
                 <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Fecha:</label>
                 <div class="flex items-center gap-2">
                   <div class="flex-1 min-w-0">
-                    <input 
-                      type="date"
-                      [ngModel]="customFecha()"
-                      (ngModelChange)="customFecha.set($event)"
-                      [ngModelOptions]="{standalone: true}"
-                      class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
+                    <app-date-picker
+                      id="fecha_general"
+                      [defaultDate]="customFecha()"
+                      (dateChange)="customFecha.set($event.dateStr)"
+                      placeholder="Seleccione fecha general...">
+                    </app-date-picker>
                   </div>
                   <action-button 
   (clicked)="showFechaFields.set(!showFechaFields())" [variant]="showFechaFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
@@ -820,28 +839,11 @@
                       class="w-full px-3 py-2.5 bg-white dark:bg-gray-850 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-semibold outline-none text-gray-750 dark:text-gray-200 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary/30" />
                   </div>
                   <action-button 
-  (clicked)="showMontoFields.set(!showMontoFields())" [variant]="showMontoFields() ? 'primary' : 'ghost'" title="Mostrar/Ocultar variables a inyectar">
+  (clicked)="insertTag('{{__monto_moneda__}} ({{__monto_letra__}})')" variant="ghost" title="Inyectar Monto y Letra">
                     <icon icon="NewIcon5" class="w-4 h-4"></icon>
                   </action-button>
                 </div>
               </div>
-
-              <!-- Botones de Variables de Monto -->
-              @if (showMontoFields()) {
-                <div class="space-y-2 animate-fadeIn">
-                  <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de Monto:</label>
-                  <div class="flex flex-wrap gap-2">
-                    <action-button 
-  (clicked)="insertTag('{{__monto_moneda__}}')" variant="ghost">
-                      👉 $ Moneda
-                    </action-button>
-                    <action-button 
-  (clicked)="insertTag('{{__monto_letra__}}')" variant="ghost">
-                      뿯뿯 Letra
-                    </action-button>
-                  </div>
-                </div>
-              }
             </div>
           }
 
@@ -993,10 +995,25 @@
       <div class="flex justify-end gap-4 border-t border-gray-200 pt-6">
         <cancel-button [routerLink]="ROUTES.DOCUMENT_DETAIL | localRoute: { id: claseDocumentoId() }" label="Cancelar"></cancel-button>
         
-        <submit-button 
-          [submitting]="isLoading()"
-          label="Guardar Documento">
-        </submit-button>
+        <div class="flex gap-2">
+          <!-- Botón Local -->
+          <action-button 
+            variant="outline"
+            (clicked)="generateLocalDocument()"
+            [disabled]="isLoading()"
+            class="min-h-[44px] px-6 text-sm font-semibold shadow-sm w-full md:w-auto">
+            <span class="flex items-center gap-2">
+              <icon icon="Documentos" class="w-5 h-5"></icon>
+              Generar Doc. Local
+            </span>
+          </action-button>
+          
+          <!-- Botón Drive (Submit original) -->
+          <submit-button 
+            [submitting]="isLoading()"
+            label="Generar Doc. Drive">
+          </submit-button>
+        </div>
       </div>
 
     </form>
@@ -1004,9 +1021,11 @@
   </div>
 </div>
 
-<template-manager
-  [isOpen]="showTemplateManager()"
-  [claseDocumentoId]="claseDocumentoId() || ''"
-  (close)="showTemplateManager.set(false); loadTemplates()"
-  (useTemplate)="onUseTemplate($event)">
-</template-manager>
+@if (showVirtualPaper()) {
+  <app-virtual-paper-modal 
+    [content]="cuerpo()" 
+    [metadata]="virtualPaperMetadata()"
+    (close)="showVirtualPaper.set(false)">
+  </app-virtual-paper-modal>
+}
+

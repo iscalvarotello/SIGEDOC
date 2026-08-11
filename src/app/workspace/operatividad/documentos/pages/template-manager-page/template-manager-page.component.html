@@ -1,0 +1,124 @@
+<app-page-breadcrumb 
+  [pageTitle]="'Catálogo de Plantillas (' + (claseDocumentoId() | claseDocument:'plural') + ')'"
+  [badgeLabel]="''" 
+  [badgeValue]="'Gestor de Plantillas'" />
+
+<div class="mb-5">
+  <action-button variant="outline" (clicked)="goBack()">
+    <icon icon="FlechaIzquierda" class="w-4 h-4 mr-2"></icon> Volver a la Bandeja
+  </action-button>
+</div>
+
+<div class="flex flex-col lg:flex-row gap-6 min-h-[600px]">
+  
+  <!-- COLUMNA IZQUIERDA: Lista de Plantillas (30%) -->
+  <div class="w-full lg:w-[30%] flex flex-col bg-white border border-gray-200 rounded-2xl shadow-sm dark:bg-white/5 dark:border-gray-800">
+    <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center">
+      <h3 class="text-sm font-black text-gray-800 dark:text-gray-100">Mis Plantillas</h3>
+      <action-button variant="primary" size="sm" (clicked)="createNew()">
+        <icon icon="NewIcon2" class="w-4 h-4 mr-1"></icon> Nueva
+      </action-button>
+    </div>
+
+    <div class="p-4 flex-1 overflow-y-auto max-h-[700px] flex flex-col gap-3">
+      @if (isLoading()) {
+        <div class="text-center py-10">
+          <icon icon="Spinner" class="w-6 h-6 mx-auto text-gray-400"></icon>
+        </div>
+      } @else if (templates().length === 0) {
+        <div class="text-center py-10 bg-gray-50 rounded-xl dark:bg-white/5">
+          <p class="text-xs font-semibold text-gray-500">No hay plantillas guardadas.</p>
+        </div>
+      } @else {
+        @for (tpl of templates(); track tpl.id) {
+          <div 
+            class="flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer"
+            [class.bg-theme-secondary]="editingTemplate()?.id === tpl.id"
+            [class.text-white]="editingTemplate()?.id === tpl.id"
+            [class.border-theme-secondary]="editingTemplate()?.id === tpl.id"
+            [class.bg-white]="editingTemplate()?.id !== tpl.id"
+            [class.border-gray-200]="editingTemplate()?.id !== tpl.id"
+            [class.hover:bg-gray-50]="editingTemplate()?.id !== tpl.id"
+            (click)="editTemplate(tpl)">
+            
+            <div class="flex items-center gap-3">
+              <div 
+                class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                [class.bg-white]="editingTemplate()?.id === tpl.id"
+                [class.bg-gray-100]="editingTemplate()?.id !== tpl.id">
+                <icon icon="DocumentTextOutline" class="w-4 h-4" 
+                  [class.text-theme-secondary]="editingTemplate()?.id === tpl.id"
+                  [class.text-gray-500]="editingTemplate()?.id !== tpl.id"></icon>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-sm font-bold truncate max-w-[150px] xl:max-w-[180px]">{{ tpl.name }}</span>
+                <span class="text-[10px] uppercase font-black opacity-80 mt-0.5">
+                  {{ tpl.active ? 'Activa' : 'Inactiva' }}
+                </span>
+              </div>
+            </div>
+
+            <action-button 
+              variant="ghost-danger" 
+              [iconOnly]="true" 
+              title="Eliminar"
+              (click)="$event.stopPropagation(); deleteTemplate(tpl.id!)">
+              <icon icon="Basurero" class="w-4 h-4"></icon>
+            </action-button>
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- COLUMNA DERECHA: Editor y Etiquetas (70%) -->
+  <div class="w-full lg:w-[70%] flex flex-col bg-white border border-gray-200 rounded-2xl shadow-sm dark:bg-white/5 dark:border-gray-800">
+    <div class="p-4 border-b border-gray-200 dark:border-gray-800 flex justify-between items-center bg-gray-50/50 dark:bg-black/20 rounded-t-2xl">
+      <h3 class="text-sm font-black text-gray-800 dark:text-gray-100">
+        {{ editingTemplate() ? 'Editando Plantilla' : 'Nueva Plantilla' }}
+      </h3>
+      <div class="flex items-center gap-2">
+        <action-button variant="primary" (clicked)="saveTemplate()" [disabled]="isLoading() || !formName() || !formContent()">
+          @if(isLoading()) { <icon icon="Spinner" class="w-4 h-4 mr-2"></icon> }
+          <icon icon="Save" class="w-4 h-4 mr-2"></icon> Guardar Plantilla
+        </action-button>
+      </div>
+    </div>
+
+    <div class="p-4 flex-1 flex flex-col xl:flex-row gap-6">
+      
+      <!-- Lado Izquierdo: Formulario -->
+      <div class="w-full xl:w-[60%] flex flex-col gap-4">
+        
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Nombre de la Plantilla</label>
+          <input 
+            type="text" 
+            [(ngModel)]="formName" 
+            (ngModelChange)="onFormChange()"
+            placeholder="Ej. Notificación de Actividades Generales"
+            class="w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-bold" />
+        </div>
+
+        <div class="flex flex-col gap-1.5 flex-1 relative">
+          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Cuerpo / Contenido Base</label>
+          <textarea 
+            #editorTextarea
+            [(ngModel)]="formContent"
+            (ngModelChange)="onFormChange()"
+            rows="18"
+            placeholder="Escriba los párrafos iniciales o contenido base aquí. Puede inyectar variables haciendo clic en los botones del panel derecho en su cursor..."
+            class="w-full h-full min-h-[300px] px-4 py-3 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-2xl text-sm transition-all outline-none text-gray-700 font-semibold"></textarea>
+        </div>
+
+      </div>
+
+      <!-- Lado Derecho: Panel de Etiquetas Dinámicas -->
+      <div class="w-full xl:w-[40%]">
+        <app-template-tags-panel (tagSelected)="insertTag($event)"></app-template-tags-panel>
+      </div>
+
+    </div>
+  </div>
+
+</div>

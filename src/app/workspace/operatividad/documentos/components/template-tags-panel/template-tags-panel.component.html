@@ -1,0 +1,150 @@
+<div class="bg-gray-50/50 dark:bg-white/2 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col gap-4 shadow-inner">
+  <div class="border-b border-gray-200 dark:border-gray-800 pb-2.5">
+    <h5 class="text-xs font-black text-theme-primary dark:text-theme-secondary uppercase tracking-wider">Campos Dinámicos</h5>
+    <p class="text-[10px] text-gray-400 dark:text-gray-500 font-semibold mt-0.5">Seleccione una pestaña y haga clic en un campo para inyectar su etiqueta en el editor.</p>
+  </div>
+
+  <!-- Navegación de Pestañas (Tabs) -->
+  <div class="flex flex-wrap p-0.5 bg-gray-250 dark:bg-gray-800/50 rounded-xl shadow-inner shrink-0 gap-0.5">
+    <action-button (clicked)="activeFieldsTab.set('proyecto')" [variant]="activeFieldsTab() === 'proyecto' ? 'primary' : 'ghost'">
+      Proyecto
+    </action-button>
+    <action-button (clicked)="activeFieldsTab.set('proveedor')" [variant]="activeFieldsTab() === 'proveedor' ? 'primary' : 'ghost'">
+      Proveedor
+    </action-button>
+    <action-button (clicked)="activeFieldsTab.set('vehiculo')" [variant]="activeFieldsTab() === 'vehiculo' ? 'primary' : 'ghost'">
+      Vehículo
+    </action-button>
+    <action-button (clicked)="activeFieldsTab.set('evento')" [variant]="activeFieldsTab() === 'evento' ? 'primary' : 'ghost'">
+      Evento
+    </action-button>
+    <action-button (clicked)="activeFieldsTab.set('general')" [variant]="activeFieldsTab() === 'general' ? 'primary' : 'ghost'">
+      General
+    </action-button>
+    <action-button (clicked)="activeFieldsTab.set('personalizados')" [variant]="activeFieldsTab() === 'personalizados' ? 'primary' : 'ghost'">
+      Personalizados
+    </action-button>
+  </div>
+
+  <div class="space-y-4 animate-fadeIn">
+    <!-- Proyecto -->
+    @if (activeFieldsTab() === 'proyecto') {
+      <div class="space-y-2">
+        <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Proyecto:</label>
+        <div class="flex flex-wrap gap-2">
+          <action-button (clicked)="insertTag('{{__project_name__}}')" variant="outline"> 👉 Nombre </action-button>
+          <action-button (clicked)="insertTag('{{__project_code__}}')" variant="outline"> 👉 Clave  </action-button>
+          <action-button (clicked)="insertTag('{{__project_type__}}')" variant="outline"> 👉 Tipo   </action-button>
+        </div>
+      </div>
+      <hr class="border-gray-200 dark:border-gray-800" />
+      <div class="space-y-2">
+        <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos de la Partida:</label>
+        <div class="flex flex-wrap gap-2">
+          <action-button (clicked)="insertTag('{{__partida__}}')" variant="outline"> 👉 Partida Completa </action-button>
+        </div>
+      </div>
+      <hr class="border-gray-200 dark:border-gray-800" />
+      <div class="space-y-2">
+        <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos Financieros:</label>
+        <div class="flex flex-wrap gap-2">
+          <action-button (clicked)="insertTag('{{__ministration_month__}}')" variant="outline"> 👉 Mes Ministración </action-button>
+          <action-button (clicked)="insertTag('{{__project_date__}}')" variant="outline"> 👉 Fecha Proyecto </action-button>
+          <action-button (clicked)="insertTag('{{__viatics_amount__}}')" variant="outline"> 👉 Importe Viáticos </action-button>
+          <action-button (clicked)="insertTag('{{__fuel_amount__}}')" variant="outline"> 👉 Importe Combustible </action-button>
+          <action-button (clicked)="insertTag('{{__tolls_amount__}}')" variant="outline"> 👉 Importe Peajes </action-button>
+          <action-button (clicked)="insertTag('{{__passages_amount__}}')" variant="outline"> 👉 Importe Pasajes </action-button>
+        </div>
+      </div>
+    }
+
+    <!-- Proveedor -->
+    @if (activeFieldsTab() === 'proveedor') {
+      <div class="space-y-2">
+        <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Proveedor:</label>
+        <div class="flex flex-wrap gap-2">
+          <action-button (clicked)="insertTag('{{__provider_name__}}')" variant="outline"> 👉 Razón Social </action-button>
+          <action-button (clicked)="insertTag('{{__provider_rfc__}}')" variant="outline"> 👉 RFC </action-button>
+          <action-button (clicked)="insertTag('{{__provider_address__}}')" variant="outline"> 👉 Domicilio </action-button>
+          <action-button (clicked)="insertTag('{{__contract_number__}}')" variant="outline"> 👉 Núm. Contrato </action-button>
+          <action-button (clicked)="insertTag('{{__licitacion_number__}}')" variant="outline"> 👉 Núm. Licitación </action-button>
+          <action-button (clicked)="insertTag('{{__provider_phone__}}')" variant="outline"> 👉 Teléfono </action-button>
+          <action-button (clicked)="insertTag('{{__provider_email__}}')" variant="outline"> 👉 Correo </action-button>
+          <action-button (clicked)="insertTag('{{__provider_contact__}}')" variant="outline"> 👉 Contacto Principal </action-button>
+        </div>
+      </div>
+    }
+
+    <!-- Vehículo -->
+    @if (activeFieldsTab() === 'vehiculo') {
+      <div class="space-y-2">
+        <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Vehículo:</label>
+        <div class="flex flex-wrap gap-2">
+          <action-button (clicked)="insertTag('{{__vehicle_brand__}}')" variant="outline"> 👉 Marca </action-button>
+          <action-button (clicked)="insertTag('{{__vehicle_model__}}')" variant="outline"> 👉 Modelo </action-button>
+          <action-button (clicked)="insertTag('{{__vehicle_plates__}}')" variant="outline"> 👉 Placas </action-button>
+          <action-button (clicked)="insertTag('{{__vehicle_color__}}')" variant="outline"> 👉 Color </action-button>
+          <action-button (clicked)="insertTag('{{__vehicle_vin__}}')" variant="outline"> 👉 Número de Serie (VIN) </action-button>
+        </div>
+      </div>
+    }
+
+    <!-- Evento -->
+    @if (activeFieldsTab() === 'evento') {
+      <div class="space-y-2">
+        <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Campos del Evento:</label>
+        <div class="flex flex-wrap gap-2">
+          <action-button (clicked)="insertTag('{{__event_name__}}')" variant="outline"> 👉 Nombre del Evento </action-button>
+          <action-button (clicked)="insertTag('{{__event_date_short__}}')" variant="outline"> 👉 Fecha Corta </action-button>
+          <action-button (clicked)="insertTag('{{__event_date_long__}}')" variant="outline"> 👉 Fecha Larga </action-button>
+          <action-button (clicked)="insertTag('{{__event_date_with_day__}}')" variant="outline"> 👉 Fecha con Día </action-button>
+          <action-button (clicked)="insertTag('{{__event_cost__}} ({{__event_cost_letra__}})')" variant="outline"> 👉 Costo (Moneda y Letra) </action-button>
+          <action-button (clicked)="insertTag('{{__lugar_evento__}}')" variant="outline"> 👉 Sede / Ubicación </action-button>
+          <action-button (clicked)="insertTag('{{__event_organizer__}}')" variant="outline"> 👉 Organiza </action-button>
+        </div>
+      </div>
+    }
+
+    <!-- General -->
+    @if (activeFieldsTab() === 'general') {
+      <div class="space-y-2">
+        <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Etiquetas Generales de Fecha/Hora:</label>
+        <div class="flex flex-wrap gap-2">
+          <action-button (clicked)="insertTag('{{__current_date__}}')" variant="outline"> 👉 Fecha Actual (Corta) </action-button>
+          <action-button (clicked)="insertTag('{{__current_date_long__}}')" variant="outline"> 👉 Fecha Actual (Larga) </action-button>
+          <action-button (clicked)="insertTag('{{__range_date__}}')" variant="outline"> 👉 Rango de Fechas </action-button>
+          <action-button (clicked)="insertTag('{{__monto_moneda__}} ({{__monto_letra__}})')" variant="outline"> 👉 Monto Libre </action-button>
+          <action-button (clicked)="insertTag('{{__current_year__}}')" variant="outline"> 👉 Año Actual </action-button>
+          <action-button (clicked)="insertTag('{{__current_month__}}')" variant="outline"> 👉 Mes Actual </action-button>
+        </div>
+      </div>
+      <hr class="border-gray-200 dark:border-gray-800" />
+      <div class="space-y-2">
+        <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Etiquetas del Empleado Activo:</label>
+        <div class="flex flex-wrap gap-2">
+          <action-button (clicked)="insertTag('{{__user_name__}}')" variant="outline"> 👉 Mi Nombre </action-button>
+          <action-button (clicked)="insertTag('{{__user_position__}}')" variant="outline"> 👉 Mi Puesto </action-button>
+          <action-button (clicked)="insertTag('{{__user_area__}}')" variant="outline"> 👉 Mi Área / Dirección </action-button>
+        </div>
+      </div>
+    }
+
+    <!-- Personalizados -->
+    @if (activeFieldsTab() === 'personalizados') {
+      <div class="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-xl p-4">
+        <div class="flex items-start gap-3">
+          <div class="mt-0.5 text-blue-500">
+            <icon icon="InfoCircle" class="w-5 h-5"></icon>
+          </div>
+          <div>
+            <h6 class="text-xs font-bold text-blue-800 dark:text-blue-300">Variables Libres o Personalizadas</h6>
+            <p class="text-[11px] text-blue-600/80 dark:text-blue-400/80 mt-1 leading-relaxed">
+              Puedes escribir directamente cualquier etiqueta entre doble llave en tu documento (Ej. <strong>{{ '{' }}{{ '{' }}__mi_variable_1__{{ '}' }}{{ '}' }}</strong>). 
+              Al momento de crear un documento, el sistema detectará automáticamente todas las etiquetas personalizadas y generará un formulario para que ingreses sus valores.
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

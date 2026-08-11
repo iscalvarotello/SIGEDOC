@@ -4,7 +4,7 @@
   [badgeLabel]="activeAreaName() ? 'BANDEJA:' : ''" 
   [badgeValue]="activeAreaName() || ''" />
 
-<!-- SELECTOR DIRECTO / GESTIONADO Y REFRESH -->
+ <!-- SELECTOR DIRECTO / GESTIONADO Y REFRESH -->
  <doc-type-selector
   [selectedTipo]="selectedTipo()"
   [countDirecto]="countDirecto()"
@@ -12,6 +12,7 @@
   [countExterno]="countExterno()"
   [isLoading]="isLoading()"
   (tipoChange)="selectedTipo.set($event); closeActionForm()"
+  (manageTemplates)="navigateToTemplateManager()"
   (refresh)="loadInbox()">
 </doc-type-selector>
 

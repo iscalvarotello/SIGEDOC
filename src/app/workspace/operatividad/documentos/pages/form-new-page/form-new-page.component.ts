@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, effect, input } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, input, ViewChild } from '@angular/core';
 import { BehaviorSubject, combineLatest, firstValueFrom } from 'rxjs';
 import { ActionButtonComponent } from '@metasystem/components/buttons/action-button/action-button.component';
 import { IconComponent } from '@system-shared/common/icon/icon.component';
@@ -11,7 +11,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { DocumentService              } from '../../services/document.service';
 import { AreaService } from '@organization/areas/area.service';
 import { AreaDTO } from '@organization/areas/area.dto';
-import { InternalTemplatesService, InternalTemplateDTO } from '../../../../database/templates/internal-templates.service';
+import { InternalTemplatesService, InternalTemplateDTO } from '@database/templates/internal-templates.service';
 import { AdscriptionService           } from '@rh/adscriptions/adscription.service';
 import { DocumentTemplateService      } from '@security/templates/document-template.service';
 import { EmployeeService              } from '@rh/employees/employee.service';
@@ -41,7 +41,8 @@ import { LOCAL_ROUTE_KEYS             } from '@core/routing/local-routes.config'
 import { ExternalContactSelectComponent } from '@workspace-shared/components/selects/external-contact-select/external-contact-select.component';
 
 import { TopicComponent } from '@system-shared/form/topic/topic.component';
-import { TemplateManagerComponent } from '@workspace-shared/components/template-manager/template-manager.component';
+import { RichEditorComponent } from '@system-shared/form/rich-editor/rich-editor.component';
+import { VirtualPaperModalComponent } from '../../components/virtual-paper-modal/virtual-paper-modal.component';
 
 @Component({
   selector: 'app-form-new-page',
@@ -49,11 +50,13 @@ import { TemplateManagerComponent } from '@workspace-shared/components/template-
   imports: [ CommonModule, FormsModule, RouterLink, ClaseDocumentPipe, PageBreadcrumbComponent, AreaSelectComponent,
     EmployeeSelectComponent, ProjectSelectComponent, PartidaSelectComponent, SupplierSelectComponent, CarSelectComponent,
     DocumentTypeSelectComponent, DocumentAttachmentsComponent, DatePickerComponent, SubmitButtonComponent, CancelButtonComponent,
-    JobPositionSelectComponent, LocalRoutePipe, ExternalContactSelectComponent, IconComponent, ActionButtonComponent, TopicComponent, TemplateManagerComponent
+    JobPositionSelectComponent, LocalRoutePipe, ExternalContactSelectComponent, IconComponent, ActionButtonComponent, TopicComponent, RichEditorComponent, VirtualPaperModalComponent
   ],
   templateUrl: './form-new-page.component.html',
 })
 export class FormNewPageComponent implements OnInit {
+  @ViewChild(RichEditorComponent) richEditor?: RichEditorComponent;
+
   private _route = inject(ActivatedRoute);
   private _router = inject(Router);
   protected _session = inject(SesionService);
@@ -127,6 +130,18 @@ export class FormNewPageComponent implements OnInit {
 
   selectedProjectDate = signal<string>(new Date().toISOString().substring(0, 10));
 
+  // Proveedor
+  customContractNumber = signal<string>('');
+  customLicitacionNumber = signal<string>('');
+
+  // Evento
+  customEventDate = signal<string>('');
+  customEventCost = signal<string>('');
+
+  // General / Fechas
+  customStartDate = signal<string>('');
+  customEndDate = signal<string>('');
+
   // Campos libres de la pestaÃ±a 'libre'
   customEventName = signal<string>('');
   customEventPlace = signal<string>('');
@@ -145,6 +160,7 @@ export class FormNewPageComponent implements OnInit {
   showEventNameFields = signal<boolean>(false);
   showEventPlaceFields = signal<boolean>(false);
   showInvoiceFields = signal<boolean>(false);
+  showEventDateFields = signal<boolean>(false);
   showMontoFields = signal<boolean>(false);
   showFechaFields = signal<boolean>(false);
 
@@ -156,6 +172,10 @@ export class FormNewPageComponent implements OnInit {
   // Control para guardar plantilla
   showSaveTemplatePopover = signal<boolean>(false);
   showTemplateManager = signal<boolean>(false);
+
+  navigateToTemplateManager() {
+    this._router.navigate(['/operatividad/documento', this.claseDocumentoId(), 'templates']);
+  }
   newTemplateName = signal<string>('');
   isSavingTemplate = signal<boolean>(false);
 
@@ -209,6 +229,8 @@ export class FormNewPageComponent implements OnInit {
     dict['__provider_name__'] = sup ? (sup.razon_social || sup.name) : '';
     dict['__provider_rfc__'] = sup ? sup.rfc : '';
     dict['__provider_address__'] = this.customSupplierAddress();
+    dict['__contract_number__'] = this.customContractNumber();
+    dict['__licitacion_number__'] = this.customLicitacionNumber();
     
     // VehÃ­culo seleccionado
     const car = this.selectedCarObj();
@@ -220,6 +242,24 @@ export class FormNewPageComponent implements OnInit {
     dict['__event_name__'] = this.customEventName();
     dict['__lugar_evento__'] = this.customEventPlace();
     dict['__invoice__'] = this.customInvoice();
+    
+    // Evento - Fechas
+    dict['__event_date__'] = this.customEventDate();
+    dict['__event_date_short__'] = this.formatProjectDate(this.customEventDate(), 'compact');
+    dict['__event_date_long__'] = this.formatProjectDate(this.customEventDate(), 'full');
+    dict['__event_date_with_day__'] = this.formatProjectDate(this.customEventDate(), 'with_day');
+    
+    // Evento - Costos
+    const eventMontoVal = parseFloat(this.customEventCost());
+    dict['__event_cost__'] = !isNaN(eventMontoVal) ? this.formatCurrency(this.customEventCost()) : '';
+    dict['__event_cost_letra__'] = !isNaN(eventMontoVal) ? this.numeroALetras(eventMontoVal) : '';
+    
+    // Rango de Fechas
+    dict['__range_date__'] = this.formatDateRange(this.customStartDate(), this.customEndDate());
+    
+    // Fecha general
+    dict['__fecha_corta__'] = this.formatProjectDate(this.customFecha(), 'compact');
+    dict['__fecha_larga__'] = this.formatProjectDate(this.customFecha(), 'full');
     
     // Monto y Letra
     const montoVal = parseFloat(this.customMonto());
@@ -268,6 +308,63 @@ export class FormNewPageComponent implements OnInit {
       return `${dayNum}/${monthNameCompact}/${year}`;
     }
     return '';
+  }
+
+  /**
+   * Formatea un rango de fechas
+   */
+  formatDateRange(startStr: string, endStr: string): string {
+    if (!startStr || !endStr) return '';
+    const d1 = new Date(startStr + 'T12:00:00');
+    const d2 = new Date(endStr + 'T12:00:00');
+    if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return '';
+
+    const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    
+    const day1 = d1.getDate();
+    const month1 = months[d1.getMonth()];
+    
+    const day2 = d2.getDate();
+    const month2 = months[d2.getMonth()];
+    
+    const currentYear = new Date().getFullYear();
+    const year1 = d1.getFullYear();
+    const year2 = d2.getFullYear();
+    
+    // Mismo mes y año
+    if (month1 === month2 && year1 === year2) {
+      if (year1 === currentYear) {
+         return `${day1} al ${day2} de ${month1} del presente`;
+      }
+      return `${day1} al ${day2} de ${month1} de ${year1}`;
+    }
+    
+    // Diferente mes pero mismo año
+    if (year1 === year2) {
+      if (year1 === currentYear) {
+         return `${day1} de ${month1} al ${day2} de ${month2} del presente`;
+      }
+      return `${day1} de ${month1} al ${day2} de ${month2} de ${year1}`;
+    }
+    
+    // Diferentes años
+    return `${day1} de ${month1} de ${year1} al ${day2} de ${month2} de ${year2}`;
+  }
+
+  /**
+   * Reemplaza permanentemente las etiquetas en el editor con sus valores actuales
+   */
+  replaceTagsInBody() {
+    let content = this.cuerpo();
+    if (!content) return;
+    const dict = this.bodyDictionary();
+    for (const [key, value] of Object.entries(dict)) {
+      if (value !== '') {
+        const regex = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+        content = content.replace(regex, value);
+      }
+    }
+    this.cuerpo.set(content);
   }
 
   /**
@@ -848,6 +945,29 @@ export class FormNewPageComponent implements OnInit {
     return ads.area_type_name || 'Personal Operativo';
   }
 
+  showVirtualPaper = signal<boolean>(false);
+
+  virtualPaperMetadata = computed(() => {
+    return {
+      numero: 'BORRADOR',
+      asunto: this.asunto(),
+      fecha: this.formatProjectDate(this.fechaDocumento(), 'full'),
+      lugar: 'Tuxtla Gutiérrez, Chiapas',
+      destinatario_nombre: this.destinatarioNombre() || this.destinatarioTextoLibre(),
+      destinatario_puesto: this.destinatarioPuesto(),
+      remitente_nombre: this.remitenteNombre(),
+      remitente_puesto: this.remitentePuesto(),
+      area_nombre: this.allAreas().find(a => a.id_area === this.idAreaEmisora())?.nombre_area || ''
+    };
+  });
+
+  /**
+   * Dispara el renderizado de la vista de Papel Virtual para el documento local
+   */
+  generateLocalDocument() {
+    this.showVirtualPaper.set(true);
+  }
+
   /**
    * EnvÃ­a el formulario para crear el documento en base de datos y generar Drive
    */
@@ -1053,17 +1173,27 @@ export class FormNewPageComponent implements OnInit {
    * Inserta una etiqueta en la posiciÃ³n actual del cursor dentro del cuerpo
    */
   insertTag(tag: string) {
-    const textarea = document.getElementById('document-body-textarea') as HTMLTextAreaElement;
-    if (!textarea) {
-      this.cuerpo.set(this.cuerpo() + tag);
+    // Si tenemos el editor enriquecido instanciado (cuerpo)
+    if (this.richEditor && this.richEditor.editor) {
+      this.richEditor.insertTextAtCursor(tag);
+      return;
+    }
+
+    // Fallback para campos de texto normales (asume que están enfocados)
+    const textarea = document.activeElement as HTMLTextAreaElement | HTMLInputElement;
+    if (!textarea || typeof textarea.selectionStart !== 'number') {
+      this.cuerpo.set(this.cuerpo() + ' ' + tag);
       return;
     }
 
     const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const text = this.cuerpo();
+    const end = textarea.selectionEnd || start;
+    const text = textarea.value;
     const newText = text.substring(0, start) + tag + text.substring(end);
-    this.cuerpo.set(newText);
+    
+    // Disparar evento para actualizar formControl/ngModel
+    textarea.value = newText;
+    textarea.dispatchEvent(new Event('input'));
     
     setTimeout(() => {
       textarea.focus();

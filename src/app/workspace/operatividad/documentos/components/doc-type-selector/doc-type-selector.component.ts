@@ -18,4 +18,5 @@ export class DocTypeSelectorComponent {
 
   @Output() tipoChange = new EventEmitter<'directo' | 'gestionado' | 'recibido_externo'>();
   @Output() refresh = new EventEmitter<void>();
+  @Output() manageTemplates = new EventEmitter<void>();
 }

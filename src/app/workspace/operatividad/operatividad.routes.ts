@@ -22,5 +22,10 @@ export const OPERATIVIDAD_ROUTES: Routes = [
     path: 'recepcion-externa',
     loadComponent: () => import('./documentos/pages/form-external-page/form-external-page.component').then(m => m.FormExternalPageComponent),
     title: 'Recepción de Documentos Externos - Oficialía de Partes'
+  },
+  {
+    path: 'documento/:claseDocumentoId/templates',
+    loadComponent: () => import('./documentos/pages/template-manager-page/template-manager-page.component').then(m => m.TemplateManagerPageComponent),
+    title: 'Gestor de Plantillas'
   }
 ];

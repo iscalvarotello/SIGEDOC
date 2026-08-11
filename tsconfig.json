@@ -37,6 +37,7 @@
       "@logistica/*": ["src/app/workspace/database/logistica/*"],
       "@organization/*": ["src/app/workspace/database/organization/*"],
       "@rh/*": ["src/app/workspace/database/rh/*"],
+      "@database/*": ["src/app/workspace/database/*"],
       "@system/*": ["src/app/workspace/system/*"],
       "@security/*": ["src/app/workspace/system/security/*"],
       "@settings/*": ["src/app/workspace/system/settings/*"],

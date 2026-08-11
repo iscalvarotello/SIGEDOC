@@ -1,0 +1,53 @@
+/* Contenedor principal de la previsualización en pantalla */
+.virtual-paper-container {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 20mm;
+  box-sizing: border-box;
+  background-color: white;
+}
+
+/* Reglas de impresión global cuando este componente esté renderizado */
+@media print {
+  /* Ocultar el resto de la aplicación */
+  body > *:not(app-virtual-paper-modal) {
+    display: none !important;
+  }
+  
+  app-virtual-paper-modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Ocultar la barra de scroll y overlays */
+  .fixed.inset-0 {
+    position: relative !important;
+    background: transparent !important;
+    overflow: visible !important;
+  }
+
+  /* El contenedor principal de papel se adapta al tamaño físico */
+  .virtual-paper-container {
+    width: 100% !important;
+    min-height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important; /* Si el navegador ya le pone márgenes de página */
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Elementos específicos que no deben cortarse a la mitad */
+  .page-break-inside-avoid {
+    page-break-inside: avoid;
+  }
+
+  /* Asegurar que las imágenes mantengan su proporción */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+}
