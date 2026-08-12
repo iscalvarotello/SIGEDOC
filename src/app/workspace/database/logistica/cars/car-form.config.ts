@@ -70,6 +70,36 @@ export const CAR_FORM_CONFIG: FormControllerConfig = {
           type: 'number',
           label: 'Orden de Visualización',
           placeholder: 'Ej. 1'
+        },
+        {
+          key: 'color',
+          type: 'text',
+          label: 'Color del Vehículo',
+          placeholder: 'Ej. Blanco'
+        },
+        {
+          key: 'serie',
+          type: 'text',
+          label: 'Número de Serie (Sin VIN)',
+          placeholder: 'Ej. A1B2C3D4'
+        },
+        {
+          key: 'numero_motor',
+          type: 'text',
+          label: 'Número de Motor',
+          placeholder: 'Opcional...'
+        },
+        {
+          key: 'nrpv',
+          type: 'text',
+          label: 'N.R.P.V. (Reg. Público Vehicular)',
+          placeholder: 'Opcional...'
+        },
+        {
+          key: 'cilindros',
+          type: 'number',
+          label: 'Número de Cilindros',
+          placeholder: 'Ej. 4, 6, 8'
         }
       ]
     }

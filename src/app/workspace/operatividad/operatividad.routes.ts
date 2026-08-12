@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { DocumentPageComponent } from '@documentos/pages/document/document-page.component';
 import { FormNewPageComponent } from '@documentos/pages/form-new-page/form-new-page.component';
+import { FormEditPageComponent } from '@documentos/pages/form-edit-page/form-edit-page.component';
 
 export const OPERATIVIDAD_ROUTES: Routes = [
   {
@@ -17,6 +18,11 @@ export const OPERATIVIDAD_ROUTES: Routes = [
     path: 'form-new-document/:claseDocumentoId',
     component: FormNewPageComponent,
     title: 'Nuevo documento - Memorandums, Oficios, Tarjetas Informativas y Circulares'
+  },
+  {
+    path: 'edit-document/:id',
+    component: FormEditPageComponent,
+    title: 'Editar documento - Memorandums, Oficios, Tarjetas Informativas y Circulares'
   },
   {
     path: 'recepcion-externa',

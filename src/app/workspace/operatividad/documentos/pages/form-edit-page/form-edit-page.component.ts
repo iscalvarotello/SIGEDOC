@@ -45,16 +45,16 @@ import { VirtualPaperModalComponent } from '../../components/virtual-paper-modal
 import { DocumentEditorPanelComponent } from '../../components/document-editor-panel/document-editor-panel.component';
 
 @Component({
-  selector: 'app-form-new-page',
+  selector: 'app-form-edit-page',
   standalone: true,
   imports: [ CommonModule, FormsModule, RouterLink, ClaseDocumentPipe, PageBreadcrumbComponent, AreaSelectComponent,
     EmployeeSelectComponent, DocumentTypeSelectComponent, DocumentAttachmentsComponent, DatePickerComponent, SubmitButtonComponent, CancelButtonComponent,
     JobPositionSelectComponent, LocalRoutePipe, ExternalContactSelectComponent, IconComponent, ActionButtonComponent, TopicComponent, VirtualPaperModalComponent,
     DocumentEditorPanelComponent
   ],
-  templateUrl: './form-new-page.component.html',
+  templateUrl: './form-edit-page.component.html',
 })
-export class FormNewPageComponent implements OnInit {
+export class FormEditPageComponent implements OnInit {
   private _route = inject(ActivatedRoute);
   private _router = inject(Router);
   protected _session = inject(SesionService);
@@ -68,6 +68,8 @@ export class FormNewPageComponent implements OnInit {
   protected ROUTES = LOCAL_ROUTE_KEYS;
 
   claseDocumentoId = signal<any>('memo');
+  editingDocumentId = signal<string | null>(null);
+  isRecreating = signal<boolean>(false);
 
   // Estados del Formulario
   isLoading = signal<boolean>(false);
@@ -348,15 +350,22 @@ export class FormNewPageComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Suscribirse a parÃ¡metros de ruta para la clase de documento
+    this._route.queryParams.subscribe(q => {
+      this.isRecreating.set(q['recreate'] === 'true');
+    });
+
     this._route.params.subscribe(params => {
+      if (params['id']) {
+        this.editingDocumentId.set(params['id']);
+        this.loadDocumentForEditing(params['id']);
+      }
       if (params['claseDocumentoId']) {
         this.claseDocumentoId.set(params['claseDocumentoId']);
       }
       this.loadTemplates();
     });
 
-    // Cargar catÃ¡logos iniciales
+    // Cargar catálogos iniciales
     this.loadAreas();
     this.loadJobPositions();
     this.loadDynamicFieldsCatalogs();
@@ -369,6 +378,68 @@ export class FormNewPageComponent implements OnInit {
     this._route.queryParams.subscribe(qp => {
       this.handleQueryParams(qp);
     });
+  }
+
+  async loadDocumentForEditing(id: string) {
+    this.isLoading.set(true);
+    try {
+      const doc = await this._documentService.getById(id) as any;
+      
+      // Mapear clase de documento
+      if (doc.clase_documento?.id) {
+        this.claseDocumentoId.set(doc.clase_documento.id);
+        this.loadTemplates();
+      }
+
+      // Mapear campos básicos
+      this.asunto.set(doc.asunto || '');
+      this.temas.set(doc.temas || '');
+      this.cuerpo.set(doc.cuerpo || '');
+      this.bodyDictionary.set(doc.body_dictionary || {});
+      
+      if (doc.fecha_documento) {
+        this.fechaDocumento.set(doc.fecha_documento.split('T')[0]);
+      }
+
+      // Mapear remitente
+      if (doc.id_area_remitente) {
+        this.idAreaEmisora.set(doc.id_area_remitente);
+      }
+      
+      // Mapear destinatarios (principal y CCP)
+      if (doc.destinatarios && doc.destinatarios.length > 0) {
+        const principal = doc.destinatarios.find((d: any) => d.tipo === 'Principal');
+        if (principal) {
+          if (principal.tipo_destinatario === 'interno') {
+            this.tipoDestinatarioOficio.set('oficial');
+            this.idAreaReceptora.set(principal.id_area_destino);
+            this.idDestinatarioInterno.set(principal.id_empleado_destino);
+          } else {
+            this.tipoDestinatarioOficio.set('libre');
+            this.idContactoExterno.set(principal.id_contacto_externo);
+          }
+        }
+        
+        const ccps = doc.destinatarios.filter((d: any) => d.tipo === 'CCP');
+        this.ccps.set(ccps.map((c: any) => ({
+          id_area: c.id_area_destino,
+          id_empleado: c.id_empleado_destino,
+          nombre_area: c.area?.nombre || '',
+          nombre_empleado: c.empleado ? `${c.empleado.nombres} ${c.empleado.apellidos}` : ''
+        })));
+      }
+      
+      // Mapear anexos
+      if (doc.anexos) {
+        this.anexos.set(doc.anexos);
+      }
+      
+    } catch (e) {
+      console.error('Error al cargar el documento', e);
+      alert('Error al cargar el documento para edición');
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   /**
@@ -1000,12 +1071,12 @@ export class FormNewPageComponent implements OnInit {
 
     this.isLoading.set(true);
     try {
-      if (qp['follow_up_to']) {
-        payload.id_documento_original = qp['follow_up_to'];
-        await this._documentService.followUp(qp['follow_up_to'], payload);
-      } else if (qp['reply_to']) {
-        payload.id_documento_original = qp['reply_to'];
-        await this._documentService.reply(qp['reply_to'], payload);
+      const docId = this.editingDocumentId();
+      if (docId) {
+        await this._documentService.update(docId, payload);
+        if (this.isRecreating()) {
+          await this._documentService.renderGoogleDoc(docId, true);
+        }
       } else {
         await this._documentService.create(payload);
       }

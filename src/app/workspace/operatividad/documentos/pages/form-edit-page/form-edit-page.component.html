@@ -404,7 +404,7 @@
           <!-- Botón Guardar -->
           <submit-button 
             [submitting]="isLoading()"
-            label="Guardar">
+            [label]="isRecreating() ? 'Guardar y Re-crear en Drive' : 'Guardar'">
           </submit-button>
         </div>
       </div>

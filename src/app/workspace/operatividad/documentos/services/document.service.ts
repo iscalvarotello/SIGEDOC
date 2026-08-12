@@ -51,6 +51,21 @@ export class DocumentService extends BaseApiService<DocumentInboxDTO> {
     }
   }
 
+  // 📄 Renderizado en Google Docs ──────────────────────────────────
+  public async renderGoogleDoc(id: string, recreate: boolean = false): Promise<{ driveId: string, driveUrl: string }> {
+    try {
+      const url = recreate ? `documents/documentos/${id}/render-google-docs?recreate=true` : `documents/documentos/${id}/render-google-docs`;
+      const response = await firstValueFrom(this.http.post<{ driveId: string, driveUrl: string }>(
+        this.apiRouteService.getAbsoluteUrl(url), 
+        {}
+      ));
+      return response;
+    } catch (error) {
+      console.error('Error in renderGoogleDoc:', error);
+      throw error;
+    }
+  }
+
   // Listas agrupadas para filtrado masivo
   public readonly listRecibidas = [
     this.bandejasRecibidas.porRecibir,

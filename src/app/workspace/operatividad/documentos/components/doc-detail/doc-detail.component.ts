@@ -1,6 +1,6 @@
 import { Component, OnDestroy, inject, signal, computed, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { CommonModule                   } from '@angular/common';
-import { Router                         } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule                    } from '@angular/forms';
 import { SesionService                  } from '@core/services/sesion.service';
 
@@ -22,7 +22,6 @@ import { ViewerOption                   } from '@system-shared/media/viewer-sele
 import { GlobeComponent                 } from '@system-shared/ui/globe/globe.component';
 import { TitleComponent                 } from '@system-shared/ui/title/title.component';
 import { BadgeComponent                 } from '@system-shared/ui/badge/badge.component';
-import { GoogleDriveViewerLinkComponent } from '@system-shared/media/google-drive-viewer-link/google-drive-viewer-link.component';
 
 import { ClaseDocumentoId               } from '../../interfaces/document.interface';
 import { DocActionsToolbarComponent     } from '../doc-actions-toolbar/doc-actions-toolbar.component';
@@ -40,7 +39,7 @@ import { TopicComponent                 } from '@system-shared/form/topic/topic.
   selector: 'doc-detail',
   standalone: true,
   imports: [ActionButtonComponent,
-    CommonModule,
+    CommonModule, RouterLink,
     FormsModule,
     PdfViewerComponent,
     TopicComponent,
@@ -51,7 +50,7 @@ import { TopicComponent                 } from '@system-shared/form/topic/topic.
     ButtonOkComponent,
     ButtonXComponent,
     DocHistoryLinksComponent,
-    GoogleDriveViewerLinkComponent,
+
     OpenPdfButtonComponent,
     PreviewPdfButtonComponent,
     MergePdfButtonComponent,
@@ -113,9 +112,33 @@ export class DocDetailComponent implements OnDestroy {
   private _areaService = inject(AreaService);
   private _session = inject(SesionService);
   
+  isRenderingGoogleDocs = signal<boolean>(false);
+
+  async renderGoogleDocs(id: string) {
+    this.isRenderingGoogleDocs.set(true);
+    try {
+      await this._documentService.renderGoogleDoc(id);
+      const updatedDoc = await this._documentService.getById(id);
+      this._doc.set(updatedDoc);
+    } catch (e: any) {
+      console.error(e);
+      alert('Error renderizando Google Docs: ' + (e?.error?.message || e?.message));
+    } finally {
+      this.isRenderingGoogleDocs.set(false);
+    }
+  }
+
+  openDriveLink(url: string) {
+    window.open(url, '_blank');
+  }
   isReviewer = computed(() => {
     const docVal = this._doc();
     return docVal ? (docVal.id_revisor == this._session.currentUserData()?.id_empleado || docVal.id_revisor == this._session.dataUser.idUser) : false;
+  });
+
+  isCreator = computed(() => {
+    const docVal = this._doc();
+    return docVal ? (docVal.id_solicitante == this._session.currentUserData()?.id_empleado) : false;
   });
 
   editTemas = '';

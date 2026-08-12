@@ -19,6 +19,11 @@ export class CarDTO extends BaseDto<CarDTO> implements IBaseEntity {
   rendimiento!: number;
   category!: CategoryCar;
   index_sort?: number | null;
+  color?: string;
+  serie?: string;
+  numero_motor?: string;
+  nrpv?: string;
+  cilindros?: number;
 
   constructor(data: any) {
     super();
@@ -32,6 +37,11 @@ export class CarDTO extends BaseDto<CarDTO> implements IBaseEntity {
       this.rendimiento = data.rendimiento;
       this.category = data.category;
       this.index_sort = data.index_sort;
+      this.color = data.color;
+      this.serie = data.serie;
+      this.numero_motor = data.numero_motor;
+      this.nrpv = data.nrpv;
+      this.cilindros = data.cilindros;
     }
   }
 }
