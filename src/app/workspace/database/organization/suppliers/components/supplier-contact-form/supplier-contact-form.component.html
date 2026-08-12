@@ -1,0 +1,60 @@
+<app-modal [isOpen]="isOpen" className="max-w-md w-full" (close)="onCancel()">
+  
+  <div class="px-6 py-5 border-b border-gray-100 dark:border-gray-800">
+    <h3 class="text-lg font-bold text-gray-900 dark:text-white">
+      {{ editIndex !== null ? 'Editar Contacto' : 'Nuevo Contacto' }}
+    </h3>
+  </div>
+
+  <div class="px-6 py-4">
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      Ingrese la información del contacto para agregarlo al directorio del proveedor.
+    </p>
+
+    <form [formGroup]="contactForm" class="flex flex-col gap-5" (ngSubmit)="onSave()">
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Nombre Completo <span class="text-red-500">*</span>
+        </label>
+        <input type="text" formControlName="name" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Ej. Juan Pérez">
+        <div *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched" class="text-xs text-red-500 mt-1">
+          El nombre es requerido.
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Cargo / Puesto
+        </label>
+        <input type="text" formControlName="job" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Ej. Gerente de Ventas">
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Correo Electrónico
+        </label>
+        <input type="email" formControlName="email" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Ej. juan.perez@empresa.com">
+        <div *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched" class="text-xs text-red-500 mt-1">
+          Ingrese un correo válido.
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Teléfono
+        </label>
+        <input type="text" formControlName="phone" class="w-full rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" placeholder="Ej. +52 961 123 4567">
+      </div>
+
+    </form>
+  </div>
+
+  <div modal-footer class="flex gap-3 w-full border-t border-gray-100 dark:border-gray-800 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-b-xl">
+    <cancel-button (clicked)="onCancel()" [disabled]="isSaving"></cancel-button>
+    <action-button class="flex-1" size="lg" [fullWidth]="true" variant="primary" (clicked)="onSave()" [disabled]="isSaving || contactForm.invalid">
+      <span *ngIf="!isSaving">{{ editIndex !== null ? 'Guardar Cambios' : 'Agregar Contacto' }}</span>
+      <span *ngIf="isSaving">Guardando...</span>
+    </action-button>
+  </div>
+</app-modal>

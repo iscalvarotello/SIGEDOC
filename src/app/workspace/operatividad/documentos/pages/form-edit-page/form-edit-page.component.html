@@ -16,46 +16,40 @@
     <!-- Cuerpo del Formulario -->
     <form (submit)="onSubmit(); $event.preventDefault()" class="p-6 space-y-6">
 
-      <!-- Fila 1: Tipo de Documento, Plantilla y Fecha -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-[150]">
-        <!-- Tipo de Documento -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Tipo de Documento</label>
-          <app-document-type-select [value]="claseDocumentoId()" (valueChange)="onClaseDocumentoChange($event)"></app-document-type-select>
+      <!-- ROW: Datos Fijos (Solo Recreación) -->
+      @if (isRecreating()) {
+        <div class="bg-gray-50 rounded-2xl p-5 border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+           <div>
+             <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Edición del {{ claseDocumentoId() | claseDocument:'singular' }}</span>
+             <div class="font-extrabold text-theme-primary text-sm uppercase mt-0.5">
+               No. {{ numeroDocumento() || 'S/N' }}
+             </div>
+           </div>
+           <div class="sm:text-right">
+             <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider block">Remitente Fijo</span>
+             <div class="font-extrabold text-gray-800 text-sm flex gap-2 items-center sm:justify-end mt-0.5">
+               <span>{{ remitenteNombre() }}</span>
+               <span class="bg-theme-primary/10 text-theme-primary px-2 py-0.5 rounded text-[10px] font-black">{{ remitenteAcronimo() || 'DAYSE' }}</span>
+             </div>
+             <span class="text-xs text-gray-500 font-medium block mt-0.5">{{ remitentePuesto() }}</span>
+           </div>
         </div>
+      }
 
-        <!-- Plantilla -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Plantilla del Documento</label>
-          <select 
-            [ngModel]="idTemplate()"
-            (ngModelChange)="idTemplate.set($event)"
-            [ngModelOptions]="{standalone: true}"
-            required
-            class="w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-bold">
-            @for (temp of templatesForClass(); track temp.id) {
-              <option [value]="temp.id">{{ temp.name }}</option>
-            }
-            @if (templatesForClass().length === 0) {
-              <option value="">Sin plantillas disponibles para esta clase</option>
-            }
-          </select>
+      <!-- Fila 1: Tipo de Documento -->
+      @if (!isRecreating()) {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-[150]">
+          <!-- Tipo de Documento -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Tipo de Documento</label>
+            <app-document-type-select [value]="claseDocumentoId()" (valueChange)="onClaseDocumentoChange($event)"></app-document-type-select>
+          </div>
         </div>
-
-        <!-- Fecha -->
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Fecha del Documento</label>
-          <app-date-picker
-            id="fecha_documento"
-            [defaultDate]="fechaDocumento()"
-            (dateChange)="fechaDocumento.set($event.dateStr)"
-            placeholder="Seleccione fecha del documento...">
-          </app-date-picker>
-        </div>
-      </div>
+      }
 
       <!-- Fila 2: SECTOR DE REMITENTE (Quién Firma) -->
-      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4 relative z-[140]">
+      @if (!isRecreating()) {
+        <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4 relative z-[140]">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-gray-200 pb-3">
           <h4 class="text-xs font-black text-theme-primary uppercase tracking-wider">Remitente (Firma el Documento)</h4>
           
@@ -93,10 +87,45 @@
             </div>
           </div>
         }
-      </div>
+        </div>
+      }
 
-      <!-- Fila 3: SECTOR DE DESTINATARIO (Quién Recibe) -->
-      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4 relative z-[130]">
+      <!-- ROW: Fecha, Plantilla y Destinatario -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-[130]">
+        <!-- Columna Izquierda: Fecha y Plantilla -->
+        <div class="flex flex-col gap-6 lg:col-span-4">
+          <!-- Fecha -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Fecha del Documento</label>
+            <app-date-picker
+              id="fecha_documento"
+              [defaultDate]="fechaDocumento()"
+              (dateChange)="fechaDocumento.set($event.dateStr)"
+              placeholder="Seleccione fecha del documento...">
+            </app-date-picker>
+          </div>
+
+          <!-- Plantilla -->
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Plantilla del Documento</label>
+            <select 
+              [ngModel]="idTemplate()"
+              (ngModelChange)="idTemplate.set($event)"
+              [ngModelOptions]="{standalone: true}"
+              required
+              class="w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-bold">
+              @for (temp of templatesForClass(); track temp.id) {
+                <option [value]="temp.id">{{ temp.name }}</option>
+              }
+              @if (templatesForClass().length === 0) {
+                <option value="">Sin plantillas disponibles para esta clase</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Destinatario -->
+        <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4 lg:col-span-8">
         
         <!-- MEMO / TARJETA INFORMATIVA -->
         @if (claseDocumentoId() === 'memo' || claseDocumentoId() === 'ti') {
@@ -222,6 +251,7 @@
           </div>
         }
 
+        </div>
       </div>
 
       <!-- Fila 4: Tema y Asunto -->

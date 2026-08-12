@@ -1,0 +1,9 @@
+<div class="tinymce-wrapper border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm">
+  <editor
+    [id]="id"
+    [init]="editorConfig"
+    [ngModel]="value"
+    (ngModelChange)="onModelChange($event)"
+    [disabled]="isDisabled"
+  ></editor>
+</div>

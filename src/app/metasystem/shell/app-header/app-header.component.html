@@ -6,7 +6,7 @@
       <toggle-icon-button [active]="(isMobileOpen$ | async)!" (toggled)="handleToggle()" iconOn="Cross" iconOff="HamburgerMenu" title="Toggle Sidebar" class="z-99999"></toggle-icon-button>
 
       <!-- Logo (placeholder) -->
-      <a routerLink="/" class="xl:hidden"><logo></logo></a>
+      <a routerLink="/" class="xl:hidden"><logo width="150"></logo></a>
 
       <!-- Icon Button for DotsMenu -->
       <icon-button icon="DotsMenu" variant="ghost" customClasses="xl:hidden z-99999" (clicked)="toggleApplicationMenu()"></icon-button>

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SvgIconPipe } from '@system-pipe/svg-icon.pipe';
 import { IconComponent } from '@system-shared/common/icon/icon.component';
@@ -21,4 +21,8 @@ export interface ContactInfo {
 })
 export class ContactCardComponent {
   @Input({ required: true }) contact!: ContactInfo;
+  @Input() allowActions = false;
+  
+  @Output() edit = new EventEmitter<void>();
+  @Output() delete = new EventEmitter<void>();
 }

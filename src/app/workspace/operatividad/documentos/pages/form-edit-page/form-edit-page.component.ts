@@ -69,6 +69,7 @@ export class FormEditPageComponent implements OnInit {
 
   claseDocumentoId = signal<any>('memo');
   editingDocumentId = signal<string | null>(null);
+  numeroDocumento = signal<string>('');
   isRecreating = signal<boolean>(false);
 
   // Estados del Formulario
@@ -401,31 +402,34 @@ export class FormEditPageComponent implements OnInit {
         this.fechaDocumento.set(doc.fecha_documento.split('T')[0]);
       }
 
+      if (doc.num_doc) {
+        this.numeroDocumento.set(doc.num_doc);
+      }
+
       // Mapear remitente
       if (doc.id_area_remitente) {
         this.idAreaEmisora.set(doc.id_area_remitente);
       }
       
-      // Mapear destinatarios (principal y CCP)
-      if (doc.destinatarios && doc.destinatarios.length > 0) {
-        const principal = doc.destinatarios.find((d: any) => d.tipo === 'Principal');
-        if (principal) {
-          if (principal.tipo_destinatario === 'interno') {
-            this.tipoDestinatarioOficio.set('oficial');
-            this.idAreaReceptora.set(principal.id_area_destino);
-            this.idDestinatarioInterno.set(principal.id_empleado_destino);
-          } else {
-            this.tipoDestinatarioOficio.set('libre');
-            this.idContactoExterno.set(principal.id_contacto_externo);
-          }
-        }
-        
-        const ccps = doc.destinatarios.filter((d: any) => d.tipo === 'CCP');
-        this.ccps.set(ccps.map((c: any) => ({
-          id_area: c.id_area_destino,
-          id_empleado: c.id_empleado_destino,
-          nombre_area: c.area?.nombre || '',
-          nombre_empleado: c.empleado ? `${c.empleado.nombres} ${c.empleado.apellidos}` : ''
+      // Mapear destinatario principal
+      if (doc.area_receptora) {
+        this.tipoDestinatarioOficio.set('oficial');
+        await this.onDestinatarioAreaChange(doc.area_receptora.id, doc.destinatario_interno?.id || doc.destinatario_interno?.employee_id);
+      } else if (doc.destinatario_oficial) {
+        this.tipoDestinatarioOficio.set('oficial');
+        this.onExternalContactSelect(doc.destinatario_oficial);
+      } else if (doc.destinatario_texto_libre) {
+        this.tipoDestinatarioOficio.set('libre');
+        this.destinatarioTextoLibre.set(doc.destinatario_texto_libre);
+      }
+      
+      // Mapear ccps
+      if (doc.ccps && doc.ccps.length > 0) {
+        this.ccps.set(doc.ccps.map((c: any) => ({
+          id_area: c.area?.id || '',
+          id_empleado: c.empleado?.id || c.empleado?.employee_id || '',
+          nombre_area: c.area?.nombre || c.area?.name || '',
+          nombre_empleado: c.empleado?.person ? `${c.empleado.person.name || ''} ${c.empleado.person.first_surname || ''} ${c.empleado.person.second_surname || ''}`.trim() : ''
         })));
       }
       
@@ -961,6 +965,8 @@ export class FormEditPageComponent implements OnInit {
     };
 
     // Relaciones de seguimiento y respuestas se gestionan mediante endpoints especializados y UUIDs
+    
+    console.log('[FRONTEND DEBUG] HTML cuerpo al guardar:', payload.cuerpo);
 
     // ValidaciÃ³n y empaquetado del Destinatario segÃºn la clase
     const clase = this.claseDocumentoId();

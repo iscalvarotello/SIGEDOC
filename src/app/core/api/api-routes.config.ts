@@ -85,6 +85,7 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
                                               draftAction       : { path: '/documents/documentos/:id/draft-action'       , method: 'GET'                       } ,
                                               testPdf           : { path: '/documents/documentos/:id/view_pdf_temp'      , method: 'POST'                      } ,
                                               addCcp            : { path: '/documents/documentos/:id/add-ccp'            , method: 'POST'                      } ,
+                                              details           : { path: '/documents/documentos/:id/details'            , method: 'PATCH'                     } ,
                                               possibleReviewers : { path: '/documents/documentos/:id/possible-reviewers' , method: 'GET'  , raw: true          } ,
                                               comments          : { path: '/documents/documentos/:id/comments'           , method: 'PATCH'                     } ,
                                               updateAttachments : { path: '/documents/documentos/:id/anexos'             , method: 'POST'                      } ,

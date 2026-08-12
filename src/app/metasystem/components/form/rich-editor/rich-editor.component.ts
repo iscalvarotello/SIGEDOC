@@ -8,6 +8,7 @@ import { Table } from '@tiptap/extension-table';
 import { TableRow } from '@tiptap/extension-table-row';
 import { TableHeader } from '@tiptap/extension-table-header';
 import { TableCell } from '@tiptap/extension-table-cell';
+import { EditorInjectionStrategy } from '../editor-injection.strategy';
 
 @Component({
   selector: 'app-rich-editor',
@@ -19,10 +20,14 @@ import { TableCell } from '@tiptap/extension-table-cell';
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => RichEditorComponent),
       multi: true
+    },
+    {
+      provide: EditorInjectionStrategy,
+      useExisting: forwardRef(() => RichEditorComponent)
     }
   ]
 })
-export class RichEditorComponent implements ControlValueAccessor, OnInit, OnDestroy {
+export class RichEditorComponent extends EditorInjectionStrategy implements ControlValueAccessor, OnInit, OnDestroy {
   @Input() placeholder = 'Escriba aquí...';
   
   editor!: Editor;

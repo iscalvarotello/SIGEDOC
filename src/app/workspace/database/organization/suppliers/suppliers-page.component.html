@@ -28,16 +28,37 @@
           [fields]="pageConfig.detailFields">
           
           <!-- Extra content in detail viewer for contacts -->
-          @if (selectedItem()?.contacts?.length) {
-            <div class="mt-6 border-t border-gray-100 dark:border-gray-700 pt-4">
-              <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Contactos</h4>
+          <div class="mt-6 border-t border-gray-100 dark:border-gray-700 pt-4">
+            <div class="flex justify-between items-center mb-3">
+              <h4 class="text-sm font-semibold text-gray-900 dark:text-white">Contactos</h4>
+              <button 
+                (click)="openContactModal()"
+                class="px-2.5 py-1 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 rounded-md hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                </svg>
+                Nuevo Contacto
+              </button>
+            </div>
+            
+            @if (selectedItem()?.contacts?.length) {
               <div class="flex flex-col gap-4 w-full">
                 @for (contact of selectedItem()?.contacts; track contact.email || $index) {
-                  <app-contact-card [contact]="contact" class="block w-full"></app-contact-card>
+                  <app-contact-card 
+                    [contact]="contact" 
+                    [allowActions]="true"
+                    (edit)="openContactModal($index, contact)"
+                    (delete)="deleteContact($index)"
+                    class="block w-full">
+                  </app-contact-card>
                 }
               </div>
-            </div>
-          }
+            } @else {
+              <div class="text-center py-4 text-sm text-gray-500 dark:text-gray-400 italic bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                No hay contactos registrados.
+              </div>
+            }
+          </div>
 
           <!-- Attachments (Anexos) section via generic component -->
           <div class="mt-8 border-t border-gray-100 dark:border-gray-700 pt-6">
@@ -69,3 +90,13 @@
       (closeForm)="closeAttachmentModal()"
       (saveForm)="onSaveAttachment($event)">
     </app-supplier-attachment-form>
+
+    <!-- Modal de Contactos -->
+    <app-supplier-contact-form
+      [isOpen]="isContactModalOpen()"
+      [isSaving]="isSaving()"
+      [editContact]="currentContactPayload()"
+      [editIndex]="editingContactIndex()"
+      (closeForm)="closeContactModal()"
+      (saveForm)="saveContact($event)">
+    </app-supplier-contact-form>

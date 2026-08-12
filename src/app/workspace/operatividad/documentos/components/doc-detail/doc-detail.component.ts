@@ -185,7 +185,7 @@ export class DocDetailComponent implements OnDestroy {
 
     this.isSavingDetails.set(true);
     try {
-      const updated = await this._documentService.update(docVal.id, {
+      const updated = await this._documentService.updateDetails(docVal.id, {
         asunto: this.editAsunto.trim(),
         temas: this.editTemas.trim()
       });

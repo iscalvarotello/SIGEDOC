@@ -12,13 +12,14 @@ import { AttachmentService } from '@core/services/attachment.service';
 import { SUPPLIER_PAGE_CONFIG } from './supplier-page.config';
 
 import { AttachmentListComponent, AttachmentItem } from '@system-shared/media/attachment-list/attachment-list.component';
-import { ContactCardComponent } from '@workspace-shared/components/common/contact-card/contact-card.component';
+import { ContactCardComponent, ContactInfo } from '@workspace-shared/components/common/contact-card/contact-card.component';
 import { SupplierAttachmentFormComponent, SupplierAttachmentPayload } from './components/supplier-attachment-form/supplier-attachment-form.component';
+import { SupplierContactFormComponent, SupplierContactPayload } from './components/supplier-contact-form/supplier-contact-form.component';
 
 @Component({
   selector: 'app-suppliers-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, MasterWrapperComponent, DataTableComponent, DetailViewerComponent, AttachmentListComponent, ContactCardComponent, SupplierAttachmentFormComponent],
+  imports: [CommonModule, FormsModule, MasterWrapperComponent, DataTableComponent, DetailViewerComponent, AttachmentListComponent, ContactCardComponent, SupplierAttachmentFormComponent, SupplierContactFormComponent],
   templateUrl: './suppliers-page.component.html'
 })
 export class SuppliersPageComponent extends BasePageController<SupplierDTO> {
@@ -31,6 +32,11 @@ export class SuppliersPageComponent extends BasePageController<SupplierDTO> {
   isUploading = signal<boolean>(false);
   isSaving = signal<boolean>(false);
 
+  // Contact Modal states
+  isContactModalOpen = signal<boolean>(false);
+  editingContactIndex = signal<number | null>(null);
+  currentContactPayload = signal<ContactInfo | null>(null);
+
   openAttachmentModal() {
     this.isAttachmentModalOpen.set(true);
   }
@@ -39,7 +45,88 @@ export class SuppliersPageComponent extends BasePageController<SupplierDTO> {
     this.isAttachmentModalOpen.set(false);
   }
 
+  openContactModal(index: number | null = null, contact: ContactInfo | null = null) {
+    this.editingContactIndex.set(index);
+    this.currentContactPayload.set(contact);
+    this.isContactModalOpen.set(true);
+  }
 
+  closeContactModal() {
+    this.isContactModalOpen.set(false);
+    this.editingContactIndex.set(null);
+    this.currentContactPayload.set(null);
+  }
+
+  async saveContact(payload: SupplierContactPayload) {
+    const supplier = this.selectedItem();
+    if (!supplier) return;
+
+    this.isSaving.set(true);
+    try {
+      const updatedContacts = [...(supplier.contacts || [])];
+      
+      // Ensure we map ContactInfo to ContactDTO
+      const newContact = {
+        name: payload.contact.name,
+        job: payload.contact.job || '',
+        email: payload.contact.email || '',
+        phone: payload.contact.phone || ''
+      };
+      
+      if (payload.index !== null && payload.index >= 0) {
+        // Edit existing
+        updatedContacts[payload.index] = newContact;
+      } else {
+        // Add new
+        updatedContacts.push(newContact);
+      }
+
+      await this.apiService.update(supplier.id, { contacts: updatedContacts });
+      
+      // Actualizar el item seleccionado localmente para reflejar los cambios en la UI
+      this.selectedItem.set({
+        ...supplier,
+        contacts: updatedContacts
+      } as any);
+
+      await this.refresh();
+      this.closeContactModal();
+    } catch (error) {
+      console.error('Error al guardar contacto', error);
+      alert('Error al guardar el contacto.');
+    } finally {
+      this.isSaving.set(false);
+    }
+  }
+
+  async deleteContact(index: number) {
+    const supplier = this.selectedItem();
+    if (!supplier || !supplier.contacts) return;
+
+    const result = confirm('¿Estás seguro de que deseas eliminar este contacto?');
+    if (!result) return;
+
+    this.isSaving.set(true);
+    try {
+      const updatedContacts = [...supplier.contacts];
+      updatedContacts.splice(index, 1);
+
+      await this.apiService.update(supplier.id, { contacts: updatedContacts });
+      
+      // Actualizar el item seleccionado localmente para reflejar los cambios en la UI
+      this.selectedItem.set({
+        ...supplier,
+        contacts: updatedContacts
+      } as any);
+
+      await this.refresh();
+    } catch (error) {
+      console.error('Error al eliminar contacto', error);
+      alert('No se pudo eliminar el contacto.');
+    } finally {
+      this.isSaving.set(false);
+    }
+  }
 
   async onSaveAttachment(payload: SupplierAttachmentPayload) {
     const currentSupplier = this.selectedItem();

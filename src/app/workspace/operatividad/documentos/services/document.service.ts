@@ -212,6 +212,10 @@ export class DocumentService extends BaseApiService<DocumentInboxDTO> {
     return this.executeSpecialRoute('comments', { id }, { comentarios });
   }
 
+  public async updateDetails(id: string, details: { asunto?: string, temas?: string }): Promise<any> {
+    return this.executeSpecialRoute('details', { id }, details);
+  }
+
   /**
    * Obtiene la estructura pre-llenada para seguimiento o respuesta de un documento.
    * @param id ID del documento original.

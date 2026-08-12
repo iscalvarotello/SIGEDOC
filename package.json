@@ -27,6 +27,7 @@
     "@fullcalendar/timegrid": "^6.1.20",
     "@popperjs/core": "^2.11.8",
     "@tailwindcss/postcss": "^4.2.2",
+    "@tinymce/tinymce-angular": "^9.1.1",
     "@tiptap/core": "^3.29.2",
     "@tiptap/extension-table": "^3.29.2",
     "@tiptap/extension-table-cell": "^3.29.2",
@@ -43,6 +44,7 @@
     "rxjs": "~7.8.0",
     "swiper": "^11.2.10",
     "tailwindcss": "^4.2.2",
+    "tinymce": "^8.8.2",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
   },
