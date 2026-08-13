@@ -55,7 +55,7 @@ export interface DocumentItem {
     anexos_drive_folder_id? : string           ,
 }
 
-export type ClaseDocumentoId    = 'memo'        | 'oficio'      | 'ti'         | 'circular';
+export type ClaseDocumentoId    = 'memo'        | 'oficio'      | 'ti'         | 'circular'    | 'incidencia' | 'contrato' | 'convenio';
 export type TipoDocumentoId     = 'directo'     | 'gestionado'  | 'para_firma' | 'recibido'   ;
 export type Estatus             = 'En edición'  | 'En revision' | 'En espera'  | 'Entregado' | 'Cancelado' ;
 export type MedioEnvio          = 'sin enviar'  | 'directo'     | 'sistema'    | 'correo'    | 'postal'    | 'whatsapp' ;

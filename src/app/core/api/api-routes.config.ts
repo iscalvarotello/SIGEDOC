@@ -46,7 +46,8 @@ export const ENDPOINT_KEYS = {
   NOTIFICATIONS: 'notifications',
   CRON_JOBS: 'cron_jobs',
   INSTITUTIONS: 'institutions',
-  SUPER_SEED: 'super-seed'
+  SUPER_SEED: 'super-seed',
+  HTML_TEMPLATES: 'html_templates'
 };
 
 export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
@@ -78,6 +79,7 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
                                               action            : { path: '/documents/documentos/:id/action'             , method: 'PATCH'                     } ,
                                               download          : { path: '/documents/documentos/:id/pdf'                , method: 'GET', responseType: 'blob' } ,
                                               downloadMerged    : { path: '/documents/documentos/:id/pdf-merged'         , method: 'GET', responseType: 'blob' } ,
+                                              renderEmergencyHtml: { path: '/documents/documentos/:id/render-html'       , method: 'GET', responseType: 'blob' } ,
                                               regeneratePdf     : { path: '/documents/documentos/:id/regenerate-pdf'     , method: 'POST'                      } ,
                                               rechazar          : { path: '/documents/documentos/:id/rechazar'           , method: 'POST'                      } ,
                                               reply             : { path: '/documents/documentos/:id/reply'              , method: 'POST'                      } ,
@@ -289,5 +291,12 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
   [ENDPOINT_KEYS.SUPER_SEED]: {
     base: '/super-seed',
     plain: true
+  },
+  [ENDPOINT_KEYS.HTML_TEMPLATES]: {
+    base: '/html-templates',
+    plain: true,
+    specialRoutes: {
+      getTags: { path: '/html-templates/tags', method: 'GET', plain: true }
+    }
   }
 };

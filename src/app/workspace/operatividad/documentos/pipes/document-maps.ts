@@ -5,6 +5,9 @@ export const DOCUMENTO_MAP: Record<ClaseDocumentoId, ClaseDocumento> = {
   'oficio'   : { id: 'oficio'   , label: 'Oficio'              , plural: 'Oficios'               , label_boton_new: 'Nuevo', slug: 'oficio'   , icon: 'mail'        , conector_d: 'del'   , conector_a: 'al'   } ,
   'ti'       : { id: 'ti'       , label: 'Tarjeta Informativa' , plural: 'Tarjetas Informativas' , label_boton_new: 'Nueva', slug: 'T.I'      , icon: 'assignment'  , conector_d: 'de la' , conector_a: 'a la' } ,
   'circular' : { id: 'circular' , label: 'Circular'            , plural: 'Circulares'            , label_boton_new: 'Nueva', slug: 'circular' , icon: 'campaign'    , conector_d: 'de la' , conector_a: 'a la' } ,
+  'incidencia': { id: 'incidencia', label: 'Incidencia'        , plural: 'Incidencias'           , label_boton_new: 'Nueva', slug: 'incidencia', icon: 'report_problem', conector_d: 'de la', conector_a: 'a la' },
+  'contrato' : { id: 'contrato' , label: 'Contrato'            , plural: 'Contratos'             , label_boton_new: 'Nuevo', slug: 'contrato' , icon: 'gavel'         , conector_d: 'del'   , conector_a: 'al'   },
+  'convenio' : { id: 'convenio' , label: 'Convenio'            , plural: 'Convenios'             , label_boton_new: 'Nuevo', slug: 'convenio' , icon: 'handshake'     , conector_d: 'del'   , conector_a: 'al'   },
 };
 
 export const TIPODOCUMENTO_MAP: Record<TipoDocumentoId, TipoDocumento> = {

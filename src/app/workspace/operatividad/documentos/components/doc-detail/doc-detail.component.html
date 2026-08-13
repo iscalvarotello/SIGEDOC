@@ -51,9 +51,14 @@
           }
 
           @if (doc.url_drive_edition && (doc.estatus_emisor === 'en_edicion' || doc.estatus_emisor === 'en_correccion' || (doc.estatus_emisor === 'en_revision' && isReviewer()))) {
-            <action-button variant="primary" (clicked)="openDriveLink(doc.url_drive_edition)">
-              <icon icon="ExternalLink" class="w-4 h-4 mr-2"></icon> Google Drive
-            </action-button>
+            <div class="flex gap-2">
+              <action-button variant="primary" title="Abrir en Google Drive" (clicked)="openDriveLink(doc.url_drive_edition)">
+                <icon icon="ExternalLink" class="w-4 h-4 mr-1"></icon> DRIVE
+              </action-button>
+              <action-button variant="secondary" title="Ver en HTML (Modo Emergencia)" (clicked)="openEmergencyHtml()">
+                <icon icon="ExternalLink" class="w-4 h-4 mr-1"></icon> HTML
+              </action-button>
+            </div>
           }
 
           @if (doc.is_rendered && !doc.is_final_render && (doc.estatus_emisor === 'en_edicion' || (doc.estatus_emisor === 'en_correccion' && isCreator()))) {

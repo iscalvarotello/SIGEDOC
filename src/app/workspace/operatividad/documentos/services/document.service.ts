@@ -161,6 +161,14 @@ export class DocumentService extends BaseApiService<DocumentInboxDTO> {
   }
 
   /**
+   * Descarga el HTML de emergencia del documento.
+   */
+  public async downloadEmergencyHtml(id: string): Promise<Blob> {
+    const res = await this.executeSpecialRoute<any>('renderEmergencyHtml', { id });
+    return res && res.data ? res.data : res;
+  }
+
+  /**
    * Descarga el PDF Final del documento.
    * Retorna un Blob con el archivo PDF.
    */

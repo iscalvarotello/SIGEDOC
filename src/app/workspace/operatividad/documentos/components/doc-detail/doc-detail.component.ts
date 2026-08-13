@@ -425,6 +425,23 @@ export class DocDetailComponent implements OnDestroy {
     await this.loadPdfForOption(mergedOption);
   }
 
+  async openEmergencyHtml() {
+    const activeDoc = this.doc;
+    if (!activeDoc) return;
+
+    this.closePdfViewer();
+
+    const emergencyOption: ViewerOption = {
+      id: activeDoc.id,
+      label: 'Documento Principal',
+      sublabel: 'HTML de Emergencia',
+      type: 'emergency' as any,
+    };
+
+    this.selectedViewerOption.set(emergencyOption);
+    await this.loadPdfForOption(emergencyOption);
+  }
+
   async loadPdfForOption(option: ViewerOption) {
     this.isLoadingPdf.set(true);
     
@@ -481,6 +498,11 @@ export class DocDetailComponent implements OnDestroy {
         this.rawPdfUrl.set(fileURL);
         this.pdfViewerUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(fileURL));
         this._documentService.setCachedMergedPdf(option.id, blob, fileURL);
+      } else if ((option.type as any) === 'emergency') {
+        const blob = await this._documentService.downloadEmergencyHtml(option.id);
+        const fileURL = URL.createObjectURL(blob);
+        this.rawPdfUrl.set(fileURL);
+        this.pdfViewerUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(fileURL));
       } else {
         const url = this._attachmentService.getDownloadUrl(option.id);
         this.pdfViewerUrl.set(this._sanitizer.bypassSecurityTrustResourceUrl(url));

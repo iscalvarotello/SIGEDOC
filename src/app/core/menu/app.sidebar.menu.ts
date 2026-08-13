@@ -107,7 +107,8 @@ export const SIDEBAR_MENU: MenuSection[] = [
         subItems: [
           { module_id: 32, name: "Generales", path: "/system/settings/generales", pro: false },
           { module_id: 33, name: "Tipos de Documento", path: "/system/security/document-types", pro: false },
-          { module_id: 34, name: "Plantillas Oficiales", path: "/system/security/templates", pro: false }
+          { module_id: 34, name: "Plantillas Oficiales", path: "/system/security/templates", pro: false },
+          { module_id: 35, name: "Plantillas HTML", path: "/system/settings/html-templates", pro: false }
         ],
       }
     ]

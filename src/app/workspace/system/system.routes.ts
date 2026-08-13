@@ -102,6 +102,24 @@ export const SYSTEM_ROUTES: Routes = [
     title: 'Editar Cron Job'
   },
   // ============================================
+  // SETTINGS: HTML TEMPLATES
+  // ============================================
+  {
+    path: 'settings/html-templates',
+    loadComponent: () => import('./settings/html-templates/html-templates-page.component').then(m => m.HtmlTemplatesPageComponent),
+    title: 'Plantillas HTML'
+  },
+  {
+    path: 'settings/html-templates/new',
+    loadComponent: () => import('./settings/html-templates/html-template-form.component').then(m => m.HtmlTemplateFormComponent),
+    title: 'Nueva Plantilla HTML'
+  },
+  {
+    path: 'settings/html-templates/:id',
+    loadComponent: () => import('./settings/html-templates/html-template-form.component').then(m => m.HtmlTemplateFormComponent),
+    title: 'Editar Plantilla HTML'
+  },
+  // ============================================
   // SETTINGS: DOCUMENTATION
   // ============================================
   {

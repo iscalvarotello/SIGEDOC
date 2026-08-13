@@ -9,7 +9,7 @@ import { IconComponent } from '@system-shared/common/icon/icon.component';
   standalone: true,
   imports: [CommonModule, RouterModule, IconComponent, CancelButtonComponent],
   template: `
-    <div class="max-w-4xl mx-auto p-6 min-h-screen">
+    <div [class]="maxWidth() + ' mx-auto p-6 min-h-screen'">
       
       <!-- Breadcrumbs / Navegación Superior -->
       <div class="mb-6 flex items-center text-sm text-gray-500 font-medium">
@@ -109,6 +109,8 @@ export class FormPageWrapperComponent {
   breadcrumbRoute = input.required<string>();
   breadcrumbQueryParams = input<any>(null);
   
+  maxWidth = input<string>('max-w-4xl');
+
   isEditMode = input<boolean>(false);
   isLoading = input<boolean>(false);
   showSkeleton = input<boolean>(false); // Para mostrar el skeleton solo en carga inicial
