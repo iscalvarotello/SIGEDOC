@@ -2,8 +2,8 @@ import { PageControllerConfig } from '@system-shared/master-detail/master-detail
 
 export const HTML_TEMPLATE_PAGE_CONFIG: PageControllerConfig = {
   mainRoute: '/system/settings/html-templates',
-  searchFields: ['name'],
-  sortConfig: { key: 'name', direction: 'asc' },
+  searchFields: ['document_class'],
+  sortConfig: { key: 'document_class', direction: 'asc' },
 
   cacheConfig: {
     enabled: true,
@@ -12,13 +12,12 @@ export const HTML_TEMPLATE_PAGE_CONFIG: PageControllerConfig = {
   },
 
   tableColumns: [
-    { key: 'name', label: 'Nombre de la Plantilla' },
     { key: 'document_class', label: 'Tipo de Documento', width: 'w-40' },
     { key: 'actions', label: 'Acciones', align: 'right', isAction: true, width: 'w-24' }
   ],
 
   detailHeader: {
-    titleField: 'name',
+    titleField: 'document_class',
     subtitleLabel: 'Plantilla HTML'
   },
 

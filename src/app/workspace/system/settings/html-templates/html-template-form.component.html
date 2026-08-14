@@ -13,7 +13,7 @@
   (onSave)="onSave()"
   (onCancel)="onCancel()">
 
-  <div class="grid grid-cols-1 lg:grid-cols-[1.618fr_1fr] gap-8">
+  <form [formGroup]="form" class="grid grid-cols-1 lg:grid-cols-[1.618fr_1fr] gap-8">
     <!-- COLUMNA IZQUIERDA: FORMULARIO -->
     <div class="space-y-6">
             <!-- Datos Generales -->
@@ -35,10 +35,22 @@
         <h3 class="text-lg font-medium text-gray-900 mb-4">Márgenes (Milímetros)</h3>
         <p class="text-sm text-gray-500 mb-4">Define los márgenes para evitar solapamiento con la imagen de fondo.</p>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <app-input-field formControlName="margin_top" label="Top (mm)" type="number"></app-input-field>
-          <app-input-field formControlName="margin_bottom" label="Bottom (mm)" type="number"></app-input-field>
-          <app-input-field formControlName="margin_left" label="Left (mm)" type="number"></app-input-field>
-          <app-input-field formControlName="margin_right" label="Right (mm)" type="number"></app-input-field>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Top (mm)</label>
+            <app-input-field [value]="form.get('margin_top')?.value" (valueChange)="form.get('margin_top')?.setValue($event)" type="number"></app-input-field>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Bottom (mm)</label>
+            <app-input-field [value]="form.get('margin_bottom')?.value" (valueChange)="form.get('margin_bottom')?.setValue($event)" type="number"></app-input-field>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Left (mm)</label>
+            <app-input-field [value]="form.get('margin_left')?.value" (valueChange)="form.get('margin_left')?.setValue($event)" type="number"></app-input-field>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Right (mm)</label>
+            <app-input-field [value]="form.get('margin_right')?.value" (valueChange)="form.get('margin_right')?.setValue($event)" type="number"></app-input-field>
+          </div>
         </div>
       </div>
 
@@ -112,29 +124,46 @@
 
         <!-- Tabs Content -->
         <div class="mt-4">
-          <div *ngIf="activeTab() === 'header'">
+          <div [class.hidden]="activeTab() !== 'header'">
             <label class="block text-sm font-medium text-gray-700 mb-2">Contenido Superior (Ej. Asunto, Destinatario)</label>
-            <app-tinymce-editor formControlName="header"></app-tinymce-editor>
+            @defer (when activeTab() === 'header') {
+              <app-tinymce-editor formControlName="header"></app-tinymce-editor>
+            } @placeholder {
+              <app-editor-skeleton></app-editor-skeleton>
+            }
           </div>
           
-          <div *ngIf="activeTab() === 'body'">
+          <div [class.hidden]="activeTab() !== 'body'">
             <label class="block text-sm font-medium text-gray-700 mb-2">Cuerpo Principal (Contenido central del documento)</label>
-            <app-tinymce-editor formControlName="body"></app-tinymce-editor>
+            @defer (when activeTab() === 'body') {
+              <app-tinymce-editor formControlName="body"></app-tinymce-editor>
+            } @placeholder {
+              <app-editor-skeleton></app-editor-skeleton>
+            }
           </div>
           
-          <div *ngIf="activeTab() === 'footer'">
+          <div [class.hidden]="activeTab() !== 'footer'">
             <label class="block text-sm font-medium text-gray-700 mb-2">Pie de Documento (Ej. Atentamente, Firmas, CCP)</label>
-            <app-tinymce-editor formControlName="footer"></app-tinymce-editor>
+            @defer (when activeTab() === 'footer') {
+              <app-tinymce-editor formControlName="footer"></app-tinymce-editor>
+            } @placeholder {
+              <app-editor-skeleton></app-editor-skeleton>
+            }
           </div>
 
-          <div *ngIf="activeTab() === 'page_footer'">
+          <div [class.hidden]="activeTab() !== 'page_footer'">
             <label class="block text-sm font-medium text-gray-700 mb-2">Pie de Página Fijo (Ej. UUID, Códigos QR, Dirección)</label>
-            <app-tinymce-editor formControlName="page_footer"></app-tinymce-editor>
+            @defer (when activeTab() === 'page_footer') {
+              <app-tinymce-editor formControlName="page_footer"></app-tinymce-editor>
+            } @placeholder {
+              <app-editor-skeleton></app-editor-skeleton>
+            }
           </div>
           
-          <div *ngIf="activeTab() === 'css'">
+          <div [class.hidden]="activeTab() !== 'css'">
             <app-text-area 
-              formControlName="css" 
+              [value]="form.get('css')?.value" 
+              (valueChange)="form.get('css')?.setValue($event)"
               label="Estilos CSS adicionales" 
               [rows]="15" 
               inputClass="font-mono bg-gray-50 text-sm">
@@ -167,6 +196,6 @@
         </div>
       </div>
     </div>
-  </div>
+  </form>
 
 </app-form-page-wrapper>

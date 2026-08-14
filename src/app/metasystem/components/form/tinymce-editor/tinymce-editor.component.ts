@@ -47,10 +47,11 @@ export class TinymceEditorComponent implements ControlValueAccessor, EditorInjec
       'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
       'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
     ],
-    toolbar: 'undo redo | ' +
-      'bold italic | alignleft aligncenter ' +
+    toolbar: 'undo redo | fontfamily fontsize | ' +
+      'bold italic underline strikethrough | alignleft aligncenter ' +
       'alignright alignjustify | bullist numlist outdent indent | ' +
-      'table | blocks forecolor | removeformat | help',
+      'table | blocks forecolor backcolor | removeformat | help',
+    font_size_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
     setup: (editor: TinyMCEEditor) => {
       this.tinymceInstance = editor;
       editor.on('init', () => {

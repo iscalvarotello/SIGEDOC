@@ -1,6 +1,6 @@
 export interface HtmlTemplate {
   id: string;
-  name: string;
+  institutionId?: string;
   document_class?: string;
   css?: string;
   header?: string;

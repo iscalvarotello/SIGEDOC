@@ -60,6 +60,11 @@ export class SesionService {
     } else {
       this.activeAdscription.set(null);
       localStorage.removeItem(APP_SETTINGS.STORAGE_ACTIVE_ADSCRIPTION);
+      
+      // Si no tiene adscripciones pero tiene institución base, usarla como tenant_id
+      if (loginResponse.user.institution_id) {
+        localStorage.setItem(APP_SETTINGS.STORAGE_TENANT_ID, loginResponse.user.institution_id);
+      }
     }
 
     // Cargar los permisos del rol del sistema
@@ -77,9 +82,15 @@ export class SesionService {
     this.activeAdscription.set(adscription);
     localStorage.setItem(APP_SETTINGS.STORAGE_ACTIVE_ADSCRIPTION, JSON.stringify(adscription));
     
-    // Sincronizar el tenant_id con el institution_id de la adscripción si existe
-    if (adscription && adscription.institution_id) {
-      localStorage.setItem(APP_SETTINGS.STORAGE_TENANT_ID, adscription.institution_id);
+    // Sincronizar el tenant_id priorizando el institution_id global (raiz del usuario)
+    const institutionId = this.currentUserData()?.institution_id || 
+                          adscription?.institution_id || 
+                          adscription?.branch?.institution_id;
+                          
+    if (institutionId) {
+      localStorage.setItem(APP_SETTINGS.STORAGE_TENANT_ID, institutionId);
+    } else {
+      localStorage.removeItem(APP_SETTINGS.STORAGE_TENANT_ID);
     }
   }
 
