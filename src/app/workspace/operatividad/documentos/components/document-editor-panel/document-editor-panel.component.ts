@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect, input, output, model, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, effect, input, output, model, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -82,3 +82,6 @@ export class DocumentEditorPanelComponent implements OnInit {
     this.internalCuerpo.set(content);
   }
 }
+
+
+

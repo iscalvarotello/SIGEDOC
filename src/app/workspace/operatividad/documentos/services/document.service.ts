@@ -121,6 +121,10 @@ export class DocumentService extends BaseApiService<DocumentInboxDTO> {
    * @param id ID del documento.
    * @param payload DTO con la acción y comentarios/revisores.
    */
+
+  public async syncTextFromDrive(id: string): Promise<{ text: string }> {
+    return this.executeSpecialRoute<{ text: string }>('syncTextFromDrive', { id });
+  }
   public async processAction(id: string, payload: any): Promise<any> {
     return this.executeSpecialRoute('action', { id }, payload);
   }
@@ -316,3 +320,5 @@ export class DocumentService extends BaseApiService<DocumentInboxDTO> {
     return res && res.data ? res.data : res;
   }
 }
+
+

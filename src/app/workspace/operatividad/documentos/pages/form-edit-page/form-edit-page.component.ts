@@ -1,10 +1,10 @@
-import { Component, OnInit, inject, signal, computed, effect, input, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, effect, input, ViewChild } from '@angular/core';
 import { BehaviorSubject, combineLatest, firstValueFrom } from 'rxjs';
 import { ActionButtonComponent } from '@metasystem/components/buttons/action-button/action-button.component';
 import { IconComponent } from '@system-shared/common/icon/icon.component';
 import { ListboxOption } from '@system-shared/form/listbox/base-listbox.directive';
 import { ListboxComponent } from '@system-shared/form/listbox/listbox.component';
-import { CommonModule                 } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule                  } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -47,9 +47,9 @@ import { DocumentEditorPanelComponent } from '../../components/document-editor-p
 @Component({
   selector: 'app-form-edit-page',
   standalone: true,
-  imports: [ CommonModule, FormsModule, RouterLink, ClaseDocumentPipe, PageBreadcrumbComponent, AreaSelectComponent,
+  imports: [ CommonModule, FormsModule, ClaseDocumentPipe, PageBreadcrumbComponent, AreaSelectComponent,
     EmployeeSelectComponent, DocumentTypeSelectComponent, DocumentAttachmentsComponent, DatePickerComponent, SubmitButtonComponent, CancelButtonComponent,
-    JobPositionSelectComponent, LocalRoutePipe, ExternalContactSelectComponent, IconComponent, ActionButtonComponent, TopicComponent, VirtualPaperModalComponent,
+    JobPositionSelectComponent, ExternalContactSelectComponent, IconComponent, ActionButtonComponent, TopicComponent, VirtualPaperModalComponent,
     DocumentEditorPanelComponent
   ],
   templateUrl: './form-edit-page.component.html',
@@ -57,6 +57,7 @@ import { DocumentEditorPanelComponent } from '../../components/document-editor-p
 export class FormEditPageComponent implements OnInit {
   private _route = inject(ActivatedRoute);
   private _router = inject(Router);
+  private _location = inject(Location);
   protected _session = inject(SesionService);
   private _documentService = inject(DocumentService);
   private _areaService = inject(AreaService);
@@ -158,10 +159,6 @@ export class FormEditPageComponent implements OnInit {
   // Control para guardar plantilla
   showSaveTemplatePopover = signal<boolean>(false);
   showTemplateManager = signal<boolean>(false);
-
-  navigateToTemplateManager() {
-    this._router.navigate(['/operatividad/documento', this.claseDocumentoId(), 'templates']);
-  }
   newTemplateName = signal<string>('');
   isSavingTemplate = signal<boolean>(false);
 
@@ -338,6 +335,14 @@ export class FormEditPageComponent implements OnInit {
       this.remitenteNombre.set('');
       this.remitentePuesto.set('');
       this.remitenteAcronimo.set('');
+    }
+  }
+
+  cancel() {
+    if (window.history.length > 1) {
+      this._location.back();
+    } else {
+      this._router.navigate([`/operatividad/documento/${this.claseDocumentoId()}`]);
     }
   }
 
@@ -1172,6 +1177,26 @@ export class FormEditPageComponent implements OnInit {
       .replace(/^_+|_+$/g, '');
   }
 
+
+  async handleSyncFromDrive() {
+    const docId = this.editingDocumentId();
+    if (!docId) return;
+
+    try {
+      this.isLoading.set(true);
+      const res = await this._documentService.syncTextFromDrive(docId) as any;
+      const responseData = res && res.data !== undefined ? res.data : res;
+      if (responseData && responseData.text) {
+        this.cuerpo.set(responseData.text);
+        alert('Texto sincronizado desde Google Drive exitosamente. No olvides guardar.');
+      }
+    } catch (e: any) {
+      console.error(e);
+      alert('Error sincronizando texto: ' + (e.error?.message || e.message || 'Error desconocido'));
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
   async addCustomFieldPanel(fieldName: string) {
     if (!fieldName) return;
     const activeAreaId = this._session.activeAdscription()?.id_area;
@@ -1192,4 +1217,8 @@ export class FormEditPageComponent implements OnInit {
     }
   }
 }
+
+
+
+
 

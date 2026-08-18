@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActionButtonComponent } from '../action-button/action-button.component';
+import { ActionButtonComponent, ActionButtonSize } from '../action-button/action-button.component';
 
 @Component({
   selector: 'preview-pdf-button',
@@ -9,7 +9,7 @@ import { ActionButtonComponent } from '../action-button/action-button.component'
   template: `
     <action-button 
       variant="secondary"
-      size="sm"
+      [size]="size()"
       icon="DocumentText"
       [displayMode]="displayMode()"
       [iconPosition]="displayMode() === 'link' ? 'right' : 'left'"
@@ -22,6 +22,7 @@ import { ActionButtonComponent } from '../action-button/action-button.component'
 export class PreviewPdfButtonComponent {
   disabled = input<boolean>(false);
   label = input<string>('Borrador PDF');
+  size = input<ActionButtonSize>('sm');
   displayMode = input<'button' | 'link'>('button');
   clicked = output<MouseEvent>();
 }

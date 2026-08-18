@@ -12,30 +12,22 @@
       </h3>
     </div>
 
-    <!-- Selector de Archivo (Documento o Anexo) -->
-    <div class="flex-1 flex justify-start md:justify-center max-w-full md:max-w-[45%]">
-      @if (options().length > 0) {
-        <app-viewer-selector 
-          [options]="options()" 
-          [(selectedOption)]="selectedOption">
-        </app-viewer-selector>
+    <!-- Barra de Herramientas -->
+    <div class="flex-1 flex justify-start md:justify-center max-w-full md:max-w-[45%] gap-2">
+      @if (isAuthorized()) {
+        <action-button (clicked)="cleanHtmlForPrinting()" variant="outline" icon="Edit" class="text-xs bg-white text-gray-800">
+          Firma Autgrafa
+        </action-button>
+        <action-button (clicked)="onSignDigital.emit()" variant="primary" icon="LockSolid" class="text-xs bg-green-600 hover:bg-green-700">
+          Firma Digital
+        </action-button>
       }
     </div>
     
     <div class="flex items-center gap-2 shrink-0">
-      @if (showRegenerateButton()) {
-        <action-button (clicked)="regenerateClick.emit()" [disabled]="isRegenerating()" variant="outline" icon="Refresh">
-          {{ isRegenerating() ? 'Regenerando...' : 'Regenerar' }}
-        </action-button>
-      }
       <action-button (clicked)="printDocument()" variant="secondary" icon="Printer">
         Imprimir
       </action-button>
-      @if (showNewTabButton()) {
-        <action-button (clicked)="newTabClick.emit()" variant="secondary" icon="ExternalLink">
-          Abrir
-        </action-button>
-      }
       @if (showCloseButton()) {
         <action-button (clicked)="closeClick.emit()" variant="secondary" icon="Cross">Cerrar</action-button>
       }
@@ -49,17 +41,17 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        <span class="text-xs font-extrabold uppercase tracking-wider text-gray-300">Cargando archivo PDF...</span>
+        <span class="text-xs font-extrabold uppercase tracking-wider text-gray-300">Cargando código HTML...</span>
       </div>
     }
-    @defer (when pdfUrl()) {
-      @if (pdfUrl()) {
-        <iframe #pdfIframe [src]="pdfUrl()!" class="w-full h-full border-none flex-1 z-10 bg-zinc-800" title="Visor de PDF"></iframe>
+    @defer (when htmlUrl()) {
+      @if (htmlUrl()) {
+        <iframe #htmlIframe [src]="htmlUrl()!" class="w-full h-full border-none flex-1 z-10 bg-white" title="Visor de HTML"></iframe>
       } @else {
         @if (!isLoading()) {
           <div class="flex-1 flex flex-col items-center justify-center text-gray-400 gap-2 p-8 z-10">
-            <span class="text-4xl">📄</span>
-            <span class="text-xs font-extrabold uppercase tracking-wider">No se pudo cargar el archivo PDF</span>
+            <span class="text-4xl">🖹</span>
+            <span class="text-xs font-extrabold uppercase tracking-wider">No se pudo cargar el archivo HTML</span>
           </div>
         }
       }

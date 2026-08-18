@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, ViewChildren, QueryList } from '@angular/core';
+import { Component, OnInit, inject, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -29,7 +29,9 @@ import { EditorSkeletonComponent } from '@system-shared/loading-skeletons/editor
   templateUrl: './html-template-form.component.html'
 })
 export class HtmlTemplateFormComponent extends BaseFormController<HtmlTemplate> implements OnInit {
-  @ViewChildren(EditorInjectionStrategy) editorStrategies?: QueryList<EditorInjectionStrategy>;
+  @ViewChild('headerEditor') headerEditor?: EditorInjectionStrategy;
+  @ViewChild('bodyEditor') bodyEditor?: EditorInjectionStrategy;
+  @ViewChild('footerEditor') footerEditor?: EditorInjectionStrategy;
   
   protected override apiService = inject(HtmlTemplateService);
   protected override controllerConfig: any = {
@@ -38,21 +40,25 @@ export class HtmlTemplateFormComponent extends BaseFormController<HtmlTemplate> 
   };
 
   public tags = signal<HtmlTemplateTag[]>([]);
-  public activeTab = signal<'header' | 'body' | 'footer' | 'page_footer' | 'css'>('body');
+  public activeTab = signal<'header_page' | 'body_text' | 'footer_page' | 'css' | 'typography'>('body_text');
 
   public override form: FormGroup = inject(FormBuilder).group({
     id: [null],
     institutionId: [null],
     document_class: ['', [Validators.required]],
+    page_size: ['letter'],
     margin_top: [25],
     margin_bottom: [25],
     margin_left: [25],
     margin_right: [25],
-    header: [''],
-    body: [''],
-    footer: [''],
-    page_footer: [''],
-    css: ['']
+    header_page: [''],
+    body_text: [''],
+    footer_page: [''],
+    css: [''],
+    font_family: ['Arial, sans-serif'],
+    font_size: ['11pt'],
+    line_height: ['1.5'],
+    paragraph_spacing: ['15px']
   });
 
   public onDocumentClassChange(docClass: string) {
@@ -72,9 +78,8 @@ export class HtmlTemplateFormComponent extends BaseFormController<HtmlTemplate> 
     if (tenantId) {
       tenantId = tenantId.replace(/"/g, ''); // Fix if stored with quotes
       this.form.get('institutionId')?.setValue(tenantId);
-      console.log('Dato inyectado en institutionId (Tenant ID):', tenantId);
     } else {
-      console.warn('No se encontró system_tenant_id en localStorage');
+      console.warn('No se encontr system_tenant_id en localStorage');
     }
 
     try {
@@ -94,19 +99,15 @@ export class HtmlTemplateFormComponent extends BaseFormController<HtmlTemplate> 
 
     this.isLoading.set(true);
     
-    // Sanitizar valores: convertir cadenas vacías en null antes de enviar al backend
     const rawValue = this.form.getRawValue();
     let tenantId = localStorage.getItem('system_tenant_id');
     
-    // Fallback: Si system_tenant_id es null, intentar extraerlo de system_user_data
     if (!tenantId) {
       const userDataStr = localStorage.getItem('system_user_data');
       if (userDataStr) {
         try {
           const userData = JSON.parse(userDataStr);
-          // Dependiendo de si se guardó envuelto en {user: ...} o directo
           tenantId = userData.institution_id || (userData.user && userData.user.institution_id);
-          console.warn('Tomando tenantId del userData como fallback:', tenantId);
         } catch(e) {}
       }
     }
@@ -116,18 +117,13 @@ export class HtmlTemplateFormComponent extends BaseFormController<HtmlTemplate> 
       institutionId: tenantId ? tenantId.replace(/"/g, '') : null 
     };
 
-    // Numeric margins are sent directly to the backend since the DB expects integers
-
     Object.keys(finalPayload).forEach(key => {
       if (finalPayload[key] === null || finalPayload[key] === undefined) {
         delete finalPayload[key];
       }
     });
 
-    // Remove 'id' from the payload as it's passed via URL parameters and the backend DTO forbids it
     delete finalPayload.id;
-
-    console.log('=== DTO A ENVIAR AL BACKEND ===', finalPayload);
 
     try {
       if ((this as any).isEditMode() && (this as any).itemId()) {
@@ -145,29 +141,22 @@ export class HtmlTemplateFormComponent extends BaseFormController<HtmlTemplate> 
       }
     } catch (error: any) {
       console.error('Error al guardar:', error);
-      alert('Se encontraron problemas al guardar. Revisa la consola para más detalles.');
+      alert('Se encontraron problemas al guardar. Revisa la consola para ms detalles.');
     } finally {
       this.isLoading.set(false);
     }
   }
 
   public insertTag(tag: string) {
-    if (this.editorStrategies && this.editorStrategies.length > 0) {
-      const tabIndexMap: Record<string, number> = {
-        'header': 0,
-        'body': 1,
-        'footer': 2,
-        'page_footer': 3
-      };
-      
-      const activeIdx = tabIndexMap[this.activeTab()];
-      if (activeIdx !== undefined) {
-        const strategy = this.editorStrategies.toArray()[activeIdx];
-        if (strategy) {
-          strategy.insertTextAtCursor(tag);
-          return;
-        }
-      }
+    let activeEditor: EditorInjectionStrategy | undefined;
+    
+    if (this.activeTab() === 'header_page') activeEditor = this.headerEditor;
+    if (this.activeTab() === 'body_text') activeEditor = this.bodyEditor;
+    if (this.activeTab() === 'footer_page') activeEditor = this.footerEditor;
+
+    if (activeEditor) {
+      activeEditor.insertTextAtCursor(tag);
+      return;
     }
     
     // Fallback if no strategy is found

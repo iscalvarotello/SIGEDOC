@@ -7,7 +7,7 @@ export interface ViewerOption {
   id: string;
   label: string;
   sublabel?: string;
-  type: 'document' | 'attachment' | 'merged';
+  type: 'document' | 'attachment' | 'merged' | 'emergency';
 }
 
 @Component({

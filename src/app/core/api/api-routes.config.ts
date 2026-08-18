@@ -93,7 +93,8 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
                                               updateAttachments : { path: '/documents/documentos/:id/anexos'             , method: 'POST'                      } ,
                                               getAttachments    : { path: '/documents/documentos/:id/anexos'             , method: 'GET'                       } ,
                                               uploadAcuse       : { path: '/documents/documentos/:id/acuse'              , method: 'POST'                      } ,
-                                              consolidate       : { path: '/documents/documentos/:id/consolidar'         , method: 'POST'                      }
+                                              consolidate       : { path: '/documents/documentos/:id/consolidar'         , method: 'POST'                      },
+                                              syncTextFromDrive : { path: '/documents/documentos/:id/sync-text'          , method: 'GET'                       }
                                         }
                                       },
   [ENDPOINT_KEYS.COUNTRIES]         : {
@@ -300,3 +301,4 @@ export const ApiRouteConfig: Record<string, ApiPackageConfig> = {
     }
   }
 };
+

@@ -32,9 +32,16 @@
 
       <!-- Configuración de Márgenes -->
       <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Márgenes (Milímetros)</h3>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Márgenes y Tamaño (Milímetros)</h3>
         <p class="text-sm text-gray-500 mb-4">Define los márgenes para evitar solapamiento con la imagen de fondo.</p>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Tamaño Hoja</label>
+            <select formControlName="page_size" class="border border-gray-300 rounded-md p-2 text-sm">
+              <option value="letter">Carta (Letter)</option>
+              <option value="legal">Oficio (Legal)</option>
+            </select>
+          </div>
           <div class="flex flex-col gap-1.5">
             <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Top (mm)</label>
             <app-input-field [value]="form.get('margin_top')?.value" (valueChange)="form.get('margin_top')?.setValue($event)" type="number"></app-input-field>
@@ -61,51 +68,51 @@
           <nav class="-mb-px flex space-x-8" aria-label="Tabs">
             <button 
               type="button" 
-              (click)="activeTab.set('header')"
-              [class.border-theme-primary]="activeTab() === 'header'"
-              [class.text-theme-primary]="activeTab() === 'header'"
-              [class.border-transparent]="activeTab() !== 'header'"
-              [class.text-gray-500]="activeTab() !== 'header'"
-              [class.hover:text-gray-700]="activeTab() !== 'header'"
-              [class.hover:border-gray-300]="activeTab() !== 'header'"
+              (click)="activeTab.set('header_page')"
+              [class.border-theme-primary]="activeTab() === 'header_page'"
+              [class.text-theme-primary]="activeTab() === 'header_page'"
+              [class.border-transparent]="activeTab() !== 'header_page'"
+              [class.text-gray-500]="activeTab() !== 'header_page'"
+              [class.hover:text-gray-700]="activeTab() !== 'header_page'"
+              [class.hover:border-gray-300]="activeTab() !== 'header_page'"
               class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
-              Header
+              Cabecera Global
             </button>
             <button 
               type="button" 
-              (click)="activeTab.set('body')"
-              [class.border-theme-primary]="activeTab() === 'body'"
-              [class.text-theme-primary]="activeTab() === 'body'"
-              [class.border-transparent]="activeTab() !== 'body'"
-              [class.text-gray-500]="activeTab() !== 'body'"
-              [class.hover:text-gray-700]="activeTab() !== 'body'"
-              [class.hover:border-gray-300]="activeTab() !== 'body'"
+              (click)="activeTab.set('body_text')"
+              [class.border-theme-primary]="activeTab() === 'body_text'"
+              [class.text-theme-primary]="activeTab() === 'body_text'"
+              [class.border-transparent]="activeTab() !== 'body_text'"
+              [class.text-gray-500]="activeTab() !== 'body_text'"
+              [class.hover:text-gray-700]="activeTab() !== 'body_text'"
+              [class.hover:border-gray-300]="activeTab() !== 'body_text'"
               class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
-              Body
+              Cuerpo Documento
             </button>
             <button 
               type="button" 
-              (click)="activeTab.set('footer')"
-              [class.border-theme-primary]="activeTab() === 'footer'"
-              [class.text-theme-primary]="activeTab() === 'footer'"
-              [class.border-transparent]="activeTab() !== 'footer'"
-              [class.text-gray-500]="activeTab() !== 'footer'"
-              [class.hover:text-gray-700]="activeTab() !== 'footer'"
-              [class.hover:border-gray-300]="activeTab() !== 'footer'"
+              (click)="activeTab.set('footer_page')"
+              [class.border-theme-primary]="activeTab() === 'footer_page'"
+              [class.text-theme-primary]="activeTab() === 'footer_page'"
+              [class.border-transparent]="activeTab() !== 'footer_page'"
+              [class.text-gray-500]="activeTab() !== 'footer_page'"
+              [class.hover:text-gray-700]="activeTab() !== 'footer_page'"
+              [class.hover:border-gray-300]="activeTab() !== 'footer_page'"
               class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
-              Footer
+              Pie de Página Global
             </button>
             <button 
               type="button" 
-              (click)="activeTab.set('page_footer')"
-              [class.border-theme-primary]="activeTab() === 'page_footer'"
-              [class.text-theme-primary]="activeTab() === 'page_footer'"
-              [class.border-transparent]="activeTab() !== 'page_footer'"
-              [class.text-gray-500]="activeTab() !== 'page_footer'"
-              [class.hover:text-gray-700]="activeTab() !== 'page_footer'"
-              [class.hover:border-gray-300]="activeTab() !== 'page_footer'"
+              (click)="activeTab.set('typography')"
+              [class.border-theme-primary]="activeTab() === 'typography'"
+              [class.text-theme-primary]="activeTab() === 'typography'"
+              [class.border-transparent]="activeTab() !== 'typography'"
+              [class.text-gray-500]="activeTab() !== 'typography'"
+              [class.hover:text-gray-700]="activeTab() !== 'typography'"
+              [class.hover:border-gray-300]="activeTab() !== 'typography'"
               class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
-              Page Footer
+              Tipografía
             </button>
             <button 
               type="button" 
@@ -117,54 +124,91 @@
               [class.hover:text-gray-700]="activeTab() !== 'css'"
               [class.hover:border-gray-300]="activeTab() !== 'css'"
               class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
-              CSS
+              Avanzado CSS
             </button>
           </nav>
         </div>
 
         <!-- Tabs Content -->
         <div class="mt-4">
-          <div [class.hidden]="activeTab() !== 'header'">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Contenido Superior (Ej. Asunto, Destinatario)</label>
-            @defer (when activeTab() === 'header') {
-              <app-tinymce-editor formControlName="header"></app-tinymce-editor>
+          <div [class.hidden]="activeTab() !== 'header_page'">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Cabecera Global (Se repite al inicio de CADA página)</label>
+            @defer (when activeTab() === 'header_page') {
+              <app-tinymce-editor #headerEditor formControlName="header_page"></app-tinymce-editor>
             } @placeholder {
               <app-editor-skeleton></app-editor-skeleton>
             }
           </div>
           
-          <div [class.hidden]="activeTab() !== 'body'">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Cuerpo Principal (Contenido central del documento)</label>
-            @defer (when activeTab() === 'body') {
-              <app-tinymce-editor formControlName="body"></app-tinymce-editor>
-            } @placeholder {
-              <app-editor-skeleton></app-editor-skeleton>
-            }
-          </div>
-          
-          <div [class.hidden]="activeTab() !== 'footer'">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Pie de Documento (Ej. Atentamente, Firmas, CCP)</label>
-            @defer (when activeTab() === 'footer') {
-              <app-tinymce-editor formControlName="footer"></app-tinymce-editor>
+          <div [class.hidden]="activeTab() !== 'body_text'">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Cuerpo Documento (Contiene las etiquetas de cabecera de oficio, cuerpo y firmas)</label>
+            @defer (when activeTab() === 'body_text') {
+              <app-tinymce-editor #bodyEditor formControlName="body_text"></app-tinymce-editor>
             } @placeholder {
               <app-editor-skeleton></app-editor-skeleton>
             }
           </div>
 
-          <div [class.hidden]="activeTab() !== 'page_footer'">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Pie de Página Fijo (Ej. UUID, Códigos QR, Dirección)</label>
-            @defer (when activeTab() === 'page_footer') {
-              <app-tinymce-editor formControlName="page_footer"></app-tinymce-editor>
+          <div [class.hidden]="activeTab() !== 'footer_page'">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Pie de Página Global (Se repite al final de CADA página, Ej. UUID, Códigos QR, Dirección)</label>
+            @defer (when activeTab() === 'footer_page') {
+              <app-tinymce-editor #footerEditor formControlName="footer_page"></app-tinymce-editor>
             } @placeholder {
               <app-editor-skeleton></app-editor-skeleton>
             }
+          </div>
+
+          <div [class.hidden]="activeTab() !== 'typography'">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Familia Tipográfica</label>
+                <select formControlName="font_family" class="border border-gray-300 rounded-md p-2 text-sm">
+                  <option value="Arial, sans-serif">Arial</option>
+                  <option value="'Times New Roman', serif">Times New Roman</option>
+                  <option value="Calibri, sans-serif">Calibri</option>
+                  <option value="Helvetica, sans-serif">Helvetica</option>
+                  <option value="Verdana, sans-serif">Verdana</option>
+                  <option value="Tahoma, sans-serif">Tahoma</option>
+                </select>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Tamaño de Fuente Global</label>
+                <select formControlName="font_size" class="border border-gray-300 rounded-md p-2 text-sm">
+                  <option value="9pt">9 pt</option>
+                  <option value="10pt">10 pt</option>
+                  <option value="11pt">11 pt</option>
+                  <option value="12pt">12 pt</option>
+                  <option value="14pt">14 pt</option>
+                </select>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Interlineado (Line Height)</label>
+                <select formControlName="line_height" class="border border-gray-300 rounded-md p-2 text-sm">
+                  <option value="1.0">1.0 (Sencillo)</option>
+                  <option value="1.15">1.15</option>
+                  <option value="1.5">1.5 (1 y medio)</option>
+                  <option value="2.0">2.0 (Doble)</option>
+                </select>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Espaciado entre párrafos</label>
+                <select formControlName="paragraph_spacing" class="border border-gray-300 rounded-md p-2 text-sm">
+                  <option value="0px">0 px (Sin espaciado extra)</option>
+                  <option value="5px">5 px</option>
+                  <option value="10px">10 px</option>
+                  <option value="15px">15 px (Normal)</option>
+                  <option value="20px">20 px</option>
+                </select>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-4 px-4">Nota: El diseño local del editor TinyMCE prima sobre el global. Si configuras la fuente global a 12pt, pero en el editor seleccionas un texto y le pones 10pt, se aplicará 10pt a ese fragmento.</p>
           </div>
           
           <div [class.hidden]="activeTab() !== 'css'">
             <app-text-area 
               [value]="form.get('css')?.value" 
               (valueChange)="form.get('css')?.setValue($event)"
-              label="Estilos CSS adicionales" 
+              label="Estilos CSS adicionales (Sobrescriben el resto)" 
               [rows]="15" 
               inputClass="font-mono bg-gray-50 text-sm">
             </app-text-area>

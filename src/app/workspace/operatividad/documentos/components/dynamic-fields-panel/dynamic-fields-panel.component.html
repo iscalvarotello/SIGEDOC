@@ -1,4 +1,4 @@
-        <div class="bg-gray-50/50 dark:bg-white/2 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col gap-4 shadow-inner">
+﻿        <div class="bg-gray-50/50 dark:bg-white/2 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 flex flex-col gap-4 shadow-inner">
           <div class="border-b border-gray-200 dark:border-gray-800 pb-2.5 flex flex-wrap justify-between items-end gap-2">
             <div>
               <h5 class="text-xs font-black text-theme-primary dark:text-theme-secondary uppercase tracking-wider">Campos Dinámicos</h5>
@@ -519,8 +519,25 @@
                   </action-button>
                 </div>
               </div>
-            </div>
-          }
+                <hr class="border-gray-200 dark:border-gray-800" />
+  
+                <!-- Salto de Página y Anexos -->
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-[10px] font-black text-gray-500 uppercase tracking-wider">Formato:</label>
+                  <div class="flex flex-col gap-2">
+                    <action-button (clicked)="doInjectTag('{{__break_page__}}')" variant="outline" title="Inyectar Salto de Página" class="w-full" [fullWidth]="true">
+                      <icon icon="DocumentText" class="w-4 h-4 mr-1"></icon> Inyectar Salto de Página
+                    </action-button>
+                    <action-button (clicked)="doInjectTag('{{__attachmen_list__}}')" variant="outline" title="Insertar Lista de Anexos" class="w-full" [fullWidth]="true">
+                      <icon icon="PaperClip" class="w-4 h-4 mr-1"></icon> Insertar Lista de Anexos
+                    </action-button>
+                    <action-button (clicked)="doInjectTag('{{__QR__}}')" variant="outline" title="Insertar Código QR de Validación" class="w-full" [fullWidth]="true">
+                      <icon icon="QrCode" class="w-4 h-4 mr-1"></icon> Insertar Código QR
+                    </action-button>
+                  </div>
+                </div>
+              </div>
+            }
 
           <!-- Contenido de Pestaña: Personalizados -->
           @if (activeFieldsTab() === 'personalizados') {
@@ -579,3 +596,6 @@
             </div>
           }
         </div>
+
+
+

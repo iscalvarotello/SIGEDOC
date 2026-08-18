@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, effect, input, output, model } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, effect, input, output, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActionButtonComponent } from '@metasystem/components/buttons/action-button/action-button.component';
@@ -291,3 +291,7 @@ export class DynamicFieldsPanelComponent implements OnInit {
     }
   }
 }
+
+
+
+

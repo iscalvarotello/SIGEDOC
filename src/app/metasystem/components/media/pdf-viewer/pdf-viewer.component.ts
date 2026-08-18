@@ -1,4 +1,4 @@
-import { Component, input, model, output } from '@angular/core';
+import { Component, input, model, output, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SafeResourceUrl } from '@angular/platform-browser';
 import { ViewerSelectorComponent, ViewerOption } from '../viewer-selector/viewer-selector.component';
@@ -29,6 +29,19 @@ export class PdfViewerComponent {
   newTabClick = output<void>();
   closeClick = output<void>();
   regenerateClick = output<void>();
+
+  @ViewChild('pdfIframe', { static: false }) pdfIframe!: ElementRef<HTMLIFrameElement>;
+
+  printDocument() {
+    if (this.pdfIframe && this.pdfIframe.nativeElement.contentWindow) {
+      try {
+        this.pdfIframe.nativeElement.contentWindow.print();
+      } catch (e) {
+        console.error('No se pudo invocar la impresión del iframe', e);
+        this.openPdfInNewTab(); // Fallback
+      }
+    }
+  }
 
   openPdfInNewTab() {
     this.newTabClick.emit();

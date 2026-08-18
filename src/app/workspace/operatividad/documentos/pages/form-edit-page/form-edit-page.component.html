@@ -1,4 +1,4 @@
-<app-page-breadcrumb pageTitle="{{ claseDocumentoId() | claseDocument:'singular':true }} {{ claseDocumentoId() | claseDocument:'singular' }}" />
+﻿<app-page-breadcrumb pageTitle="{{ claseDocumentoId() | claseDocument:'singular':true }} {{ claseDocumentoId() | claseDocument:'singular' }}" />
 
 <div class="max-w-8xl mx-auto">
   <div class="bg-white border border-gray-200 rounded-2xl shadow-sm dark:border-gray-800 dark:bg-white/3 overflow-hidden">
@@ -308,10 +308,9 @@
               </div>
 
               <div class="flex gap-2 relative z-[100]">
-                  <action-button (clicked)="navigateToTemplateManager()" variant="ghost">
-                    <icon icon="DocumentText" class="w-4 h-4"></icon>
-                    Revisar y Actualizar plantillas
-                  </action-button>
+                  <action-button (clicked)="handleSyncFromDrive()" variant="ghost" [disabled]="isLoading()">
+                      <icon icon="Refresh" class="w-4 h-4 mr-1"></icon> Sincronizar Texto de Drive
+                    </action-button>
                 @if (!showSaveTemplatePopover()) {
                   <action-button (clicked)="showSaveTemplatePopover.set(true)" variant="secondary">
                     <icon icon="NewIcon4" class="w-3.5 h-3.5"></icon>
@@ -426,16 +425,34 @@
       <!-- Fila 7: ANEXOS Y EVIDENCIAS -->
       <app-document-attachments [(anexos)]="anexos"></app-document-attachments>
 
-      <!-- BOTONES DE CONFIRMACIÓN Y NAVEGACIÓN -->
-      <div class="flex justify-end gap-4 border-t border-gray-200 pt-6">
-        <cancel-button [routerLink]="ROUTES.DOCUMENT_DETAIL | localRoute: { id: claseDocumentoId() }" label="Cancelar"></cancel-button>
+      <!-- Bottom Actions -->
+      <div class="flex w-full gap-4 border-t border-gray-200 pt-6">
+        <div class="w-1/5">
+          <cancel-button (clicked)="cancel()" label="Cancelar"></cancel-button>
+        </div>
         
-        <div class="flex gap-2">
-          <!-- Botón Guardar -->
-          <submit-button 
-            [submitting]="isLoading()"
-            [label]="isRecreating() ? 'Guardar y Re-crear en Drive' : 'Guardar'">
-          </submit-button>
+        <div class="w-4/5 flex gap-4">
+          <div class="w-2/5">
+            <action-button 
+              [fullWidth]="true"
+              type="submit"
+              (click)="isRecreating.set(true)"
+              [loading]="isLoading()"
+              [disabled]="isLoading()"
+              variant="secondary"
+              size="lg"
+              title="Esta acción destruye el documento actual en google drive y lo vuelve a crear con la información actualizada. Si existe información en el documento de Google que quieras conservar, guardala primero en el texto del documento.">
+              Guardar y Recrear
+            </action-button>
+          </div>
+          <div class="w-3/5">
+            <submit-button 
+              (click)="isRecreating.set(false)"
+              [submitting]="isLoading()"
+              [disabled]="isLoading()"
+              label="Guardar">
+            </submit-button>
+          </div>
         </div>
       </div>
 
@@ -451,4 +468,9 @@
     (close)="showVirtualPaper.set(false)">
   </app-virtual-paper-modal>
 }
+
+
+
+
+
 

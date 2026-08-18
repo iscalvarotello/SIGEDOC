@@ -51,7 +51,7 @@ export class TinymceEditorComponent implements ControlValueAccessor, EditorInjec
       'bold italic underline strikethrough | alignleft aligncenter ' +
       'alignright alignjustify | bullist numlist outdent indent | ' +
       'table | blocks forecolor backcolor | removeformat | help',
-    font_size_formats: '8pt 10pt 12pt 14pt 18pt 24pt 36pt',
+    font_size_formats: '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 24pt 36pt',
     setup: (editor: TinyMCEEditor) => {
       this.tinymceInstance = editor;
       editor.on('init', () => {
