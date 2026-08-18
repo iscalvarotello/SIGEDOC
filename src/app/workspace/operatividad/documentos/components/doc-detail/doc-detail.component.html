@@ -1,4 +1,4 @@
-@if (!doc) {
+﻿@if (!doc) {
   <div class="bg-white border border-gray-200 rounded-2xl flex-1 flex flex-col items-center justify-center p-12 text-center min-h-[400px] shadow-sm dark:border-gray-800 dark:bg-white/3">
     <app-title 
       type="secondary"
@@ -18,7 +18,11 @@
       [subtitle]="'HTML de Emergencia'"
       [htmlUrl]="pdfViewerUrl()"
       [isLoading]="isLoadingPdf()"
-      [isAuthorized]="doc.estatus_emisor === 'autorizado' || doc.estatus_emisor === 'para_despachar'"
+        [showRenderButton]="true"
+      [showAutographSignature]="docPermissions.canSignAutograph(doc)"
+      [showDigitalSignature]="docPermissions.canSignDigitally(doc)"
+      (onSignAutograph)="handleSignAutograph()"
+      (onSignDigital)="handleSignDigital()"
       (closeClick)="closePdfViewer()">
     </app-html-viewer>
   } @else {
@@ -28,6 +32,7 @@
       [subtitle]="doc.estatus_emisor === 'despachado' || doc.estatus_emisor === 'entregado' ? 'PDF Oficial' : 'PDF Borrador'"
       [pdfUrl]="pdfViewerUrl()"
       [isLoading]="isLoadingPdf()"
+        
       [options]="viewerOptions()"
       [selectedOption]="selectedViewerOption()"
       [showRegenerateButton]="(selectedViewerOption()?.type === 'document' || selectedViewerOption()?.type === 'merged') && !doc?.is_final_render"
@@ -35,6 +40,8 @@
       (regenerateClick)="onRegeneratePdf()"
       (selectedOptionChange)="onOptionSelected($event)"
       (newTabClick)="openPdfInNewTab()"
+      (onSignAutograph)="handleSignAutograph()"
+      (onSignDigital)="handleSignDigital()"
       (closeClick)="closePdfViewer()">
     </app-pdf-viewer>
   }
@@ -45,3 +52,8 @@
     (actionCompleted)="actionCompleted.emit()">
   </detail-document-card>
 }
+
+
+
+
+

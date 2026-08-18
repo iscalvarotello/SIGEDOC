@@ -201,13 +201,7 @@
           } @else {
             <div class="flex flex-col gap-1.5">
               <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Escribir Nombre y Cargo del Destinatario Libre</label>
-              <textarea 
-                [ngModel]="destinatarioTextoLibre()"
-                (ngModelChange)="destinatarioTextoLibre.set($event)"
-                [ngModelOptions]="{standalone: true}"
-                rows="3"
-                placeholder="Ej. Ing. Juan Pérez Gómez&#10;Director General de Vinculación y Competitividad Comercial"
-                class="w-full px-4 py-3 bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-semibold"></textarea>
+              <app-text-area [value]="destinatarioTextoLibre()" (valueChange)="destinatarioTextoLibre.set($event.toString())" [rows]="3" placeholder="Ej. Ing. Juan Pérez Gómez&#10;Director General de Vinculación y Competitividad Comercial" className="font-mono text-sm leading-relaxed whitespace-pre-wrap min-h-[80px] w-full"></app-text-area>
             </div>
           }
         }
@@ -268,14 +262,7 @@
 
           <div class="flex flex-col gap-1.5 md:col-span-2">
             <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Asunto Específico</label>
-            <input 
-              type="text" 
-              [ngModel]="asunto()"
-              (ngModelChange)="asunto.set($event)"
-              [ngModelOptions]="{standalone: true}"
-              required
-              placeholder="Ej. Solicitud de comisión oficial al municipio de Tapachula para..."
-              class="w-full px-4 py-2.5 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-xl text-sm transition-all outline-none text-gray-700 font-bold" />
+            <app-input-field [value]="asunto()" (valueChange)="asunto.set($event.toString())" placeholder="Ej. Solicitud de comisión oficial al municipio de Tapachula para..."></app-input-field>
           </div>
         </div>
       </div>
@@ -293,23 +280,26 @@
             (onAddCustomField)="addCustomFieldPanel($event)">
             
             <div editor-header class="flex flex-wrap items-center justify-between gap-3 bg-gray-50 dark:bg-white/3 p-3.5 rounded-2xl border border-gray-200 dark:border-gray-800">
-              <div class="flex items-center gap-2 flex-1 min-w-[200px]">
-                <span class="text-xs font-black text-gray-500 uppercase tracking-wider whitespace-nowrap">Plantillas:</span>
+              <div class="flex items-center gap-2 w-56 shrink-0">
+                <span class="text-[10px] font-black text-gray-500 uppercase tracking-wider whitespace-nowrap">Plantillas:</span>
                 <select 
                   [ngModel]="selectedInternalTemplateId()"
                   (ngModelChange)="loadInternalTemplate($event)"
                   [ngModelOptions]="{standalone: true}"
-                  class="flex-1 px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-bold outline-none text-gray-750 dark:text-gray-200 shadow-sm focus:ring-2 focus:ring-theme-secondary/30 focus:border-theme-secondary">
-                  <option value="">-- Seleccionar plantilla --</option>
+                  class="flex-1 px-2 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-750 rounded-xl text-xs font-bold outline-none text-gray-750 dark:text-gray-200 shadow-sm focus:ring-2 focus:ring-theme-secondary/30 focus:border-theme-secondary">
+                  <option value="">-- Seleccionar --</option>
                   @for (temp of internalTemplatesList(); track temp.id) {
                     <option [value]="temp.id">{{ temp.name }}</option>
                   }
                 </select>
               </div>
 
-              <div class="flex gap-2 relative z-[100]">
-                  <action-button (clicked)="handleSyncFromDrive()" variant="ghost" [disabled]="isLoading()">
-                      <icon icon="Refresh" class="w-4 h-4 mr-1"></icon> Sincronizar Texto de Drive
+              <div class="flex flex-1 justify-end gap-2 relative z-[100]">
+                  <action-button (clicked)="openPreviewModal()" variant="primary" icon="Eye" class="text-xs">
+                    Vista Previa
+                  </action-button>
+                  <action-button (clicked)="handleSyncFromDrive()" variant="outline" [disabled]="isLoading()">
+                      <icon icon="Refresh" class="w-3.5 h-3.5 mr-1"></icon> Sincronizar Drive
                     </action-button>
                 @if (!showSaveTemplatePopover()) {
                   <action-button (clicked)="showSaveTemplatePopover.set(true)" variant="secondary">
@@ -342,85 +332,7 @@
       </div>
 
       <!-- Fila 6: SECTOR Con Copia Para (C.C.P.) -->
-      <div class="bg-gray-50 rounded-2xl p-5 border border-gray-150 space-y-4">
-        <h4 class="text-xs font-black text-theme-primary uppercase tracking-wider border-b border-gray-200 pb-2">Con Copia Para (C.C.P.)</h4>
-        
-        <div class="flex flex-col gap-4 max-w-xl">
-          <div class="flex flex-col gap-1.5 relative">
-            <label class="text-xs font-bold text-gray-500 uppercase">Seleccionar Área</label>
-            <app-area-select
-              [selectedId]="ccpAreaId()"
-              (onSelect)="onCcpAreaChange($event)">
-            </app-area-select>
-          </div>
-
-          <div class="flex flex-col gap-1.5 relative">
-            <label class="text-xs font-bold text-gray-500 uppercase">Empleado</label>
-            <app-employee-select
-              [selectedId]="ccpEmployeeId()"
-              [employeesList]="ccpEmployeesList()"
-              [showReload]="true"
-              [isLoading]="isCcpEmployeesLoading()"
-              [disabled]="!ccpAreaId()"
-              placeholder="Seleccione Empleado..."
-              (onSelect)="onCcpEmployeeSelect($event)"
-              (onClear)="onCcpEmployeeClear()"
-              (onReload)="onCcpAreaChange(ccpAreaId(), true)">
-            </app-employee-select>
-          </div>
-
-          <div class="flex flex-col gap-1.5 relative">
-            <label class="text-xs font-bold text-gray-500 uppercase">Motivo / Para qué</label>
-            <select 
-              [ngModel]="selectedCcpPhrase()"
-              (ngModelChange)="onCcpPhraseChange($event)"
-              [ngModelOptions]="{standalone: true}"
-              class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold outline-none text-gray-700 shadow-sm focus:ring-2 focus:ring-theme-primary/30 focus:border-theme-primary">
-              @for (phrase of ccpPhrases; track phrase) {
-                <option [value]="phrase">{{ phrase }}</option>
-              }
-              <option value="Otro">Otro...</option>
-            </select>
-          </div>
-
-          @if (selectedCcpPhrase() === 'Otro') {
-            <div class="flex flex-col gap-1.5 animate-fadeIn">
-              <label class="text-xs font-bold text-gray-500 uppercase">Especificar Motivo (Otro)</label>
-              <input 
-                type="text" 
-                [ngModel]="customCcpPhrase()"
-                (ngModelChange)="customCcpPhrase.set($event)"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Escriba el motivo personalizado..."
-                class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold outline-none text-gray-700 shadow-sm focus:ring-2 focus:ring-theme-primary/30 focus:border-theme-primary">
-            </div>
-          }
-
-          <div class="pt-2">
-            <action-button 
-  (clicked)="addCcp()" variant="secondary">
-
-              + Agregar C.C.P.
-            </action-button>
-          </div>
-        </div>
-
-        <!-- Listado de CCPs Agregados -->
-        @if (ccps().length > 0) {
-          <div class="flex flex-wrap gap-2 pt-2">
-            @for (c of ccps(); track c.id_empleado) {
-              <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-xl text-xs font-bold shadow-sm">
-                <span class="text-theme-primary">{{ c.area_name }}</span>: {{ c.employee_name }} <span class="text-gray-400 font-medium">({{ c.motivo }})</span>
-                <action-button 
-  (clicked)="removeCcp(c.id_empleado)" variant="ghost">
-
-                  <icon icon="NewIcon3" class="w-3.5 h-3.5"></icon>
-                </action-button>
-              </span>
-            }
-          </div>
-        }
-      </div>
+      <app-ccp-form-panel [(ccps)]="ccps" [allAreas]="allAreas()"></app-ccp-form-panel>
 
       <!-- Fila 7: ANEXOS Y EVIDENCIAS -->
       <app-document-attachments [(anexos)]="anexos"></app-document-attachments>
@@ -468,6 +380,38 @@
     (close)="showVirtualPaper.set(false)">
   </app-virtual-paper-modal>
 }
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Modal de Vista Previa HTML Local -->
+@if (showPreviewModal()) {
+  <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
+    <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" (click)="showPreviewModal.set(false)"></div>
+    
+    <div class="relative w-full max-w-5xl bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[90vh] sm:h-[85vh] animate-in fade-in zoom-in duration-300">
+      <app-html-viewer
+          title="Vista Previa Local"
+          subtitle="Generado en memoria"
+          [htmlUrl]="previewHtmlUrl()"
+          [htmlContent]="previewHtmlString()"
+          [showRenderButton]="true"
+          [replacements]="getFullDictionary()"
+          
+          (closeClick)="showPreviewModal.set(false)">
+        </app-html-viewer>
+    </div>
+  </div>
+}
+
 
 
 

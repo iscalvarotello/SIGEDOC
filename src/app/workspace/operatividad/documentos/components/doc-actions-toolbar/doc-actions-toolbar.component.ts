@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, inject, signal } from '@angular/core';
+﻿import { Component, Input, Output, EventEmitter, inject, signal } from '@angular/core';
 import { ActionButtonComponent } from '@system-shared/buttons/action-button/action-button.component';
 import { SesionService } from '@services/sesion.service';
+import { DocumentPermissionsService } from '../../services/document-permissions.service';
 import { GovSignatureService } from '@core/services/gov-signature.service';
 import { copyToClipboard } from '@core/utils/clipboard.util';
 
@@ -25,17 +26,13 @@ export class DocActionsToolbarComponent {
   @Output() autoRechazar = new EventEmitter<void>();
 
   private _session = inject(SesionService);
+  public _docPermissions = inject(DocumentPermissionsService);
   private _govSignatureService = inject(GovSignatureService);
 
   isLoadingLink = signal<boolean>(false);
   copiedLink = signal<boolean>(false);
 
-  get isRemitente(): boolean {
-    const currentEmployeeId = this._session.currentUserData()?.id_empleado;
-    const docRemitenteId = this.doc?.id_remitente;
-    if (!currentEmployeeId || !docRemitenteId) return false;
-    return String(currentEmployeeId) === String(docRemitenteId);
-  }
+  get isRemitente(): boolean { return this._docPermissions.isRemitente(this.doc); }
 
   copySignatureLink() {
     if (!this.doc?.id) return;
@@ -71,3 +68,4 @@ export class DocActionsToolbarComponent {
     });
   }
 }
+

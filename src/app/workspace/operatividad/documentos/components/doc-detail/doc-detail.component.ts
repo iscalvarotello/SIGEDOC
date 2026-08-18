@@ -11,6 +11,7 @@ import { TitleComponent                 } from '@system-shared/ui/title/title.co
 import { DetailDocumentCardComponent    } from '../detail-document-card/detail-document-card.component';
 
 import { DocumentService                } from '../../services/document.service';
+import { DocumentPermissionsService     } from '../../services/document-permissions.service';
 import { AttachmentService              } from '@core/services/attachment.service';
 
 @Component({
@@ -39,6 +40,7 @@ export class DocDetailComponent implements OnDestroy {
   private _documentService = inject(DocumentService);
   private _attachmentService = inject(AttachmentService);
   private _router = inject(Router);
+  public docPermissions = inject(DocumentPermissionsService);
   private _sanitizer = inject(DomSanitizer);
 
   pdfViewerUrl = signal<SafeResourceUrl | null>(null);
@@ -277,6 +279,20 @@ export class DocDetailComponent implements OnDestroy {
     }
   }
 
+  handleSignAutograph() {
+    this.closePdfViewer();
+    if (this.cardComponent) {
+      this.cardComponent.showActionForm('despachar');
+    }
+  }
+
+  handleSignDigital() {
+    this.closePdfViewer();
+    if (this.cardComponent) {
+      this.cardComponent.actionForms?.submitAction('firmar_y_despachar');
+    }
+  }
+
   openPdf(type: 'draft' | 'final', docToOpen?: any) {
     this.onOpenViewer({ type, doc: docToOpen });
   }
@@ -290,4 +306,10 @@ export class DocDetailComponent implements OnDestroy {
     }
   }
 }
+
+
+
+
+
+
 

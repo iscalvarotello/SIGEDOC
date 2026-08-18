@@ -1,4 +1,4 @@
-<div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col flex-1 dark:border-gray-800 dark:bg-white/3 min-h-[600px] h-full transition-all duration-300">
+﻿<div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col flex-1 dark:border-gray-800 dark:bg-white/3 h-full transition-all duration-300">
   <!-- Encabezado del Visor -->
   <div class="bg-theme-primary text-white p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 select-none">
     <div class="min-w-0">
@@ -14,10 +14,19 @@
 
     <!-- Barra de Herramientas -->
     <div class="flex-1 flex justify-start md:justify-center max-w-full md:max-w-[45%] gap-2">
-      @if (isAuthorized()) {
-        <action-button (clicked)="cleanHtmlForPrinting()" variant="outline" icon="Edit" class="text-xs bg-white text-gray-800">
-          Firma Autgrafa
+      
+      @if (showRenderButton()) {
+        <action-button (clicked)="handleRenderClick()" variant="primary" icon="Refresh" class="text-xs">
+          Renderizar
         </action-button>
+      }
+
+        @if (showAutographSignature()) {
+        <action-button (clicked)="onSignAutograph.emit()" variant="outline" icon="Edit" class="text-xs bg-white text-gray-800">
+          Firma Autógrafa
+        </action-button>
+      }
+        @if (showDigitalSignature()) {
         <action-button (clicked)="onSignDigital.emit()" variant="primary" icon="LockSolid" class="text-xs bg-green-600 hover:bg-green-700">
           Firma Digital
         </action-button>
@@ -34,7 +43,7 @@
     </div>
   </div>
   <!-- Contenedor del Iframe -->
-  <div class="flex-1 w-full bg-gray-100 dark:bg-zinc-900 flex flex-col relative h-[500px] min-h-[500px]">
+  <div class="flex-1 w-full bg-gray-100 dark:bg-zinc-900 flex flex-col relative h-full min-h-0 ">
     @if (isLoading()) {
       <div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-3 z-30 transition-opacity duration-300 animate-fadeIn">
         <svg class="animate-spin h-8 w-8 text-theme-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,9 +53,11 @@
         <span class="text-xs font-extrabold uppercase tracking-wider text-gray-300">Cargando código HTML...</span>
       </div>
     }
-    @defer (when htmlUrl()) {
+    @defer (when htmlUrl() || htmlContent()) {
       @if (htmlUrl()) {
-        <iframe #htmlIframe [src]="htmlUrl()!" class="w-full h-full border-none flex-1 z-10 bg-white" title="Visor de HTML"></iframe>
+        <iframe #htmlIframe (load)="onIframeLoad()" [src]="htmlUrl()!" class="w-full h-full border-none flex-1 z-10 bg-white" title="Visor de HTML"></iframe>
+      } @else if (htmlContent()) {
+        <iframe #htmlIframe (load)="onIframeLoad()" [srcdoc]="htmlContent()!" class="w-full h-full border-none flex-1 z-10 bg-white" title="Visor de HTML Local"></iframe>
       } @else {
         @if (!isLoading()) {
           <div class="flex-1 flex flex-col items-center justify-center text-gray-400 gap-2 p-8 z-10">
@@ -66,3 +77,7 @@
     }
   </div>
 </div>
+
+
+
+

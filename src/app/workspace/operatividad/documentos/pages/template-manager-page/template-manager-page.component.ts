@@ -1,3 +1,8 @@
+
+import { TinymceEditorComponent } from '@system-shared/form/tinymce-editor/tinymce-editor.component';
+import { EditorInjectionStrategy } from '@system-shared/form/editor-injection.strategy';
+import { HtmlViewerComponent } from '@metasystem/components/media/html-viewer/html-viewer.component';
+import { DomSanitizer, SafeResourceUrl, SafeHtml } from '@angular/platform-browser';
 import { Component, OnInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +22,8 @@ import { TemplateTagsPanelComponent } from '../../components/template-tags-panel
   selector: 'app-template-manager-page',
   standalone: true,
   imports: [
+    TinymceEditorComponent,
+    HtmlViewerComponent,
     CommonModule, 
     FormsModule, 
     ActionButtonComponent, 
@@ -32,8 +39,9 @@ export class TemplateManagerPageComponent implements OnInit {
   private _router = inject(Router);
   private templatesService = inject(InternalTemplatesService);
   private session = inject(SesionService);
+  private sanitizer = inject(DomSanitizer);
 
-  @ViewChild('editorTextarea') editorTextarea!: ElementRef<HTMLTextAreaElement>;
+  @ViewChild(EditorInjectionStrategy) editorStrategy?: EditorInjectionStrategy;
 
   claseDocumentoId = signal<any>('memo');
   isLoading = signal<boolean>(false);
@@ -45,6 +53,41 @@ export class TemplateManagerPageComponent implements OnInit {
   formContent = signal<string>('');
   
   isEditorDirty = signal<boolean>(false);
+
+  showPreviewModal = signal<boolean>(false);
+  previewHtmlUrl = signal<SafeResourceUrl | null>(null);
+  previewHtmlString = signal<SafeHtml | null>(null);
+
+  async openPreviewModal() {
+    this.isLoading.set(true);
+    try {
+      // Call backend fallback
+      const res = await fetch(`/api/html-templates/preview-template/${this.claseDocumentoId()}`, {
+        headers: { 'Authorization': `Bearer ${this.session.token()}` }
+      });
+      const data = await res.json();
+      const html = data.data;
+      
+      const blob = new Blob([html], { type: 'text/html' });
+      const fileURL = URL.createObjectURL(blob);
+      
+      this.previewHtmlUrl.set(this.sanitizer.bypassSecurityTrustResourceUrl(fileURL));
+      this.showPreviewModal.set(true);
+    } catch (e) {
+      console.error(e);
+      alert('Error fetching preview shell.');
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  getFullDictionary() {
+    // Template might have BODY tag that needs to be replaced with the current formContent
+    return {
+      'BODY': this.formContent()
+    };
+  }
+
 
   ngOnInit() {
     this._route.params.subscribe(params => {
@@ -97,27 +140,15 @@ export class TemplateManagerPageComponent implements OnInit {
   }
 
   insertTag(tag: string) {
-    const el = this.editorTextarea?.nativeElement;
-    if (!el) {
+    if (this.editorStrategy) {
+      this.editorStrategy.insertTextAtCursor(tag);
+    } else {
       this.formContent.update(c => c + ' ' + tag);
-      this.onFormChange();
-      return;
     }
-    
-    const start = el.selectionStart;
-    const end = el.selectionEnd;
-    const content = this.formContent();
-    
-    const newContent = content.substring(0, start) + tag + content.substring(end);
-    this.formContent.set(newContent);
     this.onFormChange();
-    
-    // Devolvemos el foco al editor y posicionamos el cursor después del tag
-    setTimeout(() => {
-      el.focus();
-      el.setSelectionRange(start + tag.length, start + tag.length);
-    }, 0);
   }
+
+    
 
   async saveTemplate() {
     if (!this.formName().trim() || !this.formContent().trim()) return;

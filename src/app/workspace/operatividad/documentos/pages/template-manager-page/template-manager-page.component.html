@@ -78,6 +78,10 @@
         {{ editingTemplate() ? 'Editando Plantilla' : 'Nueva Plantilla' }}
       </h3>
       <div class="flex items-center gap-2">
+        
+        <action-button variant="secondary" (clicked)="openPreviewModal()">
+          <icon icon="Eye" class="w-4 h-4 mr-2"></icon> Vista Previa
+        </action-button>
         <action-button variant="primary" (clicked)="saveTemplate()" [disabled]="isLoading() || !formName() || !formContent()">
           @if(isLoading()) { <icon icon="Spinner" class="w-4 h-4 mr-2"></icon> }
           <icon icon="Save" class="w-4 h-4 mr-2"></icon> Guardar Plantilla
@@ -102,13 +106,7 @@
 
         <div class="flex flex-col gap-1.5 flex-1 relative">
           <label class="text-xs font-black text-gray-500 uppercase tracking-wider">Cuerpo / Contenido Base</label>
-          <textarea 
-            #editorTextarea
-            [(ngModel)]="formContent"
-            (ngModelChange)="onFormChange()"
-            rows="18"
-            placeholder="Escriba los párrafos iniciales o contenido base aquí. Puede inyectar variables haciendo clic en los botones del panel derecho en su cursor..."
-            class="w-full h-full min-h-[300px] px-4 py-3 bg-gray-50 hover:bg-gray-100/70 focus:bg-white border border-gray-200 focus:border-theme-secondary focus:ring-1 focus:ring-theme-secondary rounded-2xl text-sm transition-all outline-none text-gray-700 font-semibold"></textarea>
+          <app-tinymce-editor [(ngModel)]="formContent" (ngModelChange)="onFormChange()"></app-tinymce-editor>
         </div>
 
       </div>
@@ -122,3 +120,20 @@
   </div>
 
 </div>
+
+@if (showPreviewModal()) {
+  <div class="fixed inset-0 z-[1000] flex items-center justify-center p-4 sm:p-6">
+    <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" (click)="showPreviewModal.set(false)"></div>
+    <div class="relative w-full max-w-5xl bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col h-[90vh] sm:h-[85vh] animate-in fade-in zoom-in duration-300">
+      <app-html-viewer
+          title="Vista Previa de Plantilla"
+          subtitle="Generado con datos ficticios"
+          [htmlUrl]="previewHtmlUrl()"
+          [htmlContent]="previewHtmlString()"
+          [showRenderButton]="false"
+          [replacements]="getFullDictionary()"
+          (closeClick)="showPreviewModal.set(false)">
+      </app-html-viewer>
+    </div>
+  </div>
+}

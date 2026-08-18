@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed, effect, input, ViewChild } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, effect, input, ViewChild } from '@angular/core';
 import { BehaviorSubject, combineLatest, firstValueFrom } from 'rxjs';
 import { ActionButtonComponent } from '@metasystem/components/buttons/action-button/action-button.component';
 import { IconComponent } from '@system-shared/common/icon/icon.component';
@@ -25,7 +25,6 @@ import { JobPositionSelectComponent   } from '@workspace-shared/components/selec
 import { PageBreadcrumbComponent      } from '@system-shared/common/page-breadcrumb/page-breadcrumb.component';
 import { SesionService                } from '@services/sesion.service';
 import { AreaSelectComponent          } from '@workspace-shared/components/selects/area-select/area-select.component';
-import { EmployeeSelectComponent      } from '@workspace-shared/components/selects/employee-select/employee-select.component';
 import { ProjectSelectComponent       } from '@workspace-shared/components/selects/project-select/project-select.component';
 import { PartidaSelectComponent       } from '@workspace-shared/components/selects/partida-select/partida-select.component';
 import { SupplierSelectComponent      } from '@workspace-shared/components/selects/supplier-select/supplier-select.component';
@@ -34,6 +33,9 @@ import { DocumentTypeSelectComponent  } from '@workspace-shared/components/selec
 import { DocumentAttachmentsComponent } from '@workspace-shared/components/media/document-attachments/document-attachments.component';
 import { DatePickerComponent          } from '@system-shared/form/date-picker/date-picker.component';
 import { SubmitButtonComponent        } from '@system-shared/buttons/submit-button/submit-button.component';
+import { InputFieldComponent            } from '@system-shared/form/input/input-field.component';
+import { TextAreaComponent              } from '@system-shared/form/input/text-area.component';
+import { CcpFormPanelComponent          } from '../../components/ccp-form-panel/ccp-form-panel.component';
 import { CancelButtonComponent        } from '@system-shared/buttons/cancel-button/cancel-button.component';
 import { LocalRouteService            } from '@core/routing/local-route.service';
 import { LocalRoutePipe               } from '@core/routing/local-route.pipe';
@@ -47,8 +49,10 @@ import { DocumentEditorPanelComponent } from '../../components/document-editor-p
 @Component({
   selector: 'app-form-new-page',
   standalone: true,
-  imports: [ CommonModule, FormsModule, RouterLink, ClaseDocumentPipe, PageBreadcrumbComponent, AreaSelectComponent,
-    EmployeeSelectComponent, DocumentTypeSelectComponent, DocumentAttachmentsComponent, DatePickerComponent, SubmitButtonComponent, CancelButtonComponent,
+  imports: [
+    InputFieldComponent,
+    TextAreaComponent,
+    CcpFormPanelComponent, CommonModule, FormsModule, RouterLink, ClaseDocumentPipe, PageBreadcrumbComponent, AreaSelectComponent, DocumentTypeSelectComponent, DocumentAttachmentsComponent, DatePickerComponent, SubmitButtonComponent, CancelButtonComponent,
     JobPositionSelectComponent, LocalRoutePipe, ExternalContactSelectComponent, IconComponent, ActionButtonComponent, TopicComponent, VirtualPaperModalComponent,
     DocumentEditorPanelComponent
   ],
@@ -589,81 +593,6 @@ export class FormNewPageComponent implements OnInit {
   /**
    * Carga los empleados de un Ã¡rea para los selectores de C.C.P.
    */
-  async onCcpAreaChange(area: AreaDTO | string, forceRefresh = false) {
-    const areaId = typeof area === 'string' ? area : (area?.id || '');
-    this.ccpAreaId.set(areaId);
-    this.ccpEmployeeId.set('');
-    if (!areaId) {
-      this.ccpEmployeesList.set([]);
-      return;
-    }
-    this.isCcpEmployeesLoading.set(true);
-    try {
-      const res = await this._employeeService.getByArea(areaId, forceRefresh);
-      this.ccpEmployeesList.set(res.data || []);
-      if (res.data && res.data.length > 0) {
-        this.ccpEmployeeId.set(res.data[0].employee_id);
-      }
-    } catch (err) {
-      console.error('Error cargando lista de empleados para CCP:', err);
-    } finally {
-      this.isCcpEmployeesLoading.set(false);
-    }
-  }
-
-  onCcpEmployeeSelect(emp: any) {
-    if (emp) {
-      this.ccpEmployeeId.set(emp.employee_id || emp.id_employee || '');
-    }
-  }
-
-  onCcpEmployeeClear() {
-    this.ccpEmployeeId.set('');
-  }
-
-  onCcpPhraseChange(val: string) {
-    this.selectedCcpPhrase.set(val);
-    if (val !== 'Otro') {
-      this.customCcpPhrase.set('');
-    }
-  }
-
-  /**
-   * Agrega un C.C.P. al listado del documento
-   */
-  addCcp() {
-    if (!this.ccpAreaId() || !this.ccpEmployeeId()) return;
-
-    const area = this.allAreas().find(a => a.id === this.ccpAreaId());
-    const emp = this.ccpEmployeesList().find(e => e.employee_id === this.ccpEmployeeId());
-
-    if (area && emp) {
-      const motivoText = this.selectedCcpPhrase() === 'Otro' ? this.customCcpPhrase().trim() : this.selectedCcpPhrase();
-      const item = {
-        id_area: this.ccpAreaId(),
-        id_empleado: this.ccpEmployeeId(),
-        area_name: area.acronym || area.name,
-        employee_name: emp.fullName,
-        motivo: motivoText || 'Para su conocimiento'
-      };
-
-      if (!this.ccps().some(c => c.id_empleado === item.id_empleado)) {
-        this.ccps.update(list => [...list, item]);
-      }
-
-      // Resetear inputs de CCP
-      this.ccpEmployeeId.set('');
-      this.ccpEmployeesList.set([]);
-      this.ccpAreaId.set('');
-      this.selectedCcpPhrase.set('Para su conocimiento');
-      this.customCcpPhrase.set('');
-    }
-  }
-
-  removeCcp(employeeId: string) {
-    this.ccps.update(list => list.filter(c => c.id_empleado !== employeeId));
-  }
-
   /**
    * Intenta parsear una fecha en formato ISO o local DD/MM/YYYY sin desfase de zona horaria
    */
@@ -1115,4 +1044,8 @@ export class FormNewPageComponent implements OnInit {
     }
   }
 }
+
+
+
+
 
