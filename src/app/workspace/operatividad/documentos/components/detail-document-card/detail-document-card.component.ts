@@ -127,7 +127,7 @@ export class DetailDocumentCardComponent implements OnDestroy {
   async renderGoogleDocs(docId: string) {
     this.isRenderingGoogleDocs.set(true);
     try {
-      await this._documentService.processAction(docId, { action: 'render' });
+      await this._documentService.renderGoogleDoc(docId);
       this.actionCompleted.emit();
     } catch (e: any) {
       alert('Error renderizando Google Docs: ' + (e?.error?.message || e?.message));

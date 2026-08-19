@@ -21,7 +21,7 @@ import { ActionButtonComponent } from '../action-button/action-button.component'
 })
 export class MergePdfButtonComponent {
   disabled = input<boolean>(false);
-  label = input<string>('Fusionar Documento');
+  label = input<string>('Fusionar');
   displayMode = input<'button' | 'link'>('button');
   clicked = output<MouseEvent>();
 }

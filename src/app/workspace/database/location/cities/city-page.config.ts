@@ -2,10 +2,10 @@ import { PageControllerConfig } from '@system-shared/master-detail/master-detail
 
 export const CITY_PAGE_CONFIG: PageControllerConfig = {
   mainRoute: '/database/location/cities',
-  searchFields: ['city', 'state', 'country'],
+  searchFields: ['name', 'state', 'country'],
   deferLoading: true,
   fetchRoute: 'byState',
-  sortConfig: { key: 'city', direction: 'asc' },
+  sortConfig: { key: 'name', direction: 'asc' },
   
   cacheConfig: {
     enabled: true,
@@ -14,7 +14,7 @@ export const CITY_PAGE_CONFIG: PageControllerConfig = {
   
   tableColumns: [
     { key: 'emoji', label: 'B', width: 'w-12', align: 'center' },
-    { key: 'city', label: 'Ciudad' },
+    { key: 'name', label: 'Ciudad' },
     { key: 'state', label: 'Estado' },
     { key: 'country', label: 'País', width: 'hidden sm:table-cell' },
     { key: 'actions', label: 'Acciones', align: 'right', isAction: true, width: 'w-24' }
@@ -22,7 +22,7 @@ export const CITY_PAGE_CONFIG: PageControllerConfig = {
   
   detailHeader: {
     emojiField: 'emoji',
-    titleField: 'city',
+    titleField: 'name',
     subtitleField: 'state'
   },
   

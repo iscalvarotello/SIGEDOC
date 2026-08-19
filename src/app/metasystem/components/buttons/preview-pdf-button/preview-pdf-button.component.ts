@@ -21,7 +21,7 @@ import { ActionButtonComponent, ActionButtonSize } from '../action-button/action
 })
 export class PreviewPdfButtonComponent {
   disabled = input<boolean>(false);
-  label = input<string>('Borrador PDF');
+  label = input<string>('Borrador');
   size = input<ActionButtonSize>('sm');
   displayMode = input<'button' | 'link'>('button');
   clicked = output<MouseEvent>();

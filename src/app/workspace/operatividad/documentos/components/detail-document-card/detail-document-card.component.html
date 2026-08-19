@@ -12,12 +12,8 @@
         
         <div class="flex items-center gap-2">
           @if (!doc.is_rendered && !doc.is_final_render && (doc.estatus_emisor === 'en_edicion' || (doc.estatus_emisor === 'en_correccion' && isCreator()))) {
-            <action-button variant="primary" (clicked)="renderGoogleDocs(doc.id)" [loading]="isRenderingGoogleDocs()" class="animate-fadeIn">
-              Crear documento en Google Docs
-            </action-button>
-            <action-button variant="secondary" class="animate-fadeIn" [routerLink]="['/operatividad/edit-document', doc.id]">
-              Continuar ediciÃ³n
-            </action-button>
+            <action-button variant="primary" size="md" icon="ExternalLink" label="Drive" (clicked)="renderGoogleDocs(doc.id)" [loading]="isRenderingGoogleDocs()" class="animate-fadeIn"></action-button>
+            <action-button variant="secondary" size="md" icon="Edit" label="Editar" class="animate-fadeIn" [routerLink]="['/operatividad/edit-document', doc.id]"></action-button>
           }
 
           <div class="flex gap-2">
@@ -30,7 +26,7 @@
           </div>
 
           @if (doc.is_rendered && !doc.is_final_render && (doc.estatus_emisor === 'en_edicion' || (doc.estatus_emisor === 'en_correccion' && isCreator()))) {
-            <action-button variant="secondary" size="md" icon="LapizSolid" label="Editar" class="animate-fadeIn" [routerLink]="['/operatividad/edit-document', doc.id]" [queryParams]="{ recreate: true }"></action-button>
+            <action-button variant="secondary" size="md" icon="Edit" label="Editar" class="animate-fadeIn" [routerLink]="['/operatividad/edit-document', doc.id]" [queryParams]="{ recreate: true }"></action-button>
           }
           @if (doc.estatus_emisor === 'despachado' || doc.estatus_emisor === 'entregado' || doc.estatus_emisor === 'cancelado') {
             <open-pdf-button size="md" (clicked)="openPdf('final')"></open-pdf-button>
@@ -97,7 +93,7 @@
                   variant="outline"
                   size="sm"
                   [iconOnly]="true"
-                  icon="LapizSolid"
+                  icon="Edit"
                   title="Editar Tema y Asunto"
                   class="absolute top-2 right-2 shadow-theme-xs !border-transparent hover:!border-blue-100"
                   (clicked)="startEditingDetails()">
@@ -270,4 +266,5 @@
     }
 
   </div>
+
 

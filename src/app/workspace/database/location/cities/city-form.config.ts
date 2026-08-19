@@ -9,7 +9,7 @@ export const CITY_FORM_CONFIG: FormControllerConfig = {
     {
       title: 'Datos Generales',
       fields: [
-        { key: 'city', label: 'Nombre de la Ciudad', type: 'text', required: true, placeholder: 'Ej. Tuxtla Gutiérrez', gridSpan: 2 },
+        { key: 'name', label: 'Nombre de la Ciudad', type: 'text', required: true, placeholder: 'Ej. Tuxtla Gutiérrez', gridSpan: 2 },
         {
           key: 'country_id',
           label: 'País (Filtro)',

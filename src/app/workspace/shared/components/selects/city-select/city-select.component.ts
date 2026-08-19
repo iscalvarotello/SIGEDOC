@@ -24,8 +24,8 @@ import { SafeHtmlPipe } from '@system-pipe/safe-html.pipe';
       [ngModel]="value()">
       <ng-template #optionTemplate let-opt>
         <div class="flex flex-col gap-0.5 min-w-0">
-          <span class="font-bold text-sm text-gray-800 dark:text-gray-200 block truncate" [title]="opt.raw.city">
-            {{ opt.raw.emoji || '🏙️' }} {{ opt.raw.city }}
+          <span class="font-bold text-sm text-gray-800 dark:text-gray-200 block truncate" [title]="opt.raw.name">
+            {{ opt.raw.emoji || '🏙️' }} {{ opt.raw.name }}
           </span>
           <span class="text-[10px] text-gray-450 flex flex-nowrap items-center gap-1.5 min-w-0">
             @if (opt.raw.state) {
@@ -137,7 +137,7 @@ export class CitySelectComponent implements OnInit, OnChanges, ControlValueAcces
   citiesOptions = computed(() => {
     return this.citiesList().map(c => ({
       value: c.id,
-      label: c.city,
+      label: c.name,
       raw: c,
       iconKey: 'iconLocation'
     }));

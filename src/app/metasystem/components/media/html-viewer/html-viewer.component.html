@@ -1,4 +1,4 @@
-﻿<div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col flex-1 dark:border-gray-800 dark:bg-white/3 h-full transition-all duration-300">
+<div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex flex-col flex-1 dark:border-gray-800 dark:bg-white/3 h-full transition-all duration-300">
   <!-- Encabezado del Visor -->
   <div class="bg-theme-primary text-white p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 select-none">
     <div class="min-w-0">
@@ -16,14 +16,12 @@
     <div class="flex-1 flex justify-start md:justify-center max-w-full md:max-w-[45%] gap-2">
       
       @if (showRenderButton()) {
-        <action-button (clicked)="handleRenderClick()" variant="primary" icon="Refresh" class="text-xs">
-          Renderizar
-        </action-button>
+        <action-button (clicked)="handleRenderClick()" variant="primary" icon="Refresh" label="Limpiar" class="text-xs"></action-button>
       }
 
         @if (showAutographSignature()) {
         <action-button (clicked)="onSignAutograph.emit()" variant="outline" icon="Edit" class="text-xs bg-white text-gray-800">
-          Firma Autógrafa
+          Firma Aut�grafa
         </action-button>
       }
         @if (showDigitalSignature()) {
@@ -50,7 +48,7 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        <span class="text-xs font-extrabold uppercase tracking-wider text-gray-300">Cargando código HTML...</span>
+        <span class="text-xs font-extrabold uppercase tracking-wider text-gray-300">Cargando c�digo HTML...</span>
       </div>
     }
     @defer (when htmlUrl() || htmlContent()) {
@@ -61,7 +59,7 @@
       } @else {
         @if (!isLoading()) {
           <div class="flex-1 flex flex-col items-center justify-center text-gray-400 gap-2 p-8 z-10">
-            <span class="text-4xl">🖹</span>
+            <span class="text-4xl">??</span>
             <span class="text-xs font-extrabold uppercase tracking-wider">No se pudo cargar el archivo HTML</span>
           </div>
         }
@@ -77,6 +75,8 @@
     }
   </div>
 </div>
+
+
 
 
 

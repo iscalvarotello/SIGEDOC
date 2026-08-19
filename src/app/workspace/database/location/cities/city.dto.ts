@@ -2,7 +2,7 @@ import { IBaseEntity, BaseDto } from '@core/models/base-entity.dto';
 
 export class CityDTO extends BaseDto<CityDTO> implements IBaseEntity {
   id: string;
-  city: string;
+  name: string;
   state?: string;
   state_id?: string;
   latitude: string;
@@ -14,7 +14,7 @@ export class CityDTO extends BaseDto<CityDTO> implements IBaseEntity {
   constructor(data: any = {}) {
     super();
     this.id = data.id || '';
-    this.city = data.city || '';
+    this.name = data.name || data.city || '';
     this.state = data.state;
     this.state_id = data.state_id;
     this.latitude = data.latitude || '';
@@ -29,7 +29,15 @@ export class CityDTO extends BaseDto<CityDTO> implements IBaseEntity {
       this.state_id = data.state.id;
     }
     
-    if (data.country && typeof data.country === 'object') {
+    if (data.state?.country && typeof data.state.country === 'object') {
+      this.country = data.state.country.name;
+      this.country_id = data.state.country.id;
+      this.emoji = data.state.country.emoji;
+    } else if (data.state?.country && typeof data.state.country === 'object') {
+      this.country = data.state.country.name;
+      this.country_id = data.state.country.id;
+      this.emoji = data.state.country.emoji;
+    } else if (data.country && typeof data.country === 'object') {
       this.country = data.country.name;
       this.country_id = data.country.id;
       this.emoji = data.country.emoji;
