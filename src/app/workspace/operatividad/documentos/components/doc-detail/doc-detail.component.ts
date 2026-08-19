@@ -1,4 +1,4 @@
-﻿import { Component, OnDestroy, inject, signal, computed, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnDestroy, inject, signal, computed, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { CommonModule                   } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -76,7 +76,7 @@ export class DocDetailComponent implements OnDestroy {
 
     if (activeDoc.attachments && activeDoc.attachments.length > 0) {
       for (const att of activeDoc.attachments) {
-        if (att.is_pdf || att.file_name.toLowerCase().endsWith('.pdf')) {
+        if (att.is_pdf || (att.file_name || "").toLowerCase().endsWith('.pdf')) {
           options.push({
             id: att.id,
             label: att.file_name,
@@ -199,7 +199,7 @@ export class DocDetailComponent implements OnDestroy {
       }
     } catch (error: any) {
       console.error('Error loading PDF in DocDetailComponent:', error);
-      let message = 'El archivo PDF solicitado no estÃ¡ disponible en este momento.';
+      let message = 'El archivo PDF solicitado no está disponible en este momento.';
       if (error?.error instanceof Blob) {
         try {
           const text = await error.error.text();
@@ -306,6 +306,7 @@ export class DocDetailComponent implements OnDestroy {
     }
   }
 }
+
 
 
 
