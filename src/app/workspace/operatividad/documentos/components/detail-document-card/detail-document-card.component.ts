@@ -1,4 +1,4 @@
-﻿import { Component, OnDestroy, inject, signal, computed, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, OnDestroy, inject, signal, computed, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { CommonModule                   } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule                    } from '@angular/forms';
@@ -26,6 +26,7 @@ import { DocAttachmentsListComponent    } from '../doc-attachments-list/doc-atta
 import { DocActionFormsComponent        } from '../doc-action-forms/doc-action-forms.component';
 import { MetaDataDocComponent           } from '../meta-data-doc/meta-data-doc.component';
 import { DocumentService                } from '../../services/document.service';
+import { DocumentPermissionsService     } from '../../services/document-permissions.service';
 import { DocHistoryLinksComponent       } from '../doc-history-links/doc-history-links.component';
 
 import { TopicComponent                 } from '@system-shared/form/topic/topic.component';
@@ -94,29 +95,12 @@ export class DetailDocumentCardComponent implements OnDestroy {
   isLoadingSelectedDocAttachments = signal<boolean>(false);
 
   private _documentService = inject(DocumentService);
+  perms = inject(DocumentPermissionsService);
   private _attachmentService = inject(AttachmentService);
   private _router = inject(Router);
   private _sesion = inject(SesionService);
 
-  isCreator = computed(() => {
-    const doc = this._doc();
-    const employeeId = this._sesion.currentUserData()?.id_empleado;
-    return doc && doc.creador && (doc.creador.id === employeeId || doc.creador.id_empleado === employeeId);
-  });
-
-  isReviewer = computed(() => {
-    const doc = this._doc();
-    if (!doc) return false;
-    const employeeId = this._sesion.currentUserData()?.id_empleado;
-    
-    if (doc.creador && (doc.creador.id === employeeId || doc.creador.id_empleado === employeeId)) return true;
-    if (doc.turnado_a && (doc.turnado_a.id === employeeId || doc.turnado_a.id_empleado === employeeId)) return true;
-    if (doc.revisor && (doc.revisor.id === employeeId || doc.revisor.id_empleado === employeeId)) return true;
-    
-    return false;
-  });
-
-  canEditDetails = computed(() => { return this.isCreator() || this.isReviewer(); });
+  
 
   get selectedTipo() { return this.doc?.tipo_documento; }
   get claseDocumentoId(): ClaseDocumentoId {
@@ -350,6 +334,40 @@ export class DetailDocumentCardComponent implements OnDestroy {
     }
   }
 
+    public isEditionMode(): boolean {
+    if (!this.doc) return false;
+    return !this.doc.is_final_render && (this.doc.estatus_emisor === 'en_edicion' || (this.doc.estatus_emisor === 'en_correccion' && this.perms.isCreator(this.doc)));
+  }
+
+  public openPdfDraft(): void {
+    if (this.isEditionMode() && !this.doc.is_rendered) {
+      this.showActionForm('aviso_drive_falta');
+    } else {
+      this.openPdf('draft');
+    }
+  }
+
+  public async downloadWordDraft(): Promise<void> {
+    try {
+      await this._documentService.downloadWordDraft(this.doc.id);
+    } catch (e: any) {
+      const errorMsg = e.message || 'Error desconocido';
+      alert('Ocurrió un error al generar el documento de Word:\n' + errorMsg);
+    }
+  }
+
+  public handleWordViewAction(): void {
+    if (this.doc.estatus_emisor === 'autorizado' || this.doc.estatus_emisor === 'para_despachar') {
+      if (this.doc.is_final_render) {
+        this.openPdf('draft');
+      } else {
+        this.showActionForm('upload_word_pdf');
+      }
+    } else {
+      this.downloadWordDraft();
+    }
+  }
+
   openEmergencyHtml() {
     this.openViewer.emit({ type: 'emergency' });
   }
@@ -364,3 +382,8 @@ export class DetailDocumentCardComponent implements OnDestroy {
 
   ngOnDestroy() {}
 }
+
+
+
+
+

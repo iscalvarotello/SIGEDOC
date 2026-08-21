@@ -7,7 +7,7 @@ export const DOCUMENT_TEMPLATE_FORM_CONFIG: FormGroupConfig[] = [
     subtitle: 'Registra el nombre descriptivo y los identificadores de Google Drive.',
     fields: [
       { key: 'name', label: 'Nombre de la Plantilla', type: 'text', required: true, placeholder: 'Ej. Plantilla de Oficio Base', gridSpan: 1 },
-      { key: 'google_drive_id', label: 'ID de Archivo en Google Drive', type: 'text', required: true, placeholder: 'Ej. 1sBVpGVEWOveSyQ8...', gridSpan: 1 },
+      { key: 'google_drive_id', label: 'ID de Archivo en Google Drive', type: 'text', placeholder: 'Ej. 1sBVpGVEWOveSyQ8...', gridSpan: 1 },
       { key: 'url', label: 'URL de Documento en Drive (opcional)', type: 'text', placeholder: 'Ej. https://docs.google.com/document/d/...', gridSpan: 2 }
     ]
   },

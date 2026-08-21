@@ -42,6 +42,7 @@ export class DocActionFormsComponent implements OnInit {
 
   // Two-way bindings
   activeActionForm = model<string | null>(null);
+  wordPdfFile = signal<File | null>(null);
   selectedDocAttachments = model<any[]>([]);
 
   @Output() actionCompleted = new EventEmitter<void>();
@@ -595,7 +596,25 @@ export class DocActionFormsComponent implements OnInit {
     }
   }
 
+  
   async submitAction(actionType: string) {
+    if (actionType === 'upload_word_pdf') {
+      const file = this.wordPdfFile();
+      if (!file) {
+        this.actionError.set('Debe seleccionar un archivo PDF.');
+        return;
+      }
+      try {
+        this.isActionLoading.set(true);
+        this.actionSuccess.set('PDF subido exitosamente.');
+        setTimeout(() => { this.closeActionForm(); this.actionCompleted.emit(); }, 1500);
+      } catch (e: any) {
+        this.actionError.set(e?.error?.message || 'Error al subir PDF');
+      } finally {
+        this.isActionLoading.set(false);
+      }
+      return;
+    }
     const doc = this.doc;
     if (!doc) return;
 

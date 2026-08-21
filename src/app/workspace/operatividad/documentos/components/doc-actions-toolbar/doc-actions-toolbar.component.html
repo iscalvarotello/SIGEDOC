@@ -1,130 +1,88 @@
-<div class="flex flex-wrap gap-2.5 pt-3 border-t border-white/10">
-  
-  <!-- BANDEJA EN EDICIÓN / EN CORRECCIÓN -->
-  @if (doc?.bandeja === '✏️ En edición' || doc?.bandeja === '⚠️ En correccion') {
+<div class="flex items-center gap-2 animate-fadeIn flex-wrap p-2 pb-5 border-t border-gray-200 dark:border-gray-800">
+
+  <!-- CREADOR (Borradores y Rechazos) -->
+  @if (perms.canRequestReview(doc)) {
     <action-button variant="outline" size="sm" label="Solicitar revisión" (clicked)="showForm.emit('solicitar_revision')"></action-button>
-    <action-button variant="secondary" size="sm" label="Revisión de 3ros" (clicked)="showForm.emit('solicitar_revision_terceros')"></action-button>
-    @if (doc?.bandeja === '✏️ En edición') {
-      <action-button variant="success" size="sm" label="Autorizar" (clicked)="showForm.emit('autorizar')"></action-button>
-    }
-    <action-button variant="outline" size="sm" label="Cancelar documento" (clicked)="showForm.emit('cancelar')"></action-button>
-    <action-button variant="info" size="sm" label="Agregar Anexos" (clicked)="showForm.emit('anexos')"></action-button>
-    <action-button variant="warning" size="sm" label="Agregar C.C.P." (clicked)="showForm.emit('ccp')"></action-button>
   }
 
-  <!-- BANDEJA PARA REVISIÓN (REVISOR) -->
-  @if (doc?.bandeja === '📋 Para revisión') {
+  @if (perms.canRequestThirdPartyReview(doc) && perms.isCreator(doc)) {
+    <action-button variant="secondary" size="sm" label="Revisión de 3ros" (clicked)="showForm.emit('solicitar_revision_terceros')"></action-button>
+  }
+
+  @if (perms.canAuthorize(doc)) {
+    <action-button variant="success" size="sm" label="Autorizar" (clicked)="showForm.emit('autorizar')"></action-button>
+  }
+
+  @if (perms.canCancel(doc)) {
+    <action-button variant="outline" size="sm" label="Cancelar documento" (clicked)="showForm.emit('cancelar')"></action-button>
+  }
+  @if (perms.canAddAttachments(doc)) {
+    <action-button variant="info" size="sm" label="Agregar Anexos" (clicked)="showForm.emit('anexos')"></action-button>
+  }
+  @if (perms.canAddCcp(doc)) {
+    <action-button variant="warning" size="sm" label="Agregar C.C.P." (clicked)="showForm.emit('ccp')"></action-button>
+  }
+  @if (perms.canSelfReject(doc)) {
+    <action-button variant="danger" size="sm" label="Autorechazo" (clicked)="autoRechazar.emit()" [disabled]="isActionLoading" [loading]="isActionLoading"></action-button>
+  }
+
+  <!-- REVISOR -->
+  @if (perms.canReview(doc)) {
     <action-button variant="success" size="sm" label="Revisado" (clicked)="submitAction.emit('revisar')" [disabled]="isActionLoading" [loading]="isActionLoading"></action-button>
     <action-button variant="danger" size="sm" label="Rechazado" (clicked)="showForm.emit('rechazar')"></action-button>
     <action-button variant="secondary" size="sm" label="Revisión de 3ros" (clicked)="showForm.emit('solicitar_revision_terceros')"></action-button>
   }
 
-  <!-- BANDEJA EN REVISIÓN (SOLICITANTE ESPERANDO REVISIÓN) -->
-  @if (doc?.bandeja === '🔍 En revision') {
-    <action-button variant="outline" size="sm" label="Cancelar documento" (clicked)="showForm.emit('cancelar')"></action-button>
-  }
-
-  <!-- BANDEJA REVISADO -->
-  @if (doc?.bandeja === '✔️ Revisado') {
-    <action-button variant="success" size="sm" label="Autorizar" (clicked)="showForm.emit('autorizar')"></action-button>
-    <action-button variant="outline" size="sm" label="Cancelar documento" (clicked)="showForm.emit('cancelar')"></action-button>
-    <action-button variant="danger" size="sm" label="Autorechazo" (clicked)="autoRechazar.emit()" [disabled]="isActionLoading" [loading]="isActionLoading"></action-button>
-  }
-
-  <!-- BANDEJA RECHAZADOS -->
-  @if (doc?.bandeja === '❌ Rechazados') {
-    <action-button variant="outline" size="sm" label="Solicitar revisión" (clicked)="showForm.emit('solicitar_revision')"></action-button>
-    <action-button variant="outline" size="sm" label="Cancelar" (clicked)="showForm.emit('cancelar')"></action-button>
-    <action-button variant="secondary" size="sm" label="Revisión de 3ros" (clicked)="showForm.emit('solicitar_revision_terceros')"></action-button>
-  }
-
-  <!-- BANDEJA AUTORIZADOS / PARA DESPACHAR -->
-  @if (doc?.bandeja === '✍️ Autorizados' || doc?.bandeja === '📦 Para despachar') {
-    <div class="mr-2 bg-[#4A1524]/80 dark:bg-black/40 p-3 rounded-xl border border-white/20 shadow-md backdrop-blur-md">
-      <table class="border-none w-full">
-        <thead>
-          <tr>
-            <th colspan="2" class="text-sm font-medium text-white tracking-wide text-center pb-2 border-b border-white/30">
-              Despachar este documento mediante
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="pr-2 pt-3 align-top">
-              <action-button variant="success" size="sm" label="Firma Autógrafa" (clicked)="showForm.emit('despachar')"></action-button>
-            </td>
-            <td class="pl-2 pt-3 align-top">
-              @if (isRemitente) {
-                <action-button variant="outline" size="sm" label="Firma Digital" (clicked)="submitAction.emit('firmar_y_despachar')" [disabled]="isActionLoading" [loading]="isActionLoading"></action-button>
-              } @else {
-                <div class="px-2.5 py-1.5 bg-black/20 border border-white/10 rounded flex items-center justify-center max-w-[140px]">
-                  <span class="text-[9px] leading-tight text-gray-300 text-center font-medium italic">Debes ser el remitente para poder firmar electrónicamente</span>
-                </div>
-              }
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <!-- AUTORIZADOS / PARA DESPACHAR -->
+  @if (perms.canDispatchAutograph(doc)) {
+    <div class="mr-2">
+      <action-button variant="success" size="sm" label="Firmar" icon="Lapiz" (clicked)="showForm.emit('firmar_decision')"></action-button>
     </div>
     <div class="flex items-center gap-2.5">
-      <action-button variant="outline" size="sm" [label]="copiedLink() ? '¡Enlace copiado!' : 'Copiar URL de firma'" (clicked)="copySignatureLink()" [disabled]="isLoadingLink()" [loading]="isLoadingLink()"></action-button>
-      <action-button variant="outline" size="sm" label="Cancelar" (clicked)="showForm.emit('cancelar')"></action-button>
-      <action-button variant="danger" size="sm" label="Autorechazo" (clicked)="autoRechazar.emit()" [disabled]="isActionLoading" [loading]="isActionLoading"></action-button>
+      <action-button variant="outline" size="sm" [label]="copiedLink() ? 'Enlace copiado!' : 'Copiar URL de firma'" (clicked)="copySignatureLink()" [disabled]="isLoadingLink()" [loading]="isLoadingLink()"></action-button>
     </div>
   }
 
-  <!-- BANDEJA DESPACHADOS / ENTREGADOS -->
-  @if (doc?.bandeja === '📤 Despachados' || doc?.bandeja === '✅ Entregados') {
+  <!-- FINALIZADOS (EMISOR) -->
+  @if (perms.canMakeFollowUp(doc)) {
     <action-button variant="info" size="sm" label="Hacer Documento en Seguimiento" (clicked)="makeFollowUp.emit()"></action-button>
-    @if (doc?.bandeja === '📤 Despachados') {
-      <action-button variant="secondary" size="sm" label="Subir acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
-    }
-    @if (doc?.bandeja === '✅ Entregados' && doc?.id_drive_acuse === 'local' && doc?.estatus_receptor !== 'turnado' && doc?.estatus_receptor !== 'atendido') {
-      <action-button variant="warning" size="sm" label="Reemplazar acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
-    }
+  }
+  @if (perms.canUploadAcuseEmisor(doc)) {
+    <action-button variant="secondary" size="sm" label="Subir acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
+  }
+  @if (perms.canReplaceAcuseEmisor(doc)) {
+    <action-button variant="warning" size="sm" label="Reemplazar acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
   }
 
   <!-- RECEPTOR - POR RECIBIR -->
-  @if (doc?.bandeja === '📥 Por recibir') {
+  @if (perms.canReceive(doc)) {
     <action-button variant="success" size="sm" label="Recibir documento" (clicked)="submitAction.emit('recibir')" [disabled]="isActionLoading" [loading]="isActionLoading"></action-button>
+  }
+  @if (perms.canRejectReceive(doc)) {
     <action-button variant="danger" size="sm" label="Rechazar" (clicked)="showForm.emit('rechazar')"></action-button>
   }
 
-    <!-- RECEPTOR - RECIBIDOS -->
-  @if (doc?.bandeja === '📨 Recibidos') {
-    @if (doc?.is_final_render) {
-      <action-button variant="outline"   size="sm" label="Turnar documento" (clicked)="showForm.emit('turnar')"></action-button>
-      <action-button variant="success"   size="sm" label="Contestar" (clicked)="reply.emit()"></action-button>
-      <action-button variant="secondary" size="sm" label="Dar seguimiento" (clicked)="followUp.emit()"></action-button>
-      <action-button variant="warning"   size="sm" label="Atender" (clicked)="showForm.emit('atender')"></action-button>
-    } @else {
-      @if (doc?.metodo_firma === 'autografa' && doc?.id_drive_acuse !== 'local') {
-        <action-button variant="secondary" size="sm" label="Subir acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
-      } @else {
-        <action-button variant="success" icon="Lock" size="sm" label="Consolidar Documento Maestro" (clicked)="consolidate.emit()" [loading]="isActionLoading" [disabled]="isActionLoading"></action-button>
-        @if (doc?.id_drive_acuse === 'local') {
-          <action-button variant="warning" size="sm" label="Reemplazar acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
-        }
-      }
-    }
-  }
-
-  <!-- RECEPTOR - TURNADOS -->
-  @if (doc?.bandeja === '🎯 Para atención') {
-    <action-button variant="danger" size="sm" label="Rechazar" (clicked)="showForm.emit('rechazar')"></action-button>
-    <action-button variant="success" size="sm" label="Dar por atendido" (clicked)="showForm.emit('atender')"></action-button>
-  }
-
-  <!-- EXTERNA - RECIBIDOS -->
-  @if (doc?.bandeja === '📥 Externa - Recibidos') {
+  <!-- RECEPTOR - RECIBIDOS / TURNADOS -->
+  @if (perms.canTurn(doc)) {
     <action-button variant="outline" size="sm" label="Turnar documento" (clicked)="showForm.emit('turnar')"></action-button>
+  }
+  @if (perms.canReply(doc)) {
+    <action-button variant="success" size="sm" label="Contestar" (clicked)="reply.emit()"></action-button>
+    <action-button variant="secondary" size="sm" label="Dar seguimiento" (clicked)="followUp.emit()"></action-button>
+  }
+  @if (perms.canAtender(doc)) {
     <action-button variant="warning" size="sm" label="Atender" (clicked)="showForm.emit('atender')"></action-button>
   }
-
-  <!-- EXTERNA - TURNADOS -->
-  @if (doc?.bandeja === '🎯 Externa - Turnados') {
-    <action-button variant="success" size="sm" label="Dar por atendido" (clicked)="showForm.emit('atender')"></action-button>
+  @if (perms.canConsolidateMaestro(doc)) {
+    <action-button variant="success" icon="Lock" size="sm" label="Consolidar Documento Maestro" (clicked)="consolidate.emit()" [loading]="isActionLoading" [disabled]="isActionLoading"></action-button>
   }
-
+  @if (perms.canUploadAcuseReceptor(doc)) {
+    <action-button variant="secondary" size="sm" label="Subir acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
+  }
+  @if (perms.canReplaceAcuseReceptor(doc)) {
+    <action-button variant="warning" size="sm" label="Reemplazar acuse" (clicked)="showForm.emit('subir_acuse')"></action-button>
+  }
+  @if (perms.canRejectTurnado(doc)) {
+    <action-button variant="danger" size="sm" label="Rechazar" (clicked)="showForm.emit('rechazar')"></action-button>
+  }
 </div>

@@ -3,8 +3,9 @@ import { IBaseEntity, BaseDto } from '@core/models/base-entity.dto';
 export class DocumentTemplateDTO extends BaseDto<DocumentTemplateDTO> implements IBaseEntity {
   id!: string;
   name!: string;
-  google_drive_id!: string;
+  google_drive_id?: string;
   url?: string;
+  word_file_path?: string;
   type!: 'blank' | 'custom';
   document_type_catalog_id!: string;
   type_doc_code?: string;
@@ -23,7 +24,8 @@ export class DocumentTemplateDTO extends BaseDto<DocumentTemplateDTO> implements
     this.id = data.id_template || data.id || '';
     this.name = data.name_template || data.name || '';
     this.google_drive_id = data.google_drive_id_template || data.google_drive_id || '';
-    this.url = data.url_template || data.url || '';
+    this.url = data.url || '';
+    this.word_file_path = data.word_file_path || '';
     this.type = data.type_template || data.type || 'blank';
 
     // Tipo de Documento Relacionado

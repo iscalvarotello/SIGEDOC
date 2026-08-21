@@ -17,4 +17,21 @@
     [isEditMode]="isEditMode()">
   </app-dynamic-form>
 
+  <div class="mt-8 bg-purple-50 dark:bg-purple-900/20 p-5 rounded-xl border border-purple-200 dark:border-purple-800">
+    <h3 class="text-sm font-bold text-purple-800 dark:text-purple-300 mb-1">Plantilla MS Word (.docx)</h3>
+    <p class="text-xs text-purple-600 dark:text-purple-400 mb-4">Si esta plantilla se usará en el camino de MS Word, sube el archivo con las etiquetas docxtemplater aquí.</p>
+    <app-file-uploader
+      accept=".docx"
+      [maxSizeMB]="5"
+      dragLabel="Arrastra la plantilla .docx aquí o haz clic para buscar"
+      helpLabel="Solo archivos .docx (Máx. 5MB)"
+      (fileSelected)="wordFile.set($event)">
+    </app-file-uploader>
+    @if (wordFile()) {
+      <p class="text-xs text-green-700 font-bold mt-2">Archivo seleccionado: {{ wordFile()?.name }}</p>
+    } @else if (isEditMode() && form.get('word_file_path')?.value) {
+      <p class="text-xs text-blue-700 font-bold mt-2">Ya existe un archivo subido. Subir otro lo reemplazará.</p>
+    }
+  </div>
+
 </app-form-page-wrapper>

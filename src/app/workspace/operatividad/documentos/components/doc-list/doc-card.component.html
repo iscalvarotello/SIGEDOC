@@ -82,13 +82,13 @@
 
     <!-- Enlace Dinámico -->
     <div class="flex justify-end items-center gap-3 pt-1">
-        @if (doc().estatus_emisor === 'despachado' || doc().estatus_emisor === 'entregado' || doc().estatus_emisor === 'cancelado') {
+        @if (perms.isFinalPhase(doc())) {
             <open-pdf-button 
             displayMode="link" 
             (clicked)="openPdf.emit({type: 'final', doc: doc()}); $event.stopPropagation()">
             </open-pdf-button>
         } @else {
-            @if (doc().url_drive_edition && (doc().estatus_emisor === 'en_edicion' || doc().estatus_emisor === 'en_correccion' || doc().estatus_emisor === 'en_revision')) {
+            @if (perms.canViewDrive(doc())) {
             <app-google-drive-viewer-link 
                 displayMode="link" 
                 [url]="doc().url_drive_edition" 

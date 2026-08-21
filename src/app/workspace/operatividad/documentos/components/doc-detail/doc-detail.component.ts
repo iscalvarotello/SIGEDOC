@@ -79,7 +79,7 @@ export class DocDetailComponent implements OnDestroy {
         if (att.is_pdf || (att.file_name || "").toLowerCase().endsWith('.pdf')) {
           options.push({
             id: att.id,
-            label: att.file_name,
+            label: att.file_name || "Anexo (Sin Nombre)",
             sublabel: 'Anexo (PDF)',
             type: 'attachment'
           });
@@ -306,6 +306,7 @@ export class DocDetailComponent implements OnDestroy {
     }
   }
 }
+
 
 
 

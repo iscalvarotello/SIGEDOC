@@ -254,11 +254,54 @@
       </div>
     }
 
+    <!-- Campo Especial: Subir PDF (Camino Word) -->
+    @if (activeActionForm() === 'upload_word_pdf') {
+      <div class="flex flex-col gap-1">
+        <label class="text-xs font-bold text-gray-500 uppercase">Subir Documento Final PDF (Camino Word)</label>
+        <app-file-uploader
+          accept=".pdf"
+          [maxSizeMB]="15"
+          dragLabel="Arrastra el PDF final firmado aquí"
+          (fileSelected)="wordPdfFile.set($event)">
+        </app-file-uploader>
+      </div>
+    }
+
+    <!-- Mensajes de Advertencia Especiales -->
+    @if (activeActionForm() === 'aviso_word_falta') {
+      <div class="flex flex-col items-center justify-center py-6 gap-3 text-center">
+        <icon icon="Warning" class="w-12 h-12 text-yellow-500"></icon>
+        <h3 class="text-lg font-bold text-gray-800">No se adjuntó archivo Word</h3>
+        <p class="text-sm text-gray-600">El autor no subió el archivo editable de Word. Por favor, solicítale que lo anexe.</p>
+      </div>
+    }
+    @if (activeActionForm() === 'aviso_drive_falta') {
+      <div class="flex flex-col items-center justify-center py-6 gap-3 text-center">
+        <icon icon="Warning" class="w-12 h-12 text-yellow-500"></icon>
+        <h3 class="text-lg font-bold text-gray-800">No existe documento Drive generado</h3>
+        <p class="text-sm text-gray-600">Para poder ver el PDF resultado, haz clic en el botón Drive (fuera de este formulario). Esta acción generará el documento para que puedas verlo y editarlo.</p>
+      </div>
+    }
+
+    <!-- Decisión de Firma -->
+    @if (activeActionForm() === 'firmar_decision') {
+      <div class="grid grid-cols-2 gap-4 py-4">
+        <button (click)="submitAction('firmar_y_despachar')" class="flex flex-col items-center justify-center p-6 border-2 border-theme-primary/20 bg-theme-primary/5 hover:bg-theme-primary/10 rounded-2xl transition-all gap-3 group">
+          <icon icon="Key" class="w-10 h-10 text-theme-primary group-hover:scale-110 transition-transform"></icon>
+          <span class="font-bold text-theme-primary">Firma Digital (Token)</span>
+        </button>
+        <button (click)="submitAction('despachar')" class="flex flex-col items-center justify-center p-6 border-2 border-green-500/20 bg-green-500/5 hover:bg-green-500/10 rounded-2xl transition-all gap-3 group">
+          <icon icon="Pencil" class="w-10 h-10 text-green-600 group-hover:scale-110 transition-transform"></icon>
+          <span class="font-bold text-green-700">Firma Autógrafa (Física)</span>
+        </button>
+      </div>
+    }
+
     <!-- Campo Comentarios General (Comentarios / Notas de corrección/cancelación/atención) -->
-    @if (activeActionForm() !== 'ccp' && activeActionForm() !== 'anexos' && activeActionForm() !== 'subir_acuse') {
+    @if (activeActionForm() !== 'ccp' && activeActionForm() !== 'anexos' && activeActionForm() !== 'subir_acuse' && activeActionForm() !== 'aviso_word_falta' && activeActionForm() !== 'aviso_drive_falta' && activeActionForm() !== 'firmar_decision') {
       <div class="flex flex-col gap-1">
         <label class="text-xs font-bold text-gray-500 uppercase">
-          {{ (activeActionForm() === 'devolver_correcciones' || (activeActionForm() === 'rechazar' && doc.bandeja === '📋 Para revisión')) ? 'Notas de Corrección (Obligatorio)' : 'Comentarios' }}
+          {{ (activeActionForm() === 'devolver_correcciones' || (activeActionForm() === 'rechazar' && doc.bandeja === '📦 Para revisión')) ? 'Notas de Corrección (Obligatorio)' : 'Comentarios' }}
         </label>
         <textarea 
           [ngModel]="actionComments()"
@@ -271,12 +314,15 @@
 
     <!-- Confirmaciones -->
     <div class="flex gap-3 pt-2">
-      <cancel-button label="Cancelar" (clicked)="closeActionForm()"></cancel-button>
-      <submit-button label="Confirmar"
-        [disabled]="isActionLoading()"
-        [submitting]="isActionLoading()"
-        (click)="activeActionForm() === 'ccp' ? submitCcp() : (activeActionForm() === 'anexos' ? submitAnexos() : submitAction(activeActionForm() === 'solicitar_revision_terceros' ? 'solicitar_revision' : activeActionForm()!))">
-      </submit-button>
+      <cancel-button [label]="(activeActionForm() === 'aviso_word_falta' || activeActionForm() === 'aviso_drive_falta' || activeActionForm() === 'firmar_decision') ? 'Cerrar' : 'Cancelar'" (clicked)="closeActionForm()"></cancel-button>
+      
+      @if (activeActionForm() !== 'aviso_word_falta' && activeActionForm() !== 'aviso_drive_falta' && activeActionForm() !== 'firmar_decision') {
+        <submit-button label="Confirmar"
+          [disabled]="isActionLoading()"
+          [submitting]="isActionLoading()"
+          (click)="activeActionForm() === 'ccp' ? submitCcp() : (activeActionForm() === 'anexos' ? submitAnexos() : submitAction(activeActionForm() === 'solicitar_revision_terceros' ? 'solicitar_revision' : activeActionForm()!))">
+        </submit-button>
+      }
     </div>
 
   </div>

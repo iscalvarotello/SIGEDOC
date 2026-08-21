@@ -127,20 +127,37 @@
 
     <!-- Personalizados -->
     @if (activeFieldsTab() === 'personalizados') {
-      <div class="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-xl p-4">
-        <div class="flex items-start gap-3">
-          <div class="mt-0.5 text-blue-500">
-            <icon icon="InfoCircle" class="w-5 h-5"></icon>
+      <div class="space-y-3 animate-fadeIn">
+        <label class="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Crear Variable Personalizada:</label>
+        
+        <div class="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/50 rounded-xl p-4">
+          <div class="flex items-start gap-3">
+            <div class="mt-0.5 text-blue-500">
+              <icon icon="InfoCircle" class="w-5 h-5"></icon>
+            </div>
+            <div>
+              <p class="text-[11px] text-blue-600/80 dark:text-blue-400/80 leading-relaxed">
+                Escribe un nombre para tu variable. El sistema la inyectar· en el formato correcto (ej. {{ '{' }}{{ '{' }}__tu_variable__{{ '}' }}{{ '}' }}). Al momento de crear un documento, el sistema detectar· autom·ticamente todas las variables personalizadas y te pedir· rellenarlas.
+              </p>
+            </div>
           </div>
-          <div>
-            <h6 class="text-xs font-bold text-blue-800 dark:text-blue-300">Variables Libres o Personalizadas</h6>
-            <p class="text-[11px] text-blue-600/80 dark:text-blue-400/80 mt-1 leading-relaxed">
-              Puedes escribir directamente cualquier etiqueta entre doble llave en tu documento (Ej. <strong>{{ '{' }}{{ '{' }}__mi_variable_1__{{ '}' }}{{ '}' }}</strong>). 
-              Al momento de crear un documento, el sistema detectar√° autom√°ticamente todas las etiquetas personalizadas y generar√° un formulario para que ingreses sus valores.
-            </p>
+          
+          <div class="mt-4 flex items-center gap-2">
+            <input 
+              type="text" 
+              [ngModel]="customVariableName()" 
+              (ngModelChange)="customVariableName.set($event)"
+              placeholder="Ej. Nombre del Testigo" 
+              class="flex-1 text-xs px-3 py-2 border border-blue-200 dark:border-blue-800 rounded-md bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 outline-none focus:ring-2 focus:ring-blue-500"
+              (keyup.enter)="insertCustomVariable()"
+            >
+            <action-button (clicked)="insertCustomVariable()" variant="primary" icon="Plus" size="sm" [disabled]="!customVariableName().trim()">
+              Inyectar Variable
+            </action-button>
           </div>
         </div>
       </div>
-    }
-  </div>
+    }</div>
 </div>
+
+

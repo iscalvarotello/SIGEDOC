@@ -4,12 +4,15 @@ import { EditorInjectionStrategy } from '@system-shared/form/editor-injection.st
 import { HtmlViewerComponent } from '@metasystem/components/media/html-viewer/html-viewer.component';
 import { DomSanitizer, SafeResourceUrl, SafeHtml } from '@angular/platform-browser';
 import { Component, OnInit, inject, signal, ViewChild, ElementRef } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { InternalTemplatesService, InternalTemplateDTO } from '../../../../database/templates/internal-templates.service';
 import { SesionService } from '@services/sesion.service';
+import { environment } from '@env/environment';
 
 import { ActionButtonComponent } from '@system-shared/buttons/action-button/action-button.component';
 import { IconComponent } from '@system-shared/common/icon/icon.component';
@@ -40,6 +43,7 @@ export class TemplateManagerPageComponent implements OnInit {
   private templatesService = inject(InternalTemplatesService);
   private session = inject(SesionService);
   private sanitizer = inject(DomSanitizer);
+  private _http = inject(HttpClient);
 
   @ViewChild(EditorInjectionStrategy) editorStrategy?: EditorInjectionStrategy;
 
@@ -62,10 +66,7 @@ export class TemplateManagerPageComponent implements OnInit {
     this.isLoading.set(true);
     try {
       // Call backend fallback
-      const res = await fetch(`/api/html-templates/preview-template/${this.claseDocumentoId()}`, {
-        headers: { 'Authorization': `Bearer ${this.session.token()}` }
-      });
-      const data = await res.json();
+      const data: any = await firstValueFrom(this._http.get(`${environment.URL_PATH}/html-templates/preview-template/${this.claseDocumentoId()}`));
       const html = data.data;
       
       const blob = new Blob([html], { type: 'text/html' });

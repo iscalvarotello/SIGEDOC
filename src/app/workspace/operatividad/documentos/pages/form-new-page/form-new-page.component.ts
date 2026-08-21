@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, inject, signal, computed, effect, input, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, input, ViewChild } from '@angular/core';
 import { BehaviorSubject, combineLatest, firstValueFrom } from 'rxjs';
 import { ActionButtonComponent } from '@metasystem/components/buttons/action-button/action-button.component';
 import { IconComponent } from '@system-shared/common/icon/icon.component';
@@ -89,6 +89,7 @@ export class FormNewPageComponent implements OnInit {
   remitenteNombre = signal<string>('');
   remitentePuesto = signal<string>('');
   remitenteAcronimo = signal<string>('');
+  isRestricted = signal<boolean>(false);
 
   // Destinatario
   tipoDestinatarioOficio = signal<'oficial' | 'libre'>('oficial');
@@ -796,6 +797,7 @@ export class FormNewPageComponent implements OnInit {
     const payload: any = {
       clase_documento: this.claseDocumentoId(),
       tipo_documento: this.tipoRemitente() === 'directo' ? 'directo' : 'gestionado',
+      is_restricted: this.isRestricted(),
       id_template: this.idTemplate(),
       id_solicitante: solicitanteId,
       id_remitente: this.idRemitente(),

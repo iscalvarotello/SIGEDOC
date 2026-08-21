@@ -11,29 +11,48 @@
         </div>
         
         <div class="flex items-center gap-2">
-          @if (!doc.is_rendered && !doc.is_final_render && (doc.estatus_emisor === 'en_edicion' || (doc.estatus_emisor === 'en_correccion' && isCreator()))) {
-            <action-button variant="primary" size="md" icon="ExternalLink" label="Drive" (clicked)="renderGoogleDocs(doc.id)" [loading]="isRenderingGoogleDocs()" class="animate-fadeIn"></action-button>
-            <action-button variant="secondary" size="md" icon="Edit" label="Editar" class="animate-fadeIn" [routerLink]="['/operatividad/edit-document', doc.id]"></action-button>
-          }
-
-          <div class="flex gap-2">
-            @if (doc.url_drive_edition && (doc.estatus_emisor === 'en_edicion' || doc.estatus_emisor === 'en_correccion' || (doc.estatus_emisor === 'en_revision' && isReviewer()))) {
+          <!-- MODO EDICION (Borrador / Corrección) - SOLO AUTOR -->
+          @if (isEditionMode()) {
+            <!-- Botón Drive -->
+            @if (!doc.is_rendered) {
+              <action-button variant="primary" size="md" icon="ExternalLink" label="Drive" (clicked)="renderGoogleDocs(doc.id)" [loading]="isRenderingGoogleDocs()" class="animate-fadeIn"></action-button>
+            } @else if (doc.url_drive_edition) {
               <action-button variant="primary" size="md" icon="ExternalLink" label="DRIVE" title="Abrir en Google Drive" (clicked)="openDriveLink(doc.url_drive_edition)"></action-button>
             }
-            @if (doc.estatus_emisor === 'en_edicion' || doc.estatus_emisor === 'en_correccion' || doc.estatus_emisor === 'en_revision' || doc.estatus_emisor === 'autorizado' || doc.estatus_emisor === 'para_despachar') {
-              <action-button variant="secondary" size="md" icon="ExternalLink" label="HTML" title="Ver en HTML (Modo Emergencia)" (clicked)="openEmergencyHtml()"></action-button>
-            }
-          </div>
+            
+            <!-- Botón HTML -->
+            <action-button variant="secondary" size="md" icon="ExternalLink" label="HTML" title="Ver en HTML (Modo Emergencia)" (clicked)="openEmergencyHtml()"></action-button>
+            
+            <!-- Botón Word (Descargar) -->
+            <action-button variant="info" size="md" icon="Descargar" label="Word" title="Descargar Borrador Word" (clicked)="downloadWordDraft()"></action-button>
+            
+            <!-- Editar Registro -->
+            <action-button variant="secondary" size="md" icon="Edit" label="Editar" class="animate-fadeIn" [routerLink]="['/operatividad/edit-document', doc.id]" [queryParams]="doc.is_rendered ? { recreate: true } : {}"></action-button>
+            
+            <!-- Borrador PDF SIEMPRE visible en edición -->
+            <preview-pdf-button size="md" label="Borrador PDF" (clicked)="openPdfDraft()"></preview-pdf-button>
+          }
 
-          @if (doc.is_rendered && !doc.is_final_render && (doc.estatus_emisor === 'en_edicion' || (doc.estatus_emisor === 'en_correccion' && isCreator()))) {
-            <action-button variant="secondary" size="md" icon="Edit" label="Editar" class="animate-fadeIn" [routerLink]="['/operatividad/edit-document', doc.id]" [queryParams]="{ recreate: true }"></action-button>
+          <!-- MODO VISUALIZACIÓN (Revisión / Autorizados / Finalizados) -->
+          @if (!isEditionMode()) {
+            @if (doc.estatus_emisor === 'despachado' || doc.estatus_emisor === 'entregado' || doc.estatus_emisor === 'cancelado') {
+              <open-pdf-button size="md" (clicked)="openPdf('final')"></open-pdf-button>
+            } @else {
+              <!-- En Revisión o Autorizados -->
+              @if (doc.edition_path === 'html') {
+                <action-button variant="secondary" size="md" icon="ExternalLink" label="Ver Documento" (clicked)="openEmergencyHtml()"></action-button>
+              } @else if (doc.edition_path === 'word') {
+                <action-button variant="secondary" size="md" icon="Descargar" label="Ver Documento" (clicked)="handleWordViewAction()"></action-button>
+              } @else {
+                <!-- Default a Drive / PDF generico -->
+                <preview-pdf-button size="md" label="Ver Documento" (clicked)="openPdfDraft()"></preview-pdf-button>
+              }
+            }
           }
-          @if (doc.estatus_emisor === 'despachado' || doc.estatus_emisor === 'entregado' || doc.estatus_emisor === 'cancelado') {
-            <open-pdf-button size="md" (clicked)="openPdf('final')"></open-pdf-button>
-          } @else {
-            <preview-pdf-button size="md" (clicked)="openPdf('draft')"></preview-pdf-button>
+
+          @if (!doc.is_final_render && doc.attachments && doc.attachments.length > 0) {
+            <merge-pdf-button (clicked)="openMergedPdf(doc.id)"></merge-pdf-button>
           }
-          @if (!doc.is_final_render && doc.attachments && doc.attachments.length > 0)     { <merge-pdf-button (clicked)="openMergedPdf(doc.id)"></merge-pdf-button>       }
         </div>
       </div>
 
@@ -41,9 +60,9 @@
       @if (!activeActionForm()) {
         <doc-actions-toolbar
           [doc]="doc"
-          [isActionLoading]="actionForms?.isActionLoading() || isConsolidating()"
+          [isActionLoading]="actionForms.isActionLoading() || isConsolidating()"
           (showForm)="showActionForm($event)"
-          (submitAction)="actionForms?.submitAction($event)"
+          (submitAction)="actionForms.submitAction($event)"
           (reply)="replyDocument()"
           (followUp)="followUpDocument()"
           (makeFollowUp)="makeFollowUpDocument()"
@@ -53,27 +72,42 @@
       }
     </div>
 
-    <!-- Tabs Navigation -->
-    <div class="flex border-b border-gray-200 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
-      <button type="button" 
-              (click)="selectedTab.set('detalles')" 
-              [class.border-theme-primary]="selectedTab() === 'detalles'" 
-              [class.text-theme-primary]="selectedTab() === 'detalles'" 
-              [class.dark:text-white]="selectedTab() === 'detalles'" 
-              class="py-3 px-5 font-bold text-sm border-b-2 transition-colors border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-        Detalles
-      </button>
-      <button type="button" 
-              (click)="selectedTab.set('historial')" 
-              [class.border-theme-primary]="selectedTab() === 'historial'" 
-              [class.text-theme-primary]="selectedTab() === 'historial'" 
-              [class.dark:text-white]="selectedTab() === 'historial'" 
-              class="py-3 px-5 font-bold text-sm border-b-2 transition-colors border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-        Historial de Trazabilidad
-      </button>
+    <!-- SECCIÓN DE ACCIONES OFICIALES EN PANTALLA COMPLETA -->
+    <div class="space-y-4 px-6 pb-6 mt-4 flex-1 overflow-y-auto" [class.hidden]="!activeActionForm()">
+      <!-- FORMULARIOS EXPANDIBLES PARA CAPTURA DE DTO -->
+      <doc-action-forms #actionForms
+        [doc]="doc"
+        [(activeActionForm)]="activeActionForm"
+        [selectedTipo]="selectedTipo"
+        [claseDocumentoId]="claseDocumentoId"
+        [(selectedDocAttachments)]="selectedDocAttachments"
+        (actionCompleted)="actionCompleted.emit()">
+      </doc-action-forms>
     </div>
 
-    @if (selectedTab() === 'detalles') {
+    <!-- Tabs Navigation -->
+    @if (!activeActionForm()) {
+      <div class="flex border-b border-gray-200 dark:border-gray-800 px-6 bg-white dark:bg-gray-900">
+        <button type="button" 
+                (click)="selectedTab.set('detalles')" 
+                [class.border-theme-primary]="selectedTab() === 'detalles'" 
+                [class.text-theme-primary]="selectedTab() === 'detalles'" 
+                [class.dark:text-white]="selectedTab() === 'detalles'" 
+                class="py-3 px-5 font-bold text-sm border-b-2 transition-colors border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          Detalles
+        </button>
+        <button type="button" 
+                (click)="selectedTab.set('historial')" 
+                [class.border-theme-primary]="selectedTab() === 'historial'" 
+                [class.text-theme-primary]="selectedTab() === 'historial'" 
+                [class.dark:text-white]="selectedTab() === 'historial'" 
+                class="py-3 px-5 font-bold text-sm border-b-2 transition-colors border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          Historial de Trazabilidad
+        </button>
+      </div>
+    }
+
+    @if (!activeActionForm() && selectedTab() === 'detalles') {
       <div class="p-6 space-y-6 flex-1 overflow-y-auto">
         
         <!-- Metadatos del documento -->
@@ -87,8 +121,8 @@
             <!-- Asunto y Tema ampliado -->
             <div class="space-y-2 bg-white dark:bg-gray-900 shadow-sm p-4 rounded-xl border border-gray-150 dark:border-gray-800 relative group">
               
-              <!-- BotÃ³n del lapicito azul para editar -->
-              @if (canEditDetails() && !isEditingDetails()) {
+              <!-- Botón del lapicito azul para editar -->
+              @if (perms.canEditDetails(doc) && !isEditingDetails()) {
                 <action-button 
                   variant="outline"
                   size="sm"
@@ -192,20 +226,7 @@
 
     }
 
-    <!-- SECCIÃ“N DE ACCIONES OFICIALES -->
-    <div class="space-y-4 px-6 pb-6 mt-4">
-      <!-- FORMULARIOS EXPANDIBLES PARA CAPTURA DE DTO -->
-      <doc-action-forms #actionForms
-        [doc]="doc"
-        [(activeActionForm)]="activeActionForm"
-        [selectedTipo]="selectedTipo"
-        [claseDocumentoId]="claseDocumentoId"
-        [(selectedDocAttachments)]="selectedDocAttachments"
-        (actionCompleted)="actionCompleted.emit()">
-      </doc-action-forms>
-    </div>
-
-    @if (selectedTab() === 'historial') {
+    @if (!activeActionForm() && selectedTab() === 'historial') {
       <div class="p-6 flex-1 overflow-y-auto">
         <div class="max-w-3xl mx-auto">
           <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Historial de Trazabilidad</h3>

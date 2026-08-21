@@ -257,6 +257,51 @@ export class DocumentService extends BaseApiService<DocumentInboxDTO> {
    * @param id ID del documento.
    * @param attachments Lista de anexos.
    */
+  
+  public async uploadWordDraft(id: string, file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.executeSpecialRoute('uploadWordDraft', { id }, formData);
+  }
+
+  public async downloadWordDraft(id: string): Promise<void> {
+    const url = `${this.apiRouter.getByIdUrl(id)}/word-draft`;
+    try {
+      const response = await this.http.get(url, { responseType: 'blob', observe: 'response' }).toPromise();
+      if (response && response.body) {
+        const blob = response.body;
+        if (blob.type === 'application/json') {
+          const text = await blob.text();
+          const json = JSON.parse(text);
+          throw new Error(json.message || 'Error al generar el documento');
+        }
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        
+        let filename = `Documento_${id}.docx`;
+        const contentDisposition = response.headers.get('content-disposition');
+        if (contentDisposition) {
+            const matches = /filename="([^"]+)"/.exec(contentDisposition);
+            if (matches && matches[1]) {
+                filename = matches[1];
+            } else {
+                const matches2 = /filename=([^;]+)/.exec(contentDisposition);
+                if (matches2 && matches2[1]) filename = matches2[1];
+            }
+            try { filename = decodeURIComponent(filename); } catch(e) {}
+        }
+        
+        link.download = filename;
+        link.click();
+        window.URL.revokeObjectURL(downloadUrl);
+      }
+    } catch (error) {
+      console.error('Error downloading Word draft', error);
+      throw error;
+    }
+  }
+
   public async updateAttachments(id: string, attachments: any[]): Promise<any> {
     return this.executeSpecialRoute('updateAttachments', { id }, { attachments });
   }

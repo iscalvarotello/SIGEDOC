@@ -35,7 +35,7 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En ediciÃ³n'               ,
+    estatus             : 'En edición'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -70,7 +70,7 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En ediciÃ³n'               ,
+    estatus             : 'En edición'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -105,7 +105,7 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En ediciÃ³n'               ,
+    estatus             : 'En edición'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -140,7 +140,7 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En ediciÃ³n'               ,
+    estatus             : 'En edición'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -175,7 +175,7 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En ediciÃ³n'               ,
+    estatus             : 'En edición'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {
@@ -210,7 +210,7 @@ export const LIST_DOCUMENTS: DocumentItem[] = [
     link_edit           : 'https://docs.google.com/.../edit',
     link_acuse          : '',
     recibe              : '',
-    estatus             : 'En ediciÃ³n'               ,
+    estatus             : 'En edición'               ,
     medio_envio         : 'sin enviar'               ,
   },
   {

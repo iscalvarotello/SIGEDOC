@@ -1,4 +1,4 @@
-ï»¿import { Component, Input, Output, EventEmitter, inject, signal } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, signal } from '@angular/core';
 import { ActionButtonComponent } from '@system-shared/buttons/action-button/action-button.component';
 import { SesionService } from '@services/sesion.service';
 import { DocumentPermissionsService } from '../../services/document-permissions.service';
@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
   templateUrl: './doc-actions-toolbar.component.html',
 })
 export class DocActionsToolbarComponent {
+  perms = inject(DocumentPermissionsService);
   @Input() doc: any | null = null;
   @Input() isActionLoading = false;
 
@@ -43,7 +44,7 @@ export class DocActionsToolbarComponent {
     const payload = {
       documentIds: [this.doc.id],
       userId: userId,
-      title: 'Firma de Documento Ãšnico',
+      title: 'Firma de Documento Único',
       summary: `Documento ${this.doc.num_doc || 'BORRADOR'} listo para su firma digital.`
     };
     this._govSignatureService.generateBulkSignatureUrl(payload).subscribe({
@@ -62,10 +63,11 @@ export class DocActionsToolbarComponent {
       },
       error: (err: any) => {
         console.error('Error al obtener URL de firma:', err);
-        alert(err?.error?.message || 'OcurriÃ³ un error al generar la URL de firma.');
+        alert(err?.error?.message || 'Ocurrió un error al generar la URL de firma.');
         this.isLoadingLink.set(false);
       }
     });
   }
 }
+
 

@@ -30,6 +30,9 @@ export class DocumentInboxDTO extends BaseDto<DocumentInboxDTO> implements IBase
   medio_envio!: string;
   metodo_firma?: string;
   id_area_emisora!: string | number;
+  id_solicitante?: string;
+  id_registrado_por?: string;
+  id_revisor?: string;
   id_area_remitente!: string | number;
   id_area_receptora!: string | number | null;
   id_turnado_a?: string | null;
@@ -120,3 +123,4 @@ export class DocumentInboxDTO extends BaseDto<DocumentInboxDTO> implements IBase
     }
   }
 }
+

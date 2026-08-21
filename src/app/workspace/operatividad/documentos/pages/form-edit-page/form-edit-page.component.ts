@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, inject, signal, computed, effect, input, ViewChild } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, input, ViewChild } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { BehaviorSubject, combineLatest, firstValueFrom } from 'rxjs';
 import { ActionButtonComponent } from '@metasystem/components/buttons/action-button/action-button.component';
@@ -102,6 +102,7 @@ export class FormEditPageComponent implements OnInit {
   remitenteNombre = signal<string>('');
   remitentePuesto = signal<string>('');
   remitenteAcronimo = signal<string>('');
+  isRestricted = signal<boolean>(false);
 
   // Destinatario
   tipoDestinatarioOficio = signal<'oficial' | 'libre'>('oficial');
@@ -459,6 +460,7 @@ export class FormEditPageComponent implements OnInit {
       this.temas.set(doc.temas || '');
       this.cuerpo.set(doc.cuerpo || '');
       this.bodyDictionary.set(doc.body_dictionary || {});
+      this.isRestricted.set(doc.is_restricted || false);
       
       if (doc.fecha_documento) {
         this.fechaDocumento.set(doc.fecha_documento.split('T')[0]);
@@ -929,6 +931,7 @@ export class FormEditPageComponent implements OnInit {
     const payload: any = {
       clase_documento: this.claseDocumentoId(),
       tipo_documento: this.tipoRemitente() === 'directo' ? 'directo' : 'gestionado',
+      is_restricted: this.isRestricted(),
       id_template: this.idTemplate(),
       id_solicitante: solicitanteId,
       id_remitente: this.idRemitente(),
